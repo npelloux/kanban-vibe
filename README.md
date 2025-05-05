@@ -21,8 +21,9 @@ This project is currently in the initial setup phase. The core functionality is 
 
 ## Tech Stack
 
+- Vite 
 - React
-- JavaScript/TypeScript
+- TypeScript
 - CSS/SCSS
 - GitHub Actions for CI/CD
 - GitHub Pages for deployment
@@ -53,10 +54,10 @@ This project is currently in the initial setup phase. The core functionality is 
 
 4. Start the development server:
    ```
-   npm start
+   npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+5. Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
 
 ## Available Scripts
 
