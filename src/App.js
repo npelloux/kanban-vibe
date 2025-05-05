@@ -1,22 +1,17 @@
-import logo from './logo.svg';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <h1>Kanban Vibe</h1>
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          A webapp to simulate and compare various policies of team task management day by day, 
+          visualized on a kanban board.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <p>
+          Coming soon!
+        </p>
       </header>
     </div>
   );
