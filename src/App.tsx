@@ -174,10 +174,10 @@ function App() {
     // Increment the day counter
     setCurrentDay(prevDay => prevDay + 1);
     
-    // Increment age for all cards
+    // Increment age for all cards except those in the done column
     const agedCards = cards.map(card => ({
       ...card,
-      age: card.age + 1
+      age: card.stage === 'done' ? card.age : card.age + 1
     }));
     
     // Process each card and move it to the next stage if stagedone returns true
@@ -192,7 +192,12 @@ function App() {
         } else if (card.stage === 'blue-finished') {
           return { ...card, stage: 'green' };
         } else if (card.stage === 'green') {
-          return { ...card, stage: 'done' };
+          // When a card moves to done, store the current day as completionDay
+          return { 
+            ...card, 
+            stage: 'done',
+            completionDay: currentDay
+          };
         }
       }
       return card;

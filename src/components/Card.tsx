@@ -20,6 +20,8 @@ interface CardProps {
     type: WorkerType;
   } | null;
   onClick?: () => void;
+  stage?: string;
+  completionDay?: number;
 }
 
 export const Card: React.FC<CardProps> = ({ 
@@ -34,7 +36,9 @@ export const Card: React.FC<CardProps> = ({
     green: { total: 0, completed: 0 }
   },
   assignedWorker = null,
-  onClick
+  onClick,
+  stage = '',
+  completionDay
 }) => {
   // Calculate total work items for all colors
   const totalWorkItems = Object.values(workItems).reduce(
@@ -60,9 +64,10 @@ export const Card: React.FC<CardProps> = ({
     >
       <div className="card-header">
         <span className="card-id">{id}</span>
-        {age > 0 && <span className="card-age">Age: {age} days</span>}
+        {age > 0 && stage !== 'done' && <span className="card-age">Age: {age} days</span>}
+        {stage === 'done' && completionDay && <span className="card-age">Completion day: {completionDay}</span>}
       </div>
-      <div className="card-content">{content}</div>
+      <div className="card-content" style={stage === 'done' ? { fontWeight: 'bold' } : {}}>{content}</div>
       
       {isBlocked && <div className="card-blocked-label">BLOCKED!</div>}
       

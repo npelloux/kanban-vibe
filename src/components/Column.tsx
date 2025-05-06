@@ -17,6 +17,7 @@ interface CardType {
     id: string;
     type: WorkerType;
   } | null;
+  completionDay?: number;
 }
 
 interface ColumnProps {
@@ -56,6 +57,8 @@ export const Column: React.FC<ColumnProps> = ({
             workItems={card.workItems}
             assignedWorker={card.assignedWorker}
             onClick={() => onCardClick(card.id)}
+            stage={card.stage}
+            completionDay={card.completionDay}
           />
         ))}
       </div>
