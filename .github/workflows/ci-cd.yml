@@ -62,4 +62,7 @@ jobs:
         path: ./dist
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
