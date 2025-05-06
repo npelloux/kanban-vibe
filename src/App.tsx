@@ -111,6 +111,34 @@ function App() {
         green: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) }
       },
       assignedWorker: null
+    },
+    {
+      id: 'D',
+      content: 'Implement user authentication',
+      stage: 'options',
+      age: 0,
+      startDay: 1,
+      isBlocked: false,
+      workItems: {
+        red: { total: getRandomInt(1, 10), completed: 0 },
+        blue: { total: getRandomInt(1, 10), completed: 0 },
+        green: { total: getRandomInt(1, 10), completed: 0 }
+      },
+      assignedWorker: null
+    },
+    {
+      id: 'E',
+      content: 'Create dashboard UI',
+      stage: 'options',
+      age: 0,
+      startDay: 1,
+      isBlocked: false,
+      workItems: {
+        red: { total: getRandomInt(1, 10), completed: 0 },
+        blue: { total: getRandomInt(1, 10), completed: 0 },
+        green: { total: getRandomInt(1, 10), completed: 0 }
+      },
+      assignedWorker: null
     }
   ];
 
@@ -118,6 +146,7 @@ function App() {
   const [cards, setCards] = useState<Card[]>(initialCards);
 
   // Filter cards by stage
+  const optionsCards = cards.filter(card => card.stage === 'options');
   const redActiveCards = cards.filter(card => card.stage === 'red-active');
   const redFinishedCards = cards.filter(card => card.stage === 'red-finished');
   const blueActiveCards = cards.filter(card => card.stage === 'blue-active');
@@ -194,8 +223,23 @@ function App() {
     setSelectedWorkerId(workerId);
   };
 
-  // Handle card click to assign worker
+  // Handle card click to assign worker or move from options
   const handleCardClick = (cardId: string) => {
+    const clickedCard = cards.find(card => card.id === cardId);
+    
+    // If the card is in the options column, move it to red-active
+    if (clickedCard && clickedCard.stage === 'options') {
+      const updatedCards = cards.map(card => {
+        if (card.id === cardId) {
+          return { ...card, stage: 'red-active' };
+        }
+        return card;
+      });
+      setCards(updatedCards);
+      return;
+    }
+    
+    // Otherwise handle worker assignment
     if (!selectedWorkerId) return;
     
     const selectedWorker = workers.find(worker => worker.id === selectedWorkerId);
@@ -232,6 +276,12 @@ function App() {
       />
       
       <main className="kanban-board">
+        <Column 
+          title="Options" 
+          cards={optionsCards} 
+          type="options"
+          onCardClick={handleCardClick}
+        />
         <Column 
           title="Red Active" 
           cards={redActiveCards} 

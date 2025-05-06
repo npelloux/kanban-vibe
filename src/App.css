@@ -97,21 +97,29 @@
 
 .kanban-board {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
   flex-grow: 1;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+  padding-bottom: 1rem;
 }
 
 /* Column styles */
 .column {
   background-color: #f4f5f7;
   border-radius: 8px;
-  width: 250px;
-  min-height: 400px;
-  padding: 1rem;
+  width: 180px;
+  min-height: 300px;
+  padding: 0.75rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.column-options {
+  background-color: #f5f5f5;
+  border-left: 4px solid #9e9e9e;
 }
 
 .column-red {
@@ -159,10 +167,11 @@
 .card {
   background-color: white;
   border-radius: 4px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .card:hover {
@@ -237,25 +246,35 @@
   color: #1b5e20;
 }
 
-.card-work-items-section {
-  margin-bottom: 0.75rem;
+.card-work-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
-.card-work-items-label {
-  font-size: 0.8rem;
-  font-weight: bold;
+.card-work-items-section {
+  display: flex;
+  align-items: center;
   margin-bottom: 0.25rem;
 }
 
+.card-work-items-label {
+  font-size: 0.7rem;
+  font-weight: bold;
+  margin-right: 0.25rem;
+  width: 30px;
+}
+
 .card-work-items {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.25rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.15rem;
 }
 
 .work-item {
-  width: 100%;
-  aspect-ratio: 1;
+  width: 12px;
+  height: 12px;
   border: 1px solid #ddd;
   border-radius: 2px;
 }

@@ -72,53 +72,55 @@ export const Card: React.FC<CardProps> = ({
         </div>
       )}
       
-      {/* Red work items */}
-      {workItems.red && workItems.red.total > 0 && (
-        <div className="card-work-items-section">
-          <div className="card-work-items-label">Red:</div>
-          <div className="card-work-items">
-            {Array.from({ length: workItems.red.total }, (_, index) => (
-              <div 
-                key={`red-${index}`} 
-                className={`work-item ${index < workItems.red.completed ? 'completed' : ''}`}
-                style={{ backgroundColor: index < workItems.red.completed ? 'red' : 'transparent' }}
-              />
-            ))}
+      <div className="card-work-items-container">
+        {/* Red work items */}
+        {workItems.red && workItems.red.total > 0 && (
+          <div className="card-work-items-section">
+            <div className="card-work-items-label">Red:</div>
+            <div className="card-work-items">
+              {Array.from({ length: workItems.red.total }, (_, index) => (
+                <div 
+                  key={`red-${index}`} 
+                  className={`work-item ${index < workItems.red.completed ? 'completed' : ''}`}
+                  style={{ backgroundColor: index < workItems.red.completed ? 'red' : 'transparent' }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-      
-      {/* Blue work items */}
-      {workItems.blue && workItems.blue.total > 0 && (
-        <div className="card-work-items-section">
-          <div className="card-work-items-label">Blue:</div>
-          <div className="card-work-items">
-            {Array.from({ length: workItems.blue.total }, (_, index) => (
-              <div 
-                key={`blue-${index}`} 
-                className={`work-item ${index < workItems.blue.completed ? 'completed' : ''}`}
-                style={{ backgroundColor: index < workItems.blue.completed ? 'blue' : 'transparent' }}
-              />
-            ))}
+        )}
+        
+        {/* Blue work items */}
+        {workItems.blue && workItems.blue.total > 0 && (
+          <div className="card-work-items-section">
+            <div className="card-work-items-label">Blue:</div>
+            <div className="card-work-items">
+              {Array.from({ length: workItems.blue.total }, (_, index) => (
+                <div 
+                  key={`blue-${index}`} 
+                  className={`work-item ${index < workItems.blue.completed ? 'completed' : ''}`}
+                  style={{ backgroundColor: index < workItems.blue.completed ? 'blue' : 'transparent' }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-      
-      {/* Green work items */}
-      {workItems.green && workItems.green.total > 0 && (
-        <div className="card-work-items-section">
-          <div className="card-work-items-label">Green:</div>
-          <div className="card-work-items">
-            {Array.from({ length: workItems.green.total }, (_, index) => (
-              <div 
-                key={`green-${index}`} 
-                className={`work-item ${index < workItems.green.completed ? 'completed' : ''}`}
-                style={{ backgroundColor: index < workItems.green.completed ? 'green' : 'transparent' }}
-              />
-            ))}
+        )}
+        
+        {/* Green work items */}
+        {workItems.green && workItems.green.total > 0 && (
+          <div className="card-work-items-section">
+            <div className="card-work-items-label">Green:</div>
+            <div className="card-work-items">
+              {Array.from({ length: workItems.green.total }, (_, index) => (
+                <div 
+                  key={`green-${index}`} 
+                  className={`work-item ${index < workItems.green.completed ? 'completed' : ''}`}
+                  style={{ backgroundColor: index < workItems.green.completed ? 'green' : 'transparent' }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
       <div className="card-footer">
         <span className="card-start-day">Start: Day {startDay}</span>

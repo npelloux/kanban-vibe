@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type WorkerType = 'red' | 'blue' | 'green';
+export type WorkerType = 'red' | 'blue' | 'green' | 'options';
 
 interface WorkerProps {
   type: WorkerType;

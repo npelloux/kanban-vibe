@@ -24,7 +24,7 @@ interface ColumnProps {
   cards: CardType[];
   onWork?: () => void;
   showWorkButton?: boolean;
-  type?: 'red' | 'blue' | 'green' | 'default';
+  type?: 'red' | 'blue' | 'green' | 'options' | 'default';
   status?: 'active' | 'finished';
   onCardClick?: (cardId: string) => void;
 }
