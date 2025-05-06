@@ -46,23 +46,6 @@ jobs:
       with:
         name: build-files-${{ matrix.node-version }}
         path: ./dist
-
-  deploy:
-    needs: build-and-test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Download artifact
-      uses :  peaceiris/actions-gh-pages@v4
-      with:
-        name: build-files-${{ matrix.node-version }}
-        path: ./dist
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 
