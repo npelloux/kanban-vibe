@@ -11,9 +11,10 @@ interface Card {
 }
 
 // stagedone function to determine if a card should move to the next stage
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const stagedone = (card: Card): boolean => {
-  // For now, all cards in TODO will move to DONE
-  return card.stage === 'TODO';
+  // All cards in their current stage will move to the next stage
+  return true;
 }
 
 function App() {
@@ -36,14 +37,19 @@ function App() {
 
   // Filter cards by stage
   const todoCards = cards.filter(card => card.stage === 'TODO');
+  const devCards = cards.filter(card => card.stage === 'dev');
   const doneCards = cards.filter(card => card.stage === 'DONE');
 
   // Handle Next Day button click
   const handleNextDay = () => {
-    // Process each card and move it if stagedone returns true
+    // Process each card and move it to the next stage if stagedone returns true
     const updatedCards = cards.map(card => {
       if (stagedone(card)) {
-        return { ...card, stage: 'DONE' };
+        if (card.stage === 'TODO') {
+          return { ...card, stage: 'dev' };
+        } else if (card.stage === 'dev') {
+          return { ...card, stage: 'DONE' };
+        }
       }
       return card;
     });
@@ -58,6 +64,7 @@ function App() {
       </header>
       <main className="kanban-board">
         <Column title="TODO" cards={todoCards} />
+        <Column title="dev" cards={devCards} />
         <Column title="DONE" cards={doneCards} />
       </main>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
