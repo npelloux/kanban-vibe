@@ -35,6 +35,9 @@ jobs:
     - name: Run tests
       run: npm test --
     
+    - name: Install gh-pages
+      run: npm install --save-dev gh-pages
+
     - name: Build
       run: npm run build
     
