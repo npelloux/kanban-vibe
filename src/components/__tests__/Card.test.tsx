@@ -71,9 +71,9 @@ describe('Card Component', () => {
       id: '1',
       content: 'Test Card Content',
       workItems: {
-        total: 4,
-        completed: 2,
-        color: 'blue'
+        red: { total: 0, completed: 0 },
+        blue: { total: 4, completed: 2 },
+        green: { total: 0, completed: 0 }
       }
     };
     

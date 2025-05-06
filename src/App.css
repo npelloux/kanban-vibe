@@ -12,7 +12,7 @@
 
 .app-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   position: relative;
 }
 
@@ -28,20 +28,110 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Worker Pool styles */
+.worker-pool {
+  background-color: #f4f5f7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.worker-pool-header {
+  margin-bottom: 0.5rem;
+}
+
+.worker-pool-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.worker-pool-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.worker {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.worker:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.worker-red {
+  background-color: #ffcdd2;
+  border: 2px solid #e57373;
+}
+
+.worker-blue {
+  background-color: #bbdefb;
+  border: 2px solid #64b5f6;
+}
+
+.worker-green {
+  background-color: #c8e6c9;
+  border: 2px solid #81c784;
+}
+
+.worker-selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.worker-avatar {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
 .kanban-board {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   flex-grow: 1;
+  justify-content: center;
 }
 
 /* Column styles */
 .column {
   background-color: #f4f5f7;
   border-radius: 8px;
-  width: 300px;
-  min-height: 500px;
+  width: 250px;
+  min-height: 400px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.column-red {
+  background-color: #fff8f8;
+}
+
+.column-blue {
+  background-color: #f8fbff;
+}
+
+.column-green {
+  background-color: #f8fff9;
+}
+
+.column-active {
+  border-left: 4px solid #4caf50;
+}
+
+.column-finished {
+  border-left: 4px solid #9e9e9e;
 }
 
 .column-header {
@@ -55,7 +145,7 @@
 
 .column h2 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
@@ -72,6 +162,7 @@
   padding: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .card:hover {
@@ -82,6 +173,11 @@
 .card-blocked {
   background-color: #ffebee;
   border-left: 4px solid #f44336;
+}
+
+.card-completed {
+  background-color: #f1f8e9;
+  border-left: 4px solid #7cb342;
 }
 
 .card-header {
@@ -117,11 +213,44 @@
   margin-bottom: 0.75rem;
 }
 
+.card-assigned-worker {
+  margin-bottom: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.card-assigned-worker.worker-red {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+}
+
+.card-assigned-worker.worker-blue {
+  background-color: #bbdefb;
+  color: #0d47a1;
+}
+
+.card-assigned-worker.worker-green {
+  background-color: #c8e6c9;
+  color: #1b5e20;
+}
+
+.card-work-items-section {
+  margin-bottom: 0.75rem;
+}
+
+.card-work-items-label {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
 .card-work-items {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.25rem;
-  margin-bottom: 0.75rem;
 }
 
 .work-item {

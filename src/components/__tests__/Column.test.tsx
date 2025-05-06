@@ -32,9 +32,9 @@ describe('Column Component', () => {
     expect(screen.getByText('Card 2')).toBeInTheDocument();
   });
 
-  it('shows work button for dev column by default', () => {
+  it('shows work button for dev column when showWorkButton is true', () => {
     // Arrange
-    render(<Column title="dev" cards={[]} />);
+    render(<Column title="dev" cards={[]} showWorkButton={true} />);
     
     // Assert
     expect(screen.getByText('Work')).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('Column Component', () => {
   it('calls onWork when work button is clicked', () => {
     // Arrange
     const mockOnWork = vi.fn();
-    render(<Column title="dev" cards={[]} onWork={mockOnWork} />);
+    render(<Column title="dev" cards={[]} showWorkButton={true} onWork={mockOnWork} />);
     
     // Act
     fireEvent.click(screen.getByText('Work'));

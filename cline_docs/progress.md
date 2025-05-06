@@ -15,9 +15,10 @@
 - ✅ Add a "next day" button which compute an empty function "stagedone()" on each jobs called with knowing its current stage, then moves from "TODO" to "DONE" if output is true
 - ✅ Add a second stage modelised by an intermediary column "dev"
 - ✅ Add a "work" button on top of the intermediary column.
-- Generating random names for job cards
-- Adding stages modelised by intermediary columns
-- Adding various colors of activities to be done to complete jobs (one per stage column)
+- ✅ Generating random names for job cards
+- ✅ Adding stages modelised by intermediary columns (red active/finished, blue active/finished, green, done)
+- ✅ Adding various colors of activities to be done to complete jobs (red, blue, green)
+- ✅ Add three types of workers (red, blue, green) that can be assigned to cards
 
 ## Progress status
 [Placeholder for overall progress status]

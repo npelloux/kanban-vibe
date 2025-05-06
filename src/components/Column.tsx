@@ -1,6 +1,8 @@
 import React from 'react';
 import { Card as CardComponent } from './Card';
 import { WorkButton } from './WorkButton';
+import type { WorkItemsType } from './Card';
+import type { WorkerType } from './Worker';
 
 // We're using a different name for the imported component to avoid confusion with the type
 interface CardType {
@@ -10,11 +12,11 @@ interface CardType {
   age?: number;
   startDay?: number;
   isBlocked?: boolean;
-  workItems?: {
-    total: number;
-    completed: number;
-    color?: string;
-  };
+  workItems?: WorkItemsType;
+  assignedWorker?: {
+    id: string;
+    type: WorkerType;
+  } | null;
 }
 
 interface ColumnProps {
@@ -22,16 +24,22 @@ interface ColumnProps {
   cards: CardType[];
   onWork?: () => void;
   showWorkButton?: boolean;
+  type?: 'red' | 'blue' | 'green' | 'default';
+  status?: 'active' | 'finished';
+  onCardClick?: (cardId: string) => void;
 }
 
 export const Column: React.FC<ColumnProps> = ({ 
   title, 
   cards, 
   onWork = () => {}, 
-  showWorkButton = title === 'dev' 
+  showWorkButton = false,
+  type = 'default',
+  status = 'active',
+  onCardClick = () => {}
 }) => {
   return (
-    <div className="column">
+    <div className={`column column-${type} column-${status}`}>
       <div className="column-header">
         <h2>{title}</h2>
         {showWorkButton && <WorkButton onClick={onWork} columnTitle={title} />}
@@ -46,6 +54,8 @@ export const Column: React.FC<ColumnProps> = ({
             startDay={card.startDay}
             isBlocked={card.isBlocked}
             workItems={card.workItems}
+            assignedWorker={card.assignedWorker}
+            onClick={() => onCardClick(card.id)}
           />
         ))}
       </div>
