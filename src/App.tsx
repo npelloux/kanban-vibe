@@ -24,6 +24,7 @@ interface Card {
     id: string;
     type: WorkerType;
   } | null;
+  completionDay?: number;
 }
 
 // Define the Worker type
@@ -125,7 +126,8 @@ function App() {
         blue: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) },
         green: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) }
       },
-      assignedWorker: null
+      assignedWorker: null,
+      completionDay: 3
     },
     {
       id: 'D',
