@@ -64,3 +64,26 @@
   font-size: 0.9rem;
   color: #172b4d;
 }
+
+/* Next Day Button styles */
+.next-day-button {
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+  align-self: center;
+}
+
+.next-day-button:hover {
+  background-color: #0747a6;
+}
+
+.next-day-button:active {
+  background-color: #003d99;
+}

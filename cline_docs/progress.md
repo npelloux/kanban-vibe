@@ -12,7 +12,7 @@
 - ✅ Add a first empty stage colum "TODO"
 - ✅ Add a first job to the stage
 - ✅ Add a terminal column on the right named "DONE". It will modelise a job/card which has been completed 
-- Add a "next day" button which compute an empty function "stagedone()" on each jobs called with knowing its current stage, then moves from "TODO" to "DONE" if output is true
+- ✅ Add a "next day" button which compute an empty function "stagedone()" on each jobs called with knowing its current stage, then moves from "TODO" to "DONE" if output is true
 - Add a second stage modelised by an intermediary column "dev"
 - Generating random names for job cards
 - Adding stages modelised by intermediary columns
