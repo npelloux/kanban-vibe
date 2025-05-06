@@ -10,6 +10,13 @@ function App() {
     }
   ];
 
+  const doneCards = [
+    {
+      id: '2',
+      content: 'Set up project structure'
+    }
+  ];
+
   return (
     <div className="app">
       <header className="app-header">
@@ -17,6 +24,7 @@ function App() {
       </header>
       <main className="kanban-board">
         <Column title="TODO" cards={todoCards} />
+        <Column title="DONE" cards={doneCards} />
       </main>
     </div>
   )
