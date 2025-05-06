@@ -13,6 +13,19 @@
 .app-header {
   text-align: center;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.day-counter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .kanban-board {
@@ -31,10 +44,17 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.column h2 {
-  margin-top: 0;
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #dfe1e6;
+}
+
+.column h2 {
+  margin: 0;
   font-size: 1.2rem;
   font-weight: 600;
 }
@@ -42,7 +62,7 @@
 .cards-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 /* Card styles */
@@ -51,7 +71,6 @@
   border-radius: 4px;
   padding: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -60,15 +79,70 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
+.card-blocked {
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.card-id {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card-age {
+  font-size: 0.8rem;
+  color: #666;
+}
+
 .card-content {
   font-size: 0.9rem;
   color: #172b4d;
+  margin-bottom: 0.75rem;
 }
 
-/* Next Day Button styles */
-.next-day-button {
-  background-color: #0052cc;
+.card-blocked-label {
+  background-color: #f44336;
   color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.card-work-items {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.work-item {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+}
+
+.work-item.completed {
+  border: none;
+}
+
+.card-footer {
+  font-size: 0.8rem;
+  color: #666;
+  text-align: right;
+}
+
+/* Button styles */
+.next-day-button, .work-button {
   border: none;
   border-radius: 4px;
   padding: 0.75rem 1.5rem;
@@ -76,6 +150,11 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+.next-day-button {
+  background-color: #0052cc;
+  color: white;
   margin-top: 1rem;
   align-self: center;
 }
@@ -86,4 +165,19 @@
 
 .next-day-button:active {
   background-color: #003d99;
+}
+
+.work-button {
+  background-color: #36b37e;
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+.work-button:hover {
+  background-color: #2ea06e;
+}
+
+.work-button:active {
+  background-color: #268c5f;
 }

@@ -14,7 +14,7 @@
 - ✅ Add a terminal column on the right named "DONE". It will modelise a job/card which has been completed 
 - ✅ Add a "next day" button which compute an empty function "stagedone()" on each jobs called with knowing its current stage, then moves from "TODO" to "DONE" if output is true
 - ✅ Add a second stage modelised by an intermediary column "dev"
-- add a "work" button on to of the intermediary column.
+- ✅ Add a "work" button on top of the intermediary column.
 - Generating random names for job cards
 - Adding stages modelised by intermediary columns
 - Adding various colors of activities to be done to complete jobs (one per stage column)
