@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import { Column } from './components/Column'
 import { NextDayButton } from './components/NextDayButton'
@@ -12,7 +12,7 @@ interface Card {
 
 // stagedone function to determine if a card should move to the next stage
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const stagedone = (card: Card): boolean => {
+const stagedone = (_card: Card): boolean => {
   // All cards in their current stage will move to the next stage
   return true;
 }
