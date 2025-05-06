@@ -13,10 +13,12 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x]
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        path: .
     
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -37,7 +39,7 @@ jobs:
       run: npm run build
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-files-${{ matrix.node-version }}
         path: build/
