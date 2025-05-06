@@ -19,6 +19,9 @@
 - ✅ Adding stages modelised by intermediary columns (red active/finished, blue active/finished, green, done)
 - ✅ Adding various colors of activities to be done to complete jobs (red, blue, green)
 - ✅ Add three types of workers (red, blue, green) that can be assigned to cards
+- ✅ Display completion day for cards in the done column and prevent age updates for those cards
 
 ## Progress status
-[Placeholder for overall progress status]
+- Added completion day display for cards in the done column
+- Prevented age updates for cards in the done column
+- Made text bold for cards in the done column
