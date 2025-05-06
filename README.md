@@ -1,75 +1,54 @@
-# Kanban Vibe
+# React + TypeScript + Vite
 
-A webapp to simulate and compare various policies of team task management day by day, visualized on a kanban board.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Project Overview
+Currently, two official plugins are available:
 
-Kanban Vibe is designed to help teams understand the impact of different task management policies by providing a visual simulation of kanban boards. Users can experiment with various approaches to task prioritization, work-in-progress limits, and resource allocation to see how these decisions affect team productivity and workflow.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Features (Planned)
+## Expanding the ESLint configuration
 
-- Interactive kanban board visualization
-- Multiple task management policy simulations
-- Day-by-day progression of tasks through the workflow
-- Comparative analysis of different management approaches
-- Customizable team parameters and task characteristics
-- Performance metrics and reporting
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Development Status
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
 
-This project is currently in the initial setup phase. The core functionality is under development.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-## Tech Stack
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-- Vite 
-- React
-- TypeScript
-- CSS/SCSS
-- GitHub Actions for CI/CD
-- GitHub Pages for deployment
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-
-### Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/npelloux/kanban-vibe.git
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd kanban-vibe
-   ```
-
-3. Install dependencies:
-   ```
-   npm install
-   ```
-
-4. Start the development server:
-   ```
-   npm run dev
-   ```
-
-5. Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
-
-## Available Scripts
-
-- `npm start` - Runs the app in development mode
-- `npm test` - Launches the test runner
-- `npm run build` - Builds the app for production
-- `npm run deploy` - Deploys the app to GitHub Pages
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License.
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
+```
