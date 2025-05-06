@@ -34,7 +34,22 @@ interface Worker {
 
 // stagedone function to determine if a card should move to the next stage
 const stagedone = (card: Card): boolean => {
-  // A card can move to the next stage if it's not blocked and all work is completed
+  // For red-active and blue-active stages, check if the specific color work is completed
+  if (card.stage === 'red-active') {
+    return !card.isBlocked && 
+           card.workItems.red.total > 0 && 
+           card.workItems.red.completed >= card.workItems.red.total;
+  } else if (card.stage === 'blue-active') {
+    return !card.isBlocked && 
+           card.workItems.blue.total > 0 && 
+           card.workItems.blue.completed >= card.workItems.blue.total;
+  } else if (card.stage === 'green') {
+    return !card.isBlocked && 
+           card.workItems.green.total > 0 && 
+           card.workItems.green.completed >= card.workItems.green.total;
+  }
+  
+  // For other stages, use the original logic
   const totalWorkItems = Object.values(card.workItems).reduce(
     (sum, items) => sum + items.total, 
     0
@@ -193,17 +208,20 @@ function App() {
     setSelectedWorkerId(null);
   };
 
-  // Handle Work button click for a specific column and worker type
-  const handleWork = (stage: string, workerType: WorkerType) => {
+  // Handle Work button click for a specific column
+  const handleWork = (stage: string) => {
     const updatedCards = cards.map(card => {
-      if (card.stage === stage && card.assignedWorker && card.assignedWorker.type === workerType) {
-        // Do work based on worker type
+      if (card.stage === stage && card.assignedWorker) {
+        // Allow workers to work on their color regardless of the column
+        // This means blue workers can work on blue items in any column, etc.
         const updatedWorkItems = { ...card.workItems };
+        const workerColorType = card.assignedWorker.type;
         
-        if (updatedWorkItems[workerType] && updatedWorkItems[workerType].completed < updatedWorkItems[workerType].total) {
-          updatedWorkItems[workerType] = {
-            ...updatedWorkItems[workerType],
-            completed: updatedWorkItems[workerType].completed + 1
+        if (updatedWorkItems[workerColorType] && 
+            updatedWorkItems[workerColorType].completed < updatedWorkItems[workerColorType].total) {
+          updatedWorkItems[workerColorType] = {
+            ...updatedWorkItems[workerColorType],
+            completed: updatedWorkItems[workerColorType].completed + 1
           };
         }
         
@@ -223,15 +241,37 @@ function App() {
     setSelectedWorkerId(workerId);
   };
 
-  // Handle card click to assign worker or move from options
+  // Handle card click to assign worker or move from options/finished columns
   const handleCardClick = (cardId: string) => {
     const clickedCard = cards.find(card => card.id === cardId);
+    if (!clickedCard) return;
     
-    // If the card is in the options column, move it to red-active
-    if (clickedCard && clickedCard.stage === 'options') {
+    // Handle moving cards between columns
+    if (clickedCard.stage === 'options') {
+      // Move from options to red-active
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
           return { ...card, stage: 'red-active' };
+        }
+        return card;
+      });
+      setCards(updatedCards);
+      return;
+    } else if (clickedCard.stage === 'red-finished') {
+      // Move from red-finished to blue-active
+      const updatedCards = cards.map(card => {
+        if (card.id === cardId) {
+          return { ...card, stage: 'blue-active' };
+        }
+        return card;
+      });
+      setCards(updatedCards);
+      return;
+    } else if (clickedCard.stage === 'blue-finished') {
+      // Move from blue-finished to green
+      const updatedCards = cards.map(card => {
+        if (card.id === cardId) {
+          return { ...card, stage: 'green' };
         }
         return card;
       });
@@ -288,7 +328,7 @@ function App() {
           type="red"
           status="active"
           showWorkButton={true}
-          onWork={() => handleWork('red-active', 'red')}
+          onWork={() => handleWork('red-active')}
           onCardClick={handleCardClick}
         />
         <Column 
@@ -304,7 +344,7 @@ function App() {
           type="blue"
           status="active"
           showWorkButton={true}
-          onWork={() => handleWork('blue-active', 'blue')}
+          onWork={() => handleWork('blue-active')}
           onCardClick={handleCardClick}
         />
         <Column 
@@ -319,7 +359,7 @@ function App() {
           cards={greenCards} 
           type="green"
           showWorkButton={true}
-          onWork={() => handleWork('green', 'green')}
+          onWork={() => handleWork('green')}
           onCardClick={handleCardClick}
         />
         <Column 
