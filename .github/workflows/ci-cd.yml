@@ -33,7 +33,7 @@ jobs:
       run: npm run lint || echo "No linting configured"
     
     - name: Run tests
-      run: npm test -- --watchAll=false
+      run: npm test --
     
     - name: Build
       run: npm run build
