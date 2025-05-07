@@ -29,7 +29,7 @@ describe('App Component', () => {
     expect(screen.getByRole('heading', { name: 'Red Finished' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Blue Active' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Blue Finished' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Green' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Green Activities' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Done' })).toBeInTheDocument();
   });
 

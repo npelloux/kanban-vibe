@@ -37,7 +37,7 @@
 - ✅ remove the "work" buttons.
 - ✅ we have a little issue with the kanban board title alignemnt between blue & green activities; Fix it. 
 - ✅ remove the options | red active | red finished | blue active | blue  finished | green | done subtitles and replace them by Min & max fields set to zero for now; 
-- create a "save context" / "import context pair functionnality that enable to export the current kanban state to a json file when it's saved. Import shall restore the context given a compatible json file; 
+- ✅ create a "save context" / "import context pair functionnality that enable to export the current kanban state to a json file when it's saved. Import shall restore the context given a compatible json file; 
 - Create max WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move to an activity if the max WIP is reached for the next activity
 - create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
 
@@ -75,6 +75,12 @@
   - Added Min & Max WIP limit fields for each column, initially set to zero
   - Created state to track WIP limits for all columns
   - Added styling for the new WIP limit containers and labels
+- Implemented save/import context functionality:
+  - Added Save Context and Import Context buttons to the UI
+  - Created functionality to export the current kanban state to a JSON file
+  - Implemented functionality to import a previously saved JSON file and restore the kanban state
+  - Added styling for the context action buttons
+  - Created a KanbanState interface to define the structure of the saved state
 - Reduced the number of workers to 1 red worker and 1 green worker (from 2 each)
 - Implemented tab navigation system for different views
 - Created a cumulative flow diagram that tracks and visualizes the number of cards in each column over time

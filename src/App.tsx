@@ -7,6 +7,7 @@ import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram'
 import { WipAgingDiagram } from './components/WipAgingDiagram'
 import { FlowMetrics } from './components/FlowMetrics'
 import { TabNavigation } from './components/TabNavigation'
+import { ContextActions } from './components/ContextActions'
 import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
 import type { WorkerType } from './components/Worker'
@@ -139,6 +140,23 @@ interface HistoricalData {
     green: number;
     done: number;
   };
+}
+
+// Define the application state interface for saving/loading context
+interface KanbanState {
+  currentDay: number;
+  cards: Card[];
+  workers: Worker[];
+  wipLimits: {
+    options: { min: number; max: number };
+    redActive: { min: number; max: number };
+    redFinished: { min: number; max: number };
+    blueActive: { min: number; max: number };
+    blueFinished: { min: number; max: number };
+    green: { min: number; max: number };
+    done: { min: number; max: number };
+  };
+  historicalData: HistoricalData[];
 }
 
 function App() {
@@ -427,6 +445,74 @@ function App() {
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
   };
+  
+  // Handle saving the current context to a JSON file
+  const handleSaveContext = () => {
+    // Create a state object with all the data we want to save
+    const state: KanbanState = {
+      currentDay,
+      cards,
+      workers,
+      wipLimits,
+      historicalData
+    };
+    
+    // Convert the state to a JSON string
+    const jsonString = JSON.stringify(state, null, 2);
+    
+    // Create a blob with the JSON data
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    
+    // Create a URL for the blob
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary anchor element to trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kanban-vibe-state-day-${currentDay}.json`;
+    
+    // Trigger the download
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  
+  // Handle importing context from a JSON file
+  const handleImportContext = (file: File) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        if (event.target && typeof event.target.result === 'string') {
+          // Parse the JSON data
+          const importedState: KanbanState = JSON.parse(event.target.result);
+          
+          // Update the application state with the imported data
+          setCurrentDay(importedState.currentDay);
+          setCards(importedState.cards);
+          // We don't update workers as they are fixed in this application
+          setWipLimits(importedState.wipLimits);
+          setHistoricalData(importedState.historicalData);
+          
+          console.log('Context imported successfully');
+        }
+      } catch (error) {
+        console.error('Error importing context:', error);
+        alert('Error importing context. Please check the file format.');
+      }
+    };
+    
+    reader.onerror = () => {
+      console.error('Error reading file');
+      alert('Error reading file. Please try again.');
+    };
+    
+    // Read the file as text
+    reader.readAsText(file);
+  };
 
   // Render the appropriate content based on the active tab
   const renderContent = () => {
@@ -579,6 +665,11 @@ function App() {
       </header>
       
       <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+      
+      <ContextActions 
+        onSaveContext={handleSaveContext}
+        onImportContext={handleImportContext}
+      />
       
       <WorkerPool 
         workers={workers} 
