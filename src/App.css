@@ -1,7 +1,7 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0.5rem;
 }
 
 .app {
@@ -98,23 +98,24 @@
 .kanban-board {
   display: flex;
   flex-wrap: nowrap;
-  gap: 0.5rem;
+  gap: 0.25rem;
   flex-grow: 1;
-  justify-content: flex-start;
-  overflow-x: auto;
+  justify-content: space-between;
   padding-bottom: 1rem;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Column styles */
 .column {
   background-color: #f4f5f7;
   border-radius: 8px;
-  width: 180px;
+  width: calc(100% / 7 - 0.25rem);
+  min-width: 125px;
   min-height: 300px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
-  flex-shrink: 0;
 }
 
 .column-options {
@@ -153,7 +154,7 @@
 
 .column h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -206,9 +207,10 @@
 }
 
 .card-content {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #172b4d;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  word-break: break-word;
 }
 
 .card-blocked-label {
@@ -260,10 +262,10 @@
 }
 
 .card-work-items-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: bold;
-  margin-right: 0.25rem;
-  width: 30px;
+  margin-right: 0.2rem;
+  width: 25px;
 }
 
 .card-work-items {
@@ -273,8 +275,8 @@
 }
 
 .work-item {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border: 1px solid #ddd;
   border-radius: 2px;
 }
@@ -318,8 +320,8 @@
 .work-button {
   background-color: #36b37e;
   color: white;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
 }
 
 .work-button:hover {
