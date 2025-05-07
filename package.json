@@ -12,7 +12,9 @@
     "deploy": "npm install --global vercel@latest && vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} && vercel deploy --prebuilt"
   },
   "dependencies": {
+    "chart.js": "^4.4.9",
     "react": "^19.1.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {

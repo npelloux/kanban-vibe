@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import { Column } from './components/Column'
 import { NextDayButton } from './components/NextDayButton'
 import { WorkerPool } from './components/WorkerPool'
+import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram'
+import { TabNavigation } from './components/TabNavigation'
+import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
 import type { WorkerType } from './components/Worker'
 
@@ -86,18 +89,36 @@ const stagedone = (card: Card): boolean => {
   return totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
 }
 
+// Define the historical data type for the cumulative flow diagram
+interface HistoricalData {
+  day: number;
+  columnData: {
+    options: number;
+    redActive: number;
+    redFinished: number;
+    blueActive: number;
+    blueFinished: number;
+    green: number;
+    done: number;
+  };
+}
+
 function App() {
   // Initialize with day 7
   const [currentDay, setCurrentDay] = useState<number>(7);
   
+  // State for active tab
+  const [activeTab, setActiveTab] = useState<TabType>('kanban');
+  
+  // State for historical data
+  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  
   // Initialize workers
   const initialWorkers: Worker[] = [
     { id: '1', type: 'red' },
-    { id: '2', type: 'red' },
     { id: '3', type: 'blue' },
     { id: '4', type: 'blue' },
-    { id: '5', type: 'green' },
-    { id: '6', type: 'green' }
+    { id: '5', type: 'green' }
   ];
   
   // State to track workers
@@ -401,6 +422,156 @@ function App() {
     }
   };
 
+  // Update historical data when cards change
+  useEffect(() => {
+    // Create a new data point for the current day
+    const newDataPoint: HistoricalData = {
+      day: currentDay,
+      columnData: {
+        options: optionsCards.length,
+        redActive: redActiveCards.length,
+        redFinished: redFinishedCards.length,
+        blueActive: blueActiveCards.length,
+        blueFinished: blueFinishedCards.length,
+        green: greenCards.length,
+        done: doneCards.length
+      }
+    };
+    
+    // Check if we already have data for this day
+    const existingDataIndex = historicalData.findIndex(data => data.day === currentDay);
+    
+    if (existingDataIndex >= 0) {
+      // Update existing data point
+      const updatedHistoricalData = [...historicalData];
+      updatedHistoricalData[existingDataIndex] = newDataPoint;
+      setHistoricalData(updatedHistoricalData);
+    } else {
+      // Add new data point
+      setHistoricalData(prevData => [...prevData, newDataPoint]);
+    }
+  }, [currentDay, optionsCards.length, redActiveCards.length, redFinishedCards.length, 
+      blueActiveCards.length, blueFinishedCards.length, greenCards.length, doneCards.length]);
+
+  // Handle tab change
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+  };
+
+  // Render the appropriate content based on the active tab
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'kanban':
+        return (
+          <main className="kanban-board">
+            {/* First row - Activity type headers */}
+            <div className="kanban-header-row">
+              <div className="kanban-header-cell kanban-header-options">Options</div>
+              <div className="kanban-header-cell kanban-header-red">Red Activities</div>
+              <div className="kanban-header-cell kanban-header-blue">Blue Activities</div>
+              <div className="kanban-header-cell kanban-header-green">Green Activities</div>
+              <div className="kanban-header-cell kanban-header-done">Done</div>
+            </div>
+            
+            {/* Second row - Status subheaders */}
+            <div className="kanban-subheader-row">
+              <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+              <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
+              <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
+              <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
+              <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
+              <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+              <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+            </div>
+            
+            {/* Columns with cards */}
+            <div className="kanban-columns">
+              <Column 
+                title="Options" 
+                cards={optionsCards} 
+                type="options"
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+              <Column 
+                title="Red Active" 
+                cards={redActiveCards} 
+                type="red"
+                status="active"
+                showWorkButton={true}
+                onWork={() => handleWork('red-active')}
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+              <Column 
+                title="Red Finished" 
+                cards={redFinishedCards} 
+                type="red"
+                status="finished"
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+              <Column 
+                title="Blue Active" 
+                cards={blueActiveCards} 
+                type="blue"
+                status="active"
+                showWorkButton={true}
+                onWork={() => handleWork('blue-active')}
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+              <Column 
+                title="Blue Finished" 
+                cards={blueFinishedCards} 
+                type="blue"
+                status="finished"
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+              <Column 
+                title="Green" 
+                cards={greenCards} 
+                type="green"
+                showWorkButton={true}
+                onWork={() => handleWork('green')}
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+              <Column 
+                title="Done" 
+                cards={doneCards}
+                onCardClick={handleCardClick}
+                onWorkerDrop={handleWorkerDrop}
+              />
+            </div>
+          </main>
+        );
+      case 'cfd':
+        return (
+          <div className="cumulative-flow-diagram-container">
+            <CumulativeFlowDiagram historicalData={historicalData} />
+          </div>
+        );
+      case 'wip':
+        return (
+          <div className="wip-aging-container">
+            <h2>WIP & Aging (Coming Soon)</h2>
+            <p>This view will show work in progress and card aging metrics.</p>
+          </div>
+        );
+      case 'metrics':
+        return (
+          <div className="flow-metrics-container">
+            <h2>Flow Metrics (Coming Soon)</h2>
+            <p>This view will show additional flow metrics.</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -408,95 +579,15 @@ function App() {
         <div className="day-counter">Day {currentDay}</div>
       </header>
       
+      <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+      
       <WorkerPool 
         workers={workers} 
         selectedWorkerId={selectedWorkerId} 
         onWorkerSelect={handleWorkerSelect} 
       />
       
-      <main className="kanban-board">
-        {/* First row - Activity type headers */}
-        <div className="kanban-header-row">
-          <div className="kanban-header-cell kanban-header-options">Options</div>
-          <div className="kanban-header-cell kanban-header-red">Red Activities</div>
-          <div className="kanban-header-cell kanban-header-blue">Blue Activities</div>
-          <div className="kanban-header-cell kanban-header-green">Green Activities</div>
-          <div className="kanban-header-cell kanban-header-done">Done</div>
-        </div>
-        
-        {/* Second row - Status subheaders */}
-        <div className="kanban-subheader-row">
-          <div className="kanban-subheader-cell kanban-subheader-empty"></div>
-          <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
-          <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
-          <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
-          <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
-          <div className="kanban-subheader-cell kanban-subheader-empty"></div>
-          <div className="kanban-subheader-cell kanban-subheader-empty"></div>
-        </div>
-        
-        {/* Columns with cards */}
-        <div className="kanban-columns">
-          <Column 
-            title="Options" 
-            cards={optionsCards} 
-            type="options"
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-          <Column 
-            title="Red Active" 
-            cards={redActiveCards} 
-            type="red"
-            status="active"
-            showWorkButton={true}
-            onWork={() => handleWork('red-active')}
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-          <Column 
-            title="Red Finished" 
-            cards={redFinishedCards} 
-            type="red"
-            status="finished"
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-          <Column 
-            title="Blue Active" 
-            cards={blueActiveCards} 
-            type="blue"
-            status="active"
-            showWorkButton={true}
-            onWork={() => handleWork('blue-active')}
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-          <Column 
-            title="Blue Finished" 
-            cards={blueFinishedCards} 
-            type="blue"
-            status="finished"
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-          <Column 
-            title="Green" 
-            cards={greenCards} 
-            type="green"
-            showWorkButton={true}
-            onWork={() => handleWork('green')}
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-          <Column 
-            title="Done" 
-            cards={doneCards}
-            onCardClick={handleCardClick}
-            onWorkerDrop={handleWorkerDrop}
-          />
-        </div>
-      </main>
+      {renderContent()}
       
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
         <NextDayButton onClick={handleNextDay} />
