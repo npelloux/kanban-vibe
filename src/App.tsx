@@ -248,17 +248,17 @@ function App() {
     setSelectedWorkerId(workerId);
   };
 
-  // Handle card click to assign worker or move from options/finished columns
+    // Handle card click to assign worker or move from options/finished columns
   const handleCardClick = (cardId: string) => {
     const clickedCard = cards.find(card => card.id === cardId);
     if (!clickedCard) return;
     
     // Handle moving cards between columns
     if (clickedCard.stage === 'options') {
-      // Move from options to red-active
+      // Move from options to red-active and update startDay to current day
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
-          return { ...card, stage: 'red-active' };
+          return { ...card, stage: 'red-active', startDay: currentDay };
         }
         return card;
       });

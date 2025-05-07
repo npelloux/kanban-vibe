@@ -20,6 +20,10 @@
 - ✅ Adding various colors of activities to be done to complete jobs (red, blue, green)
 - ✅ Add three types of workers (red, blue, green) that can be assigned to cards
 - ✅ Display completion day for cards in the done column and prevent age updates for those cards
+- Make the 6 column isible without the need to have a slidebar. 
+- Make the workers attribution using a drag & drop mouse feature. 
+- Implement workers output rules : A worker can work only any active column. It work output is computed when "next day" button is clicked. The output for a worker is computed using these rules : 1st rule "a worker working on a column colored like his own color shall output 1 to 6 boxes of his own color. Meaning : The worker is specialized on its color task. His output is randomly choosen between 1 to 6 like a dice.". 2nd rule : "a worker working on a column of a different color has an output of 0 to 3 boxes of the column color, randomly choosen. Meaning: The worker helps on another task he is not a specialist in, so his output is lower". 
+- 
 
 ## Progress status
 - Added completion day display for cards in the done column
