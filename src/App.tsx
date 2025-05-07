@@ -20,10 +20,10 @@ interface Card {
   startDay: number;
   isBlocked: boolean;
   workItems: WorkItemsType;
-  assignedWorker: {
+  assignedWorkers: {
     id: string;
     type: WorkerType;
-  } | null;
+  }[];
   completionDay?: number;
 }
 
@@ -35,22 +35,44 @@ interface Worker {
 
 // stagedone function to determine if a card should move to the next stage
 const stagedone = (card: Card): boolean => {
-  // For red-active and blue-active stages, check if the specific color work is completed
-  if (card.stage === 'red-active') {
-    return !card.isBlocked && 
-           card.workItems.red.total > 0 && 
-           card.workItems.red.completed >= card.workItems.red.total;
-  } else if (card.stage === 'blue-active') {
-    return !card.isBlocked && 
-           card.workItems.blue.total > 0 && 
-           card.workItems.blue.completed >= card.workItems.blue.total;
-  } else if (card.stage === 'green') {
-    return !card.isBlocked && 
-           card.workItems.green.total > 0 && 
-           card.workItems.green.completed >= card.workItems.green.total;
+  // Check if card is blocked
+  if (card.isBlocked) {
+    return false;
   }
   
-  // For other stages, use the original logic
+  // For red-active stage, check if the red work is completed
+  if (card.stage === 'red-active') {
+    return card.workItems.red.total > 0 && 
+           card.workItems.red.completed >= card.workItems.red.total;
+  } 
+  // For red-finished stage, ensure red work is completed before moving to blue-active
+  else if (card.stage === 'red-finished') {
+    return card.workItems.red.total > 0 && 
+           card.workItems.red.completed >= card.workItems.red.total;
+  }
+  // For blue-active stage, check if the blue work is completed
+  // Also ensure all red work is completed (requirement for blue activities)
+  else if (card.stage === 'blue-active') {
+    return card.workItems.blue.total > 0 && 
+           card.workItems.blue.completed >= card.workItems.blue.total &&
+           card.workItems.red.completed >= card.workItems.red.total;
+  } 
+  // For blue-finished stage, ensure blue and red work is completed before moving to green
+  else if (card.stage === 'blue-finished') {
+    return card.workItems.blue.total > 0 && 
+           card.workItems.blue.completed >= card.workItems.blue.total &&
+           card.workItems.red.completed >= card.workItems.red.total;
+  }
+  // For green stage, check if the green work is completed
+  // Also ensure all red and blue work is completed (requirement for green activities)
+  else if (card.stage === 'green') {
+    return card.workItems.green.total > 0 && 
+           card.workItems.green.completed >= card.workItems.green.total &&
+           card.workItems.red.completed >= card.workItems.red.total &&
+           card.workItems.blue.completed >= card.workItems.blue.total;
+  }
+  
+  // For other stages (like options or done), check if all work is completed
   const totalWorkItems = Object.values(card.workItems).reduce(
     (sum, items) => sum + items.total, 
     0
@@ -61,12 +83,12 @@ const stagedone = (card: Card): boolean => {
     0
   );
   
-  return !card.isBlocked && totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
+  return totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
 }
 
 function App() {
-  // Initialize with day 1
-  const [currentDay, setCurrentDay] = useState<number>(1);
+  // Initialize with day 7
+  const [currentDay, setCurrentDay] = useState<number>(7);
   
   // Initialize workers
   const initialWorkers: Worker[] = [
@@ -91,71 +113,82 @@ function App() {
       content: 'Create a Kanban board',
       stage: 'red-active',
       age: 0,
-      startDay: 1,
+      startDay: 7,
       isBlocked: false,
       workItems: {
         red: { total: getRandomInt(1, 10), completed: 0 },
         blue: { total: getRandomInt(1, 10), completed: 0 },
         green: { total: getRandomInt(1, 10), completed: 0 }
       },
-      assignedWorker: null
+      assignedWorkers: []
     },
     {
       id: 'B',
       content: 'Set up project structure',
       stage: 'blue-active',
       age: 2,
-      startDay: 1,
+      startDay: 7,
       isBlocked: false,
       workItems: {
+        // For blue-active, all red work must be completed
         red: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) },
         blue: { total: getRandomInt(1, 10), completed: 0 },
         green: { total: getRandomInt(1, 10), completed: 0 }
       },
-      assignedWorker: null
+      assignedWorkers: []
     },
     {
       id: 'C',
       content: 'Initial repository setup',
       stage: 'done',
       age: 3,
-      startDay: 1,
+      startDay: 7,
       isBlocked: false,
       workItems: {
-        red: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) },
-        blue: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) },
-        green: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) }
+        // For done, all work must be completed
+        red: { total: getRandomInt(1, 10), completed: function() {
+          const total = getRandomInt(1, 10);
+          return total; // All red work completed
+        }() },
+        blue: { total: getRandomInt(1, 10), completed: function() {
+          const total = getRandomInt(1, 10);
+          return total; // All blue work completed
+        }() },
+        green: { total: getRandomInt(1, 10), completed: function() {
+          const total = getRandomInt(1, 10);
+          return total; // All green work completed
+        }() }
       },
-      assignedWorker: null,
-      completionDay: 3
+      assignedWorkers: [],
+      completionDay: 7
     },
     {
       id: 'D',
       content: 'Implement user authentication',
       stage: 'options',
       age: 0,
-      startDay: 1,
+      startDay: 7,
       isBlocked: false,
       workItems: {
         red: { total: getRandomInt(1, 10), completed: 0 },
         blue: { total: getRandomInt(1, 10), completed: 0 },
         green: { total: getRandomInt(1, 10), completed: 0 }
       },
-      assignedWorker: null
+      assignedWorkers: []
     },
     {
       id: 'E',
       content: 'Create dashboard UI',
       stage: 'options',
       age: 0,
-      startDay: 1,
+      startDay: 7,
       isBlocked: false,
       workItems: {
         red: { total: getRandomInt(1, 10), completed: 0 },
         blue: { total: getRandomInt(1, 10), completed: 0 },
         green: { total: getRandomInt(1, 10), completed: 0 }
       },
-      assignedWorker: null
+      assignedWorkers: []
     }
   ];
 
@@ -184,38 +217,42 @@ function App() {
     
     // Apply worker output rules to cards with assigned workers
     const cardsWithWorkerOutput = agedCards.map(card => {
-      if (!card.assignedWorker || !card.stage.includes('active') && card.stage !== 'green') {
+      if (!card.assignedWorkers.length || !card.stage.includes('active') && card.stage !== 'green') {
         return card;
       }
       
       const updatedWorkItems = { ...card.workItems };
-      const workerType = card.assignedWorker.type;
       const columnColor = card.stage.includes('red') ? 'red' : 
                           card.stage.includes('blue') ? 'blue' : 'green';
       
-      // Determine output based on worker color and column color
-      let outputAmount = 0;
-      
-      if (workerType === columnColor) {
-        // Worker is specialized in this color - output 1-6 boxes
-        outputAmount = getRandomInt(1, 6);
-      } else {
-        // Worker is not specialized - output 0-3 boxes
-        outputAmount = getRandomInt(0, 3);
-      }
-      
-      // Apply the output to the work items
-      if (updatedWorkItems[columnColor]) {
-        const newCompleted = Math.min(
-          updatedWorkItems[columnColor].total,
-          updatedWorkItems[columnColor].completed + outputAmount
-        );
+      // Process each assigned worker
+      card.assignedWorkers.forEach(worker => {
+        const workerType = worker.type;
         
-        updatedWorkItems[columnColor] = {
-          ...updatedWorkItems[columnColor],
-          completed: newCompleted
-        };
-      }
+        // Determine output based on worker color and column color
+        let outputAmount = 0;
+        
+        if (workerType === columnColor) {
+          // Worker is specialized in this color - output 1-6 boxes
+          outputAmount = getRandomInt(1, 6);
+        } else {
+          // Worker is not specialized - output 0-3 boxes
+          outputAmount = getRandomInt(0, 3);
+        }
+        
+        // Apply the output to the work items
+        if (updatedWorkItems[columnColor]) {
+          const newCompleted = Math.min(
+            updatedWorkItems[columnColor].total,
+            updatedWorkItems[columnColor].completed + outputAmount
+          );
+          
+          updatedWorkItems[columnColor] = {
+            ...updatedWorkItems[columnColor],
+            completed: newCompleted
+          };
+        }
+      });
       
       return {
         ...card,
@@ -249,7 +286,7 @@ function App() {
     // Reset all assigned workers
     const resetWorkerCards = updatedCards.map(card => ({
       ...card,
-      assignedWorker: null
+      assignedWorkers: []
     }));
     
     setCards(resetWorkerCards);
@@ -259,19 +296,23 @@ function App() {
   // Handle Work button click for a specific column
   const handleWork = (stage: string) => {
     const updatedCards = cards.map(card => {
-      if (card.stage === stage && card.assignedWorker) {
+      if (card.stage === stage && card.assignedWorkers.length > 0) {
         // Allow workers to work on their color regardless of the column
         // This means blue workers can work on blue items in any column, etc.
         const updatedWorkItems = { ...card.workItems };
-        const workerColorType = card.assignedWorker.type;
         
-        if (updatedWorkItems[workerColorType] && 
-            updatedWorkItems[workerColorType].completed < updatedWorkItems[workerColorType].total) {
-          updatedWorkItems[workerColorType] = {
-            ...updatedWorkItems[workerColorType],
-            completed: updatedWorkItems[workerColorType].completed + 1
-          };
-        }
+        // Process each assigned worker
+        card.assignedWorkers.forEach(worker => {
+          const workerColorType = worker.type;
+          
+          if (updatedWorkItems[workerColorType] && 
+              updatedWorkItems[workerColorType].completed < updatedWorkItems[workerColorType].total) {
+            updatedWorkItems[workerColorType] = {
+              ...updatedWorkItems[workerColorType],
+              completed: updatedWorkItems[workerColorType].completed + 1
+            };
+          }
+        });
         
         return {
           ...card,
@@ -296,13 +337,22 @@ function App() {
     
     const updatedCards = cards.map(card => {
       // Remove worker from any card it was previously assigned to
-      if (card.assignedWorker && card.assignedWorker.id === workerId) {
-        return { ...card, assignedWorker: null };
+      if (card.assignedWorkers.some(worker => worker.id === workerId)) {
+        return { 
+          ...card, 
+          assignedWorkers: card.assignedWorkers.filter(worker => worker.id !== workerId) 
+        };
       }
       
-      // Assign worker to the target card
+      // Assign worker to the target card (up to 3 workers)
       if (card.id === cardId) {
-        return { ...card, assignedWorker: selectedWorker };
+        // Only add if there are fewer than 3 workers and the worker isn't already assigned
+        if (card.assignedWorkers.length < 3 && !card.assignedWorkers.some(worker => worker.id === workerId)) {
+          return { 
+            ...card, 
+            assignedWorkers: [...card.assignedWorkers, selectedWorker] 
+          };
+        }
       }
       
       return card;

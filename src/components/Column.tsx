@@ -13,10 +13,10 @@ interface CardType {
   startDay?: number;
   isBlocked?: boolean;
   workItems?: WorkItemsType;
-  assignedWorker?: {
+  assignedWorkers?: {
     id: string;
     type: WorkerType;
-  } | null;
+  }[];
   completionDay?: number;
 }
 
@@ -60,7 +60,7 @@ export const Column: React.FC<ColumnProps> = ({
             startDay={card.startDay}
             isBlocked={card.isBlocked}
             workItems={card.workItems}
-            assignedWorker={card.assignedWorker}
+            assignedWorkers={card.assignedWorkers}
             onClick={() => onCardClick(card.id)}
             stage={card.stage}
             completionDay={card.completionDay}

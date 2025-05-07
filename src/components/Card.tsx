@@ -15,10 +15,10 @@ interface CardProps {
   startDay?: number;
   isBlocked?: boolean;
   workItems?: WorkItemsType;
-  assignedWorker?: {
+  assignedWorkers?: {
     id: string;
     type: WorkerType;
-  } | null;
+  }[];
   onClick?: () => void;
   onWorkerDrop?: (workerId: string, workerType: WorkerType) => void;
   stage?: string;
@@ -36,7 +36,7 @@ export const Card: React.FC<CardProps> = ({
     blue: { total: 0, completed: 0 },
     green: { total: 0, completed: 0 }
   },
-  assignedWorker = null,
+  assignedWorkers = [],
   onClick,
   onWorkerDrop,
   stage = '',
@@ -110,9 +110,13 @@ export const Card: React.FC<CardProps> = ({
       
       {isBlocked && <div className="card-blocked-label">BLOCKED!</div>}
       
-      {assignedWorker && (
-        <div className={`card-assigned-worker worker-${assignedWorker.type}`}>
-          Worker: {assignedWorker.id}
+      {assignedWorkers.length > 0 && (
+        <div className="card-assigned-workers">
+          {assignedWorkers.map(worker => (
+            <div key={worker.id} className={`card-assigned-worker worker-${worker.type}`}>
+              Worker: {worker.id}
+            </div>
+          ))}
         </div>
       )}
       

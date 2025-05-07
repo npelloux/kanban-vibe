@@ -307,8 +307,14 @@
   margin-bottom: 0.75rem;
 }
 
-.card-assigned-worker {
+.card-assigned-workers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   margin-bottom: 0.75rem;
+}
+
+.card-assigned-worker {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
