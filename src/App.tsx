@@ -182,8 +182,49 @@ function App() {
       age: card.stage === 'done' ? card.age : card.age + 1
     }));
     
+    // Apply worker output rules to cards with assigned workers
+    const cardsWithWorkerOutput = agedCards.map(card => {
+      if (!card.assignedWorker || !card.stage.includes('active') && card.stage !== 'green') {
+        return card;
+      }
+      
+      const updatedWorkItems = { ...card.workItems };
+      const workerType = card.assignedWorker.type;
+      const columnColor = card.stage.includes('red') ? 'red' : 
+                          card.stage.includes('blue') ? 'blue' : 'green';
+      
+      // Determine output based on worker color and column color
+      let outputAmount = 0;
+      
+      if (workerType === columnColor) {
+        // Worker is specialized in this color - output 1-6 boxes
+        outputAmount = getRandomInt(1, 6);
+      } else {
+        // Worker is not specialized - output 0-3 boxes
+        outputAmount = getRandomInt(0, 3);
+      }
+      
+      // Apply the output to the work items
+      if (updatedWorkItems[columnColor]) {
+        const newCompleted = Math.min(
+          updatedWorkItems[columnColor].total,
+          updatedWorkItems[columnColor].completed + outputAmount
+        );
+        
+        updatedWorkItems[columnColor] = {
+          ...updatedWorkItems[columnColor],
+          completed: newCompleted
+        };
+      }
+      
+      return {
+        ...card,
+        workItems: updatedWorkItems
+      };
+    });
+    
     // Process each card and move it to the next stage if stagedone returns true
-    const updatedCards = agedCards.map(card => {
+    const updatedCards = cardsWithWorkerOutput.map(card => {
       if (stagedone(card)) {
         if (card.stage === 'red-active') {
           return { ...card, stage: 'red-finished' };
@@ -248,7 +289,30 @@ function App() {
     setSelectedWorkerId(workerId);
   };
 
-    // Handle card click to assign worker or move from options/finished columns
+  // Handle worker drop on a card
+  const handleWorkerDrop = (cardId: string, workerId: string) => {
+    const selectedWorker = workers.find(worker => worker.id === workerId);
+    if (!selectedWorker) return;
+    
+    const updatedCards = cards.map(card => {
+      // Remove worker from any card it was previously assigned to
+      if (card.assignedWorker && card.assignedWorker.id === workerId) {
+        return { ...card, assignedWorker: null };
+      }
+      
+      // Assign worker to the target card
+      if (card.id === cardId) {
+        return { ...card, assignedWorker: selectedWorker };
+      }
+      
+      return card;
+    });
+    
+    setCards(updatedCards);
+    setSelectedWorkerId(null); // Clear selection after drop
+  };
+
+  // Handle card click to move from options/finished columns
   const handleCardClick = (cardId: string) => {
     const clickedCard = cards.find(card => card.id === cardId);
     if (!clickedCard) return;
@@ -285,28 +349,6 @@ function App() {
       setCards(updatedCards);
       return;
     }
-    
-    // Otherwise handle worker assignment
-    if (!selectedWorkerId) return;
-    
-    const selectedWorker = workers.find(worker => worker.id === selectedWorkerId);
-    if (!selectedWorker) return;
-    
-    const updatedCards = cards.map(card => {
-      // Remove worker from any card it was previously assigned to
-      if (card.assignedWorker && card.assignedWorker.id === selectedWorkerId) {
-        return { ...card, assignedWorker: null };
-      }
-      
-      // Assign worker to the clicked card
-      if (card.id === cardId) {
-        return { ...card, assignedWorker: selectedWorker };
-      }
-      
-      return card;
-    });
-    
-    setCards(updatedCards);
   };
 
   return (
@@ -323,57 +365,87 @@ function App() {
       />
       
       <main className="kanban-board">
-        <Column 
-          title="Options" 
-          cards={optionsCards} 
-          type="options"
-          onCardClick={handleCardClick}
-        />
-        <Column 
-          title="Red Active" 
-          cards={redActiveCards} 
-          type="red"
-          status="active"
-          showWorkButton={true}
-          onWork={() => handleWork('red-active')}
-          onCardClick={handleCardClick}
-        />
-        <Column 
-          title="Red Finished" 
-          cards={redFinishedCards} 
-          type="red"
-          status="finished"
-          onCardClick={handleCardClick}
-        />
-        <Column 
-          title="Blue Active" 
-          cards={blueActiveCards} 
-          type="blue"
-          status="active"
-          showWorkButton={true}
-          onWork={() => handleWork('blue-active')}
-          onCardClick={handleCardClick}
-        />
-        <Column 
-          title="Blue Finished" 
-          cards={blueFinishedCards} 
-          type="blue"
-          status="finished"
-          onCardClick={handleCardClick}
-        />
-        <Column 
-          title="Green" 
-          cards={greenCards} 
-          type="green"
-          showWorkButton={true}
-          onWork={() => handleWork('green')}
-          onCardClick={handleCardClick}
-        />
-        <Column 
-          title="Done" 
-          cards={doneCards}
-          onCardClick={handleCardClick}
-        />
+        {/* First row - Activity type headers */}
+        <div className="kanban-header-row">
+          <div className="kanban-header-cell kanban-header-options">Options</div>
+          <div className="kanban-header-cell kanban-header-red">Red Activities</div>
+          <div className="kanban-header-cell kanban-header-blue">Blue Activities</div>
+          <div className="kanban-header-cell kanban-header-green">Green Activities</div>
+          <div className="kanban-header-cell kanban-header-done">Done</div>
+        </div>
+        
+        {/* Second row - Status subheaders */}
+        <div className="kanban-subheader-row">
+          <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+          <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
+          <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
+          <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
+          <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
+          <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+          <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+        </div>
+        
+        {/* Columns with cards */}
+        <div className="kanban-columns">
+          <Column 
+            title="Options" 
+            cards={optionsCards} 
+            type="options"
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+          <Column 
+            title="Red Active" 
+            cards={redActiveCards} 
+            type="red"
+            status="active"
+            showWorkButton={true}
+            onWork={() => handleWork('red-active')}
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+          <Column 
+            title="Red Finished" 
+            cards={redFinishedCards} 
+            type="red"
+            status="finished"
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+          <Column 
+            title="Blue Active" 
+            cards={blueActiveCards} 
+            type="blue"
+            status="active"
+            showWorkButton={true}
+            onWork={() => handleWork('blue-active')}
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+          <Column 
+            title="Blue Finished" 
+            cards={blueFinishedCards} 
+            type="blue"
+            status="finished"
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+          <Column 
+            title="Green" 
+            cards={greenCards} 
+            type="green"
+            showWorkButton={true}
+            onWork={() => handleWork('green')}
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+          <Column 
+            title="Done" 
+            cards={doneCards}
+            onCardClick={handleCardClick}
+            onWorkerDrop={handleWorkerDrop}
+          />
+        </div>
       </main>
       
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>

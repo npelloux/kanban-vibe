@@ -28,6 +28,7 @@ interface ColumnProps {
   type?: 'red' | 'blue' | 'green' | 'options' | 'default';
   status?: 'active' | 'finished';
   onCardClick?: (cardId: string) => void;
+  onWorkerDrop?: (cardId: string, workerId: string, workerType: WorkerType) => void;
 }
 
 export const Column: React.FC<ColumnProps> = ({ 
@@ -37,14 +38,18 @@ export const Column: React.FC<ColumnProps> = ({
   showWorkButton = false,
   type = 'default',
   status = 'active',
-  onCardClick = () => {}
+  onCardClick = () => {},
+  onWorkerDrop = () => {}
 }) => {
   return (
     <div className={`column column-${type} column-${status}`}>
-      <div className="column-header">
-        <h2>{title}</h2>
-        {showWorkButton && <WorkButton onClick={onWork} columnTitle={title} />}
-      </div>
+      {/* Work button is now displayed without the title */}
+      {showWorkButton && (
+        <div className="column-header">
+          <div></div> {/* Empty div to maintain flex layout */}
+          <WorkButton onClick={onWork} columnTitle={title} />
+        </div>
+      )}
       <div className="cards-container">
         {cards.map((card) => (
           <CardComponent 
@@ -59,6 +64,7 @@ export const Column: React.FC<ColumnProps> = ({
             onClick={() => onCardClick(card.id)}
             stage={card.stage}
             completionDay={card.completionDay}
+            onWorkerDrop={(workerId, workerType) => onWorkerDrop(card.id, workerId, workerType)}
           />
         ))}
       </div>

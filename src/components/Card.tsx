@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { WorkerType } from './Worker';
 
 export interface WorkItemsType {
@@ -20,6 +20,7 @@ interface CardProps {
     type: WorkerType;
   } | null;
   onClick?: () => void;
+  onWorkerDrop?: (workerId: string, workerType: WorkerType) => void;
   stage?: string;
   completionDay?: number;
 }
@@ -37,9 +38,44 @@ export const Card: React.FC<CardProps> = ({
   },
   assignedWorker = null,
   onClick,
+  onWorkerDrop,
   stage = '',
   completionDay
 }) => {
+  // State to track if a worker is being dragged over this card
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // Handle drag over event
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    // Only allow if the card is in an active stage
+    if (stage && (stage.includes('active') || stage === 'green')) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!isDragOver) {
+        setIsDragOver(true);
+      }
+    }
+  };
+
+  // Handle drag leave event
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  // Handle drop event
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data && data.id && data.type && onWorkerDrop) {
+        onWorkerDrop(data.id, data.type);
+      }
+    } catch (error) {
+      console.error('Error parsing dropped worker data:', error);
+    }
+  };
   // Calculate total work items for all colors
   const totalWorkItems = Object.values(workItems).reduce(
     (sum, items) => sum + items.total, 
@@ -57,10 +93,13 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div 
-      className={`card ${isBlocked ? 'card-blocked' : ''} ${isCompleted ? 'card-completed' : ''}`} 
+      className={`card ${isBlocked ? 'card-blocked' : ''} ${isCompleted ? 'card-completed' : ''} ${isDragOver ? 'card-drag-over' : ''}`} 
       data-testid="card" 
       data-card-id={id}
       onClick={onClick}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <div className="card-header">
         <span className="card-id">{id}</span>
