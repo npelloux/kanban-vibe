@@ -28,8 +28,10 @@
 - ✅ The cards in the blue activities should always be red-complete. Red-complete meaning that all its red works has been completed. Same thing for green column : all red & blue shall be completed; At last : Done cards whould have all work completed.
 - ✅ Remove on red worker and one green
 - ✅ create another view / tab where we can see a cumulative flow diagram of the activity up-to-date each day please
-- create another tab for a work in progress / card aging per column diagram of the activity up-to-date each day please
+- ✅ create another tab for a work in progress / card aging per column diagram of the activity up-to-date each day please
 - create another tab including other meaningfull flow metrics to study flow
+- Age should not start to be upated till choose as active - dont update the cards in "options"
+- Create a button to add a random job in options column
 
 ## Progress status
 - Added completion day display for cards in the done column
@@ -53,3 +55,10 @@
 - Reduced the number of workers to 1 red worker and 1 green worker (from 2 each)
 - Implemented tab navigation system for different views
 - Created a cumulative flow diagram that tracks and visualizes the number of cards in each column over time
+- Implemented WIP & Aging diagram that shows:
+  - Individual cards as data points on a scatter plot
+  - X-axis representing all columns (Options, Red Active, etc., including Done)
+  - Y-axis representing the age of cards in days
+  - Each card visualized at its position in the column with its corresponding age
+  - Color-coded data points matching their column colors
+  - Key metrics like total WIP, WIP limit recommendations, oldest card, and average age

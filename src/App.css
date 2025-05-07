@@ -460,3 +460,51 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
 }
+
+/* WIP & Aging Diagram styles */
+.wip-aging-container {
+  padding: 1rem;
+}
+
+.wip-aging-diagram {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.wip-aging-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.metrics-section {
+  flex: 1;
+  min-width: 250px;
+}
+
+.metrics-section h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.metrics-section ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.metrics-section li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}

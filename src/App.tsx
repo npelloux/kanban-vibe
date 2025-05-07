@@ -4,6 +4,7 @@ import { Column } from './components/Column'
 import { NextDayButton } from './components/NextDayButton'
 import { WorkerPool } from './components/WorkerPool'
 import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram'
+import { WipAgingDiagram } from './components/WipAgingDiagram'
 import { TabNavigation } from './components/TabNavigation'
 import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
@@ -556,8 +557,7 @@ function App() {
       case 'wip':
         return (
           <div className="wip-aging-container">
-            <h2>WIP & Aging (Coming Soon)</h2>
-            <p>This view will show work in progress and card aging metrics.</p>
+            <WipAgingDiagram cards={cards} currentDay={currentDay} />
           </div>
         );
       case 'metrics':
