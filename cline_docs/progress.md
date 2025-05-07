@@ -33,6 +33,14 @@
 - ✅ Age should not start to be updated till chosen as active - don't update the cards in "options"
 - ✅ Create a button to add a random job in options column
 - ✅ As we started this project in a BDD / TDD double loop could you had pertinent tests to the project, validating the features & business rules implemented so far
+- ✅ make the initialization simpler : start at day zero with no existing cards.
+- ✅ remove the "work" buttons.
+- ✅ we have a little issue with the kanban board title alignemnt between blue & green activities; Fix it. 
+- ✅ remove the options | red active | red finished | blue active | blue  finished | green | done subtitles and replace them by Min & max fields set to zero for now; 
+- create a "save context" / "import context pair functionnality that enable to export the current kanban state to a json file when it's saved. Import shall restore the context given a compatible json file; 
+- Create max WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move to an activity if the max WIP is reached for the next activity
+- create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
+
 
 ## Progress status
 - Added completion day display for cards in the done column
@@ -51,8 +59,22 @@
   - Cards in blue activities must have all red work completed
   - Cards in green column must have all red and blue work completed
   - Done cards must have all work completed
-- Set initial day to day 7 instead of day 1
-- Ensured initial cards have their work completed according to their column requirements for coherence
+- Modified initialization to start at day 0 with no initial cards:
+  - Changed initial day from 7 to 0
+  - Removed all initial cards to start with an empty board
+  - Updated tests to accommodate the new initialization approach
+- Removed "Work" buttons from the application:
+  - Removed showWorkButton prop and related code from Column component
+  - Removed handleWork function from App.tsx
+  - Updated tests to reflect the removal of Work buttons
+- Fixed alignment issue between blue and green activities in the kanban board title:
+  - Changed the column title from "Green" to "Green Activities" to match the header
+  - Ensured consistent naming across the application
+- Replaced column subtitles with Min & Max WIP limit fields:
+  - Removed the "Active", "Finished", etc. subtitles from all columns
+  - Added Min & Max WIP limit fields for each column, initially set to zero
+  - Created state to track WIP limits for all columns
+  - Added styling for the new WIP limit containers and labels
 - Reduced the number of workers to 1 red worker and 1 green worker (from 2 each)
 - Implemented tab navigation system for different views
 - Created a cumulative flow diagram that tracks and visualizes the number of cards in each column over time

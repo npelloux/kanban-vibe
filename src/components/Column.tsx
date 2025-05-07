@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card as CardComponent } from './Card';
-import { WorkButton } from './WorkButton';
 import type { WorkItemsType } from './Card';
 import type { WorkerType } from './Worker';
 
@@ -25,9 +24,7 @@ interface ColumnProps {
   cards: Card[];
   type?: 'options' | 'red' | 'blue' | 'green';
   status?: 'active' | 'finished';
-  showWorkButton?: boolean;
   showAddCardButton?: boolean;
-  onWork?: () => void;
   onCardClick?: (cardId: string) => void;
   onWorkerDrop?: (cardId: string, workerId: string) => void;
   onAddCard?: () => void;
@@ -36,8 +33,6 @@ interface ColumnProps {
 export const Column: React.FC<ColumnProps> = ({ 
   title, 
   cards, 
-  onWork = () => {}, 
-  showWorkButton = false,
   showAddCardButton = false,
   type = 'default',
   status = 'active',
@@ -51,9 +46,6 @@ export const Column: React.FC<ColumnProps> = ({
       <div className="column-header">
         <h2>{title}</h2>
         <div className="column-buttons">
-          {showWorkButton && (
-            <WorkButton onClick={onWork} columnTitle={title} />
-          )}
           {showAddCardButton && (
             <button 
               className="add-card-button" 

@@ -32,34 +32,6 @@ describe('Column Component', () => {
     expect(screen.getByText('Card 2')).toBeInTheDocument();
   });
 
-  it('shows work button when showWorkButton is true', () => {
-    // Arrange
-    render(<Column title="Red Active" cards={[]} showWorkButton={true} />);
-    
-    // Assert
-    expect(screen.getByText('Work')).toBeInTheDocument();
-  });
-
-  it('does not show work button by default', () => {
-    // Arrange
-    render(<Column title="Options" cards={[]} />);
-    
-    // Assert
-    expect(screen.queryByText('Work')).not.toBeInTheDocument();
-  });
-
-  it('calls onWork when work button is clicked', () => {
-    // Arrange
-    const mockOnWork = vi.fn();
-    render(<Column title="Red Active" cards={[]} showWorkButton={true} onWork={mockOnWork} />);
-    
-    // Act
-    fireEvent.click(screen.getByText('Work'));
-    
-    // Assert
-    expect(mockOnWork).toHaveBeenCalledTimes(1);
-  });
-
   it('shows Add Card button when showAddCardButton is true', () => {
     // Arrange
     render(<Column title="Options" cards={[]} showAddCardButton={true} />);

@@ -33,12 +33,12 @@ describe('App Component', () => {
     expect(screen.getByRole('heading', { name: 'Done' })).toBeInTheDocument();
   });
 
-  it('displays the current day as Day 7', () => {
+  it('displays the current day as Day 0', () => {
     // Arrange & Act
     render(<App />);
     
     // Assert
-    expect(screen.getByText('Day 7')).toBeInTheDocument();
+    expect(screen.getByText('Day 0')).toBeInTheDocument();
   });
 
   it('increments the day counter when Next Day is clicked', () => {
@@ -49,7 +49,7 @@ describe('App Component', () => {
     fireEvent.click(screen.getByText('Next Day'));
     
     // Assert
-    expect(screen.getByText('Day 8')).toBeInTheDocument();
+    expect(screen.getByText('Day 1')).toBeInTheDocument();
   });
 
   it('renders the worker pool with the correct workers', () => {
@@ -105,12 +105,16 @@ describe('App Component', () => {
     // Arrange
     render(<App />);
     
-    // Find a card in the Options column - use heading to find column
+    // First add a card to the Options column
     const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
     if (!optionsColumn) throw new Error('Options column not found');
     
+    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    fireEvent.click(addCardButton);
+    
+    // Find the card we just added
     const optionsCards = within(optionsColumn).queryAllByTestId('card');
-    if (optionsCards.length === 0) throw new Error('No cards in Options column');
+    expect(optionsCards.length).toBeGreaterThan(0);
     
     // Get the card ID for tracking
     const cardId = optionsCards[0].getAttribute('data-card-id');
@@ -130,12 +134,24 @@ describe('App Component', () => {
     // Arrange
     render(<App />);
     
-    // Find a card in the Red Active column - use heading to find column
+    // First add a card to the Options column
+    const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+    if (!optionsColumn) throw new Error('Options column not found');
+    
+    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    fireEvent.click(addCardButton);
+    
+    // Find the card we just added and click it to move to Red Active
+    const optionsCards = within(optionsColumn).queryAllByTestId('card');
+    expect(optionsCards.length).toBeGreaterThan(0);
+    fireEvent.click(optionsCards[0]);
+    
+    // Find the card in Red Active column
     const redActiveColumn = screen.getByRole('heading', { name: 'Red Active' }).closest('.column') as HTMLElement;
     if (!redActiveColumn) throw new Error('Red Active column not found');
     
     const redActiveCards = within(redActiveColumn).queryAllByTestId('card');
-    if (redActiveCards.length === 0) throw new Error('No cards in Red Active column');
+    expect(redActiveCards.length).toBeGreaterThan(0);
     
     // Get the card ID for tracking
     const cardId = redActiveCards[0].getAttribute('data-card-id');
@@ -184,12 +200,16 @@ describe('App Component', () => {
     // Arrange
     render(<App />);
     
-    // Find a card in the Options column - use heading to find column
+    // First add a card to the Options column
     const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
     if (!optionsColumn) throw new Error('Options column not found');
     
+    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    fireEvent.click(addCardButton);
+    
+    // Find the card we just added
     const optionsCards = within(optionsColumn).queryAllByTestId('card');
-    if (optionsCards.length === 0) throw new Error('No cards in Options column');
+    expect(optionsCards.length).toBeGreaterThan(0);
     
     // Get the card ID and content for later verification
     const cardId = optionsCards[0].getAttribute('data-card-id');

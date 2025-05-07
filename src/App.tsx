@@ -142,14 +142,26 @@ interface HistoricalData {
 }
 
 function App() {
-  // Initialize with day 7
-  const [currentDay, setCurrentDay] = useState<number>(7);
+  // Initialize with day 0
+  const [currentDay, setCurrentDay] = useState<number>(0);
   
   // State for active tab
   const [activeTab, setActiveTab] = useState<TabType>('kanban');
   
   // State for historical data
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  
+  // State for WIP limits
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [wipLimits, setWipLimits] = useState({
+    options: { min: 0, max: 0 },
+    redActive: { min: 0, max: 0 },
+    redFinished: { min: 0, max: 0 },
+    blueActive: { min: 0, max: 0 },
+    blueFinished: { min: 0, max: 0 },
+    green: { min: 0, max: 0 },
+    done: { min: 0, max: 0 }
+  });
   
   // Initialize workers
   const initialWorkers: Worker[] = [
@@ -165,91 +177,8 @@ function App() {
   // State to track selected worker
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
   
-  // Initialize cards with their stages
-  const initialCards: Card[] = [
-    {
-      id: 'A',
-      content: 'Create a Kanban board',
-      stage: 'red-active',
-      age: 0,
-      startDay: 7,
-      isBlocked: false,
-      workItems: {
-        red: { total: getRandomInt(1, 10), completed: 0 },
-        blue: { total: getRandomInt(1, 10), completed: 0 },
-        green: { total: getRandomInt(1, 10), completed: 0 }
-      },
-      assignedWorkers: []
-    },
-    {
-      id: 'B',
-      content: 'Set up project structure',
-      stage: 'blue-active',
-      age: 2,
-      startDay: 7,
-      isBlocked: false,
-      workItems: {
-        // For blue-active, all red work must be completed
-        red: { total: getRandomInt(1, 10), completed: getRandomInt(1, 10) },
-        blue: { total: getRandomInt(1, 10), completed: 0 },
-        green: { total: getRandomInt(1, 10), completed: 0 }
-      },
-      assignedWorkers: []
-    },
-    {
-      id: 'C',
-      content: 'Initial repository setup',
-      stage: 'done',
-      age: 3,
-      startDay: 7,
-      isBlocked: false,
-      workItems: {
-        // For done, all work must be completed
-        red: { total: getRandomInt(1, 10), completed: function() {
-          const total = getRandomInt(1, 10);
-          return total; // All red work completed
-        }() },
-        blue: { total: getRandomInt(1, 10), completed: function() {
-          const total = getRandomInt(1, 10);
-          return total; // All blue work completed
-        }() },
-        green: { total: getRandomInt(1, 10), completed: function() {
-          const total = getRandomInt(1, 10);
-          return total; // All green work completed
-        }() }
-      },
-      assignedWorkers: [],
-      completionDay: 7
-    },
-    {
-      id: 'D',
-      content: 'Implement user authentication',
-      stage: 'options',
-      age: 0,
-      startDay: 7,
-      isBlocked: false,
-      workItems: {
-        red: { total: getRandomInt(1, 10), completed: 0 },
-        blue: { total: getRandomInt(1, 10), completed: 0 },
-        green: { total: getRandomInt(1, 10), completed: 0 }
-      },
-      assignedWorkers: []
-    },
-    {
-      id: 'E',
-      content: 'Create dashboard UI',
-      stage: 'options',
-      age: 0,
-      startDay: 7,
-      isBlocked: false,
-      workItems: {
-        red: { total: getRandomInt(1, 10), completed: 0 },
-        blue: { total: getRandomInt(1, 10), completed: 0 },
-        green: { total: getRandomInt(1, 10), completed: 0 }
-      },
-      assignedWorkers: []
-    }
-  ];
+  // Initialize with no cards
+  const initialCards: Card[] = [];
 
   // State to track all cards
   const [cards, setCards] = useState<Card[]>(initialCards);
@@ -350,38 +279,6 @@ function App() {
     
     setCards(resetWorkerCards);
     setSelectedWorkerId(null);
-  };
-
-  // Handle Work button click for a specific column
-  const handleWork = (stage: string) => {
-    const updatedCards = cards.map(card => {
-      if (card.stage === stage && card.assignedWorkers.length > 0) {
-        // Allow workers to work on their color regardless of the column
-        // This means blue workers can work on blue items in any column, etc.
-        const updatedWorkItems = { ...card.workItems };
-        
-        // Process each assigned worker
-        card.assignedWorkers.forEach(worker => {
-          const workerColorType = worker.type;
-          
-          if (updatedWorkItems[workerColorType] && 
-              updatedWorkItems[workerColorType].completed < updatedWorkItems[workerColorType].total) {
-            updatedWorkItems[workerColorType] = {
-              ...updatedWorkItems[workerColorType],
-              completed: updatedWorkItems[workerColorType].completed + 1
-            };
-          }
-        });
-        
-        return {
-          ...card,
-          workItems: updatedWorkItems
-        };
-      }
-      return card;
-    });
-    
-    setCards(updatedCards);
   };
 
   // Handle worker selection
@@ -546,15 +443,50 @@ function App() {
               <div className="kanban-header-cell kanban-header-done">Done</div>
             </div>
             
-            {/* Second row - Status subheaders */}
+            {/* Second row - WIP Limits */}
             <div className="kanban-subheader-row">
-              <div className="kanban-subheader-cell kanban-subheader-empty"></div>
-              <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
-              <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
-              <div className="kanban-subheader-cell kanban-subheader-active">Active</div>
-              <div className="kanban-subheader-cell kanban-subheader-finished">Finished</div>
-              <div className="kanban-subheader-cell kanban-subheader-empty"></div>
-              <div className="kanban-subheader-cell kanban-subheader-empty"></div>
+              <div className="kanban-subheader-cell kanban-subheader-empty">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.options.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.options.max}</div>
+                </div>
+              </div>
+              <div className="kanban-subheader-cell kanban-subheader-active">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.redActive.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.redActive.max}</div>
+                </div>
+              </div>
+              <div className="kanban-subheader-cell kanban-subheader-finished">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.redFinished.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.redFinished.max}</div>
+                </div>
+              </div>
+              <div className="kanban-subheader-cell kanban-subheader-active">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.blueActive.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.blueActive.max}</div>
+                </div>
+              </div>
+              <div className="kanban-subheader-cell kanban-subheader-finished">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.blueFinished.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.blueFinished.max}</div>
+                </div>
+              </div>
+              <div className="kanban-subheader-cell kanban-subheader-empty">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.green.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.green.max}</div>
+                </div>
+              </div>
+              <div className="kanban-subheader-cell kanban-subheader-empty">
+                <div className="wip-limit-container">
+                  <div className="wip-limit-label">Min: {wipLimits.done.min}</div>
+                  <div className="wip-limit-label">Max: {wipLimits.done.max}</div>
+                </div>
+              </div>
             </div>
             
             {/* Columns with cards */}
@@ -573,8 +505,6 @@ function App() {
                 cards={redActiveCards} 
                 type="red"
                 status="active"
-                showWorkButton={true}
-                onWork={() => handleWork('red-active')}
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
               />
@@ -591,8 +521,6 @@ function App() {
                 cards={blueActiveCards} 
                 type="blue"
                 status="active"
-                showWorkButton={true}
-                onWork={() => handleWork('blue-active')}
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
               />
@@ -605,11 +533,9 @@ function App() {
                 onWorkerDrop={handleWorkerDrop}
               />
               <Column 
-                title="Green" 
+                title="Green Activities" 
                 cards={greenCards} 
                 type="green"
-                showWorkButton={true}
-                onWork={() => handleWork('green')}
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
               />

@@ -170,6 +170,19 @@
   border-radius: 0 0 4px 4px;
 }
 
+.wip-limit-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.wip-limit-label {
+  font-size: 0.75rem;
+  color: #333;
+  margin: 0.1rem 0;
+}
+
 .kanban-subheader-empty {
   width: calc(100% / 7);
 }
