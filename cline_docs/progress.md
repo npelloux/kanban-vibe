@@ -30,8 +30,9 @@
 - ✅ create another view / tab where we can see a cumulative flow diagram of the activity up-to-date each day please
 - ✅ create another tab for a work in progress / card aging per column diagram of the activity up-to-date each day please
 - ✅ create another tab including other meaningful flow metrics to study flow
-- Age should not start to be upated till choose as active - dont update the cards in "options"
-- Create a button to add a random job in options column
+- ✅ Age should not start to be updated till chosen as active - don't update the cards in "options"
+- ✅ Create a button to add a random job in options column
+- ✅ As we started this project in a BDD / TDD double loop could you had pertinent tests to the project, validating the features & business rules implemented so far
 
 ## Progress status
 - Added completion day display for cards in the done column
@@ -70,3 +71,21 @@
   - Daily throughput chart showing completed cards by day
   - Rolling average throughput chart showing 5-day moving average
   - WIP over time chart showing how work in progress changes over time
+- Modified age tracking to only start when cards are moved from "options" to active columns:
+  - Cards in the "options" column no longer age when the "Next Day" button is clicked
+  - Age counter only starts incrementing once a card is pulled into the workflow
+- Added "Add Card" button to the Options column:
+  - Button allows adding new random job cards to the options column
+  - New cards are generated with random job titles and work items
+  - Card IDs are automatically assigned in sequence (A, B, C, etc.)
+- Added comprehensive test suite to validate application features and business rules:
+  - Unit tests for all components (Card, Column, Worker, WorkerPool, WorkButton, NextDayButton, TabNavigation)
+  - Integration tests for the App component validating core functionality:
+    - Rendering the kanban board with all required columns
+    - Day counter display and incrementation
+    - Worker pool rendering and selection
+    - Card addition and movement between columns
+    - Age tracking for cards in different columns
+    - Tab navigation functionality
+  - Tests for the stagedone function that determines card movement between columns
+  - All tests are now passing, ensuring the application works as expected

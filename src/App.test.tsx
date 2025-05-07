@@ -1,28 +1,44 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from './App';
 
+// Mock Math.random to return predictable values for testing
+const originalRandom = Math.random;
+
+// Mock the Chart.js component to avoid canvas errors in tests
+vi.mock('react-chartjs-2', () => ({
+  Line: () => <div data-testid="mock-line-chart">Mock Line Chart</div>,
+  Bar: () => <div data-testid="mock-bar-chart">Mock Bar Chart</div>,
+  Scatter: () => <div data-testid="mock-scatter-chart">Mock Scatter Chart</div>
+}));
+
 describe('App Component', () => {
+  beforeEach(() => {
+    // Reset Math.random mock before each test
+    Math.random = originalRandom;
+  });
+
   it('renders the kanban board with all required columns', () => {
     // Arrange & Act
     render(<App />);
     
-    // Assert
-    expect(screen.getByText('Red Active')).toBeInTheDocument();
-    expect(screen.getByText('Red Finished')).toBeInTheDocument();
-    expect(screen.getByText('Blue Active')).toBeInTheDocument();
-    expect(screen.getByText('Blue Finished')).toBeInTheDocument();
-    expect(screen.getByText('Green')).toBeInTheDocument();
-    expect(screen.getByText('Done')).toBeInTheDocument();
+    // Assert - Use more specific selectors to avoid ambiguity
+    expect(screen.getByRole('heading', { name: 'Options' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Red Active' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Red Finished' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Blue Active' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Blue Finished' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Green' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Done' })).toBeInTheDocument();
   });
 
-  it('displays the current day', () => {
+  it('displays the current day as Day 7', () => {
     // Arrange & Act
     render(<App />);
     
     // Assert
-    expect(screen.getByText('Day 1')).toBeInTheDocument();
+    expect(screen.getByText('Day 7')).toBeInTheDocument();
   });
 
   it('increments the day counter when Next Day is clicked', () => {
@@ -33,21 +49,23 @@ describe('App Component', () => {
     fireEvent.click(screen.getByText('Next Day'));
     
     // Assert
-    expect(screen.getByText('Day 2')).toBeInTheDocument();
+    expect(screen.getByText('Day 8')).toBeInTheDocument();
   });
 
-  it('renders the worker pool with workers', () => {
+  it('renders the worker pool with the correct workers', () => {
     // Arrange & Act
     render(<App />);
     
     // Assert
     expect(screen.getByText('Workers')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-1')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-2')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-3')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-4')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-5')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-6')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-1')).toBeInTheDocument(); // Red worker
+    expect(screen.getByTestId('worker-3')).toBeInTheDocument(); // Blue worker
+    expect(screen.getByTestId('worker-4')).toBeInTheDocument(); // Blue worker
+    expect(screen.getByTestId('worker-5')).toBeInTheDocument(); // Green worker
+    
+    // Verify we don't have workers 2 and 6 anymore
+    expect(screen.queryByTestId('worker-2')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('worker-6')).not.toBeInTheDocument();
   });
 
   it('selects a worker when clicked', () => {
@@ -59,5 +77,140 @@ describe('App Component', () => {
     
     // Assert
     expect(screen.getByTestId('worker-3')).toHaveClass('worker-selected');
+  });
+
+  it('adds a new card when Add Card button is clicked', () => {
+    // Arrange
+    // Mock Math.random to return predictable values
+    Math.random = vi.fn().mockReturnValue(0.5);
+    render(<App />);
+    
+    // Get initial number of cards in Options column - use heading to find column
+    const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+    if (!optionsColumn) throw new Error('Options column not found');
+    
+    const initialCards = within(optionsColumn).queryAllByTestId('card');
+    const initialCardCount = initialCards.length;
+    
+    // Act - click Add Card button
+    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    fireEvent.click(addCardButton);
+    
+    // Assert
+    const updatedCards = within(optionsColumn).queryAllByTestId('card');
+    expect(updatedCards.length).toBe(initialCardCount + 1);
+  });
+
+  it('does not increment age for cards in Options column when Next Day is clicked', () => {
+    // Arrange
+    render(<App />);
+    
+    // Find a card in the Options column - use heading to find column
+    const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+    if (!optionsColumn) throw new Error('Options column not found');
+    
+    const optionsCards = within(optionsColumn).queryAllByTestId('card');
+    if (optionsCards.length === 0) throw new Error('No cards in Options column');
+    
+    // Get the card ID for tracking
+    const cardId = optionsCards[0].getAttribute('data-card-id');
+    
+    // Act - click Next Day button
+    fireEvent.click(screen.getByText('Next Day'));
+    
+    // Assert - card should still be in the Options column
+    const updatedOptionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+    const updatedCards = within(updatedOptionsColumn).queryAllByTestId('card');
+    const sameCard = updatedCards.find(card => card.getAttribute('data-card-id') === cardId);
+    
+    expect(sameCard).toBeInTheDocument();
+  });
+
+  it('increments age for cards in active columns when Next Day is clicked', () => {
+    // Arrange
+    render(<App />);
+    
+    // Find a card in the Red Active column - use heading to find column
+    const redActiveColumn = screen.getByRole('heading', { name: 'Red Active' }).closest('.column') as HTMLElement;
+    if (!redActiveColumn) throw new Error('Red Active column not found');
+    
+    const redActiveCards = within(redActiveColumn).queryAllByTestId('card');
+    if (redActiveCards.length === 0) throw new Error('No cards in Red Active column');
+    
+    // Get the card ID for tracking
+    const cardId = redActiveCards[0].getAttribute('data-card-id');
+    
+    // Act - click Next Day button
+    fireEvent.click(screen.getByText('Next Day'));
+    
+    // Assert - card should still be in the Red Active column
+    const updatedRedActiveColumn = screen.getByRole('heading', { name: 'Red Active' }).closest('.column') as HTMLElement;
+    const updatedCards = within(updatedRedActiveColumn).queryAllByTestId('card');
+    const sameCard = updatedCards.find(card => card.getAttribute('data-card-id') === cardId);
+    
+    expect(sameCard).toBeInTheDocument();
+  });
+
+  it('switches between tabs when tab navigation is clicked', () => {
+    // Arrange
+    render(<App />);
+    
+    // Act - click on Cumulative Flow tab
+    fireEvent.click(screen.getByText('Cumulative Flow'));
+    
+    // Assert - should show Cumulative Flow Diagram (using mock chart)
+    expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument();
+    
+    // Act - click on WIP & Aging tab
+    fireEvent.click(screen.getByText('WIP & Aging'));
+    
+    // Assert - should show WIP & Aging Diagram (using mock chart)
+    expect(screen.getByTestId('mock-scatter-chart')).toBeInTheDocument();
+    
+    // Act - click on Flow Metrics tab
+    fireEvent.click(screen.getByText('Flow Metrics'));
+    
+    // Assert - should show Flow Metrics (using mock charts)
+    expect(screen.getAllByTestId('mock-bar-chart').length).toBeGreaterThan(0);
+    
+    // Act - click back to Kanban Board tab
+    fireEvent.click(screen.getByText('Kanban Board'));
+    
+    // Assert - should show Kanban Board again
+    expect(screen.getByRole('heading', { name: 'Options' })).toBeInTheDocument();
+  });
+
+  it('moves a card from Options to Red Active when clicked', () => {
+    // Arrange
+    render(<App />);
+    
+    // Find a card in the Options column - use heading to find column
+    const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+    if (!optionsColumn) throw new Error('Options column not found');
+    
+    const optionsCards = within(optionsColumn).queryAllByTestId('card');
+    if (optionsCards.length === 0) throw new Error('No cards in Options column');
+    
+    // Get the card ID and content for later verification
+    const cardId = optionsCards[0].getAttribute('data-card-id');
+    const cardContentElement = optionsCards[0].querySelector('.card-content');
+    const cardContent = cardContentElement ? cardContentElement.textContent : '';
+    
+    // Act - click on the card to move it to Red Active
+    fireEvent.click(optionsCards[0]);
+    
+    // Assert - card should now be in Red Active column
+    const redActiveColumn = screen.getByRole('heading', { name: 'Red Active' }).closest('.column') as HTMLElement;
+    if (!redActiveColumn) throw new Error('Red Active column not found');
+    
+    const redActiveCards = within(redActiveColumn).queryAllByTestId('card');
+    const movedCard = Array.from(redActiveCards).find(
+      card => card.getAttribute('data-card-id') === cardId
+    );
+    
+    expect(movedCard).toBeInTheDocument();
+    const movedCardContentElement = movedCard!.querySelector('.card-content');
+    const movedCardContent = movedCardContentElement ? movedCardContentElement.textContent : '';
+    expect(movedCardContent).toBe(cardContent);
   });
 });

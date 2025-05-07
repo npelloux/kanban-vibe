@@ -5,7 +5,7 @@ import type { WorkItemsType } from './Card';
 import type { WorkerType } from './Worker';
 
 // We're using a different name for the imported component to avoid confusion with the type
-interface CardType {
+interface Card {
   id: string;
   content: string;
   stage?: string; // Make stage optional to maintain compatibility
@@ -22,13 +22,15 @@ interface CardType {
 
 interface ColumnProps {
   title: string;
-  cards: CardType[];
-  onWork?: () => void;
-  showWorkButton?: boolean;
-  type?: 'red' | 'blue' | 'green' | 'options' | 'default';
+  cards: Card[];
+  type?: 'options' | 'red' | 'blue' | 'green';
   status?: 'active' | 'finished';
+  showWorkButton?: boolean;
+  showAddCardButton?: boolean;
+  onWork?: () => void;
   onCardClick?: (cardId: string) => void;
-  onWorkerDrop?: (cardId: string, workerId: string, workerType: WorkerType) => void;
+  onWorkerDrop?: (cardId: string, workerId: string) => void;
+  onAddCard?: () => void;
 }
 
 export const Column: React.FC<ColumnProps> = ({ 
@@ -36,20 +38,33 @@ export const Column: React.FC<ColumnProps> = ({
   cards, 
   onWork = () => {}, 
   showWorkButton = false,
+  showAddCardButton = false,
   type = 'default',
   status = 'active',
   onCardClick = () => {},
-  onWorkerDrop = () => {}
+  onWorkerDrop = () => {},
+  onAddCard = () => {}
 }) => {
   return (
     <div className={`column column-${type} column-${status}`}>
-      {/* Work button is now displayed without the title */}
-      {showWorkButton && (
-        <div className="column-header">
-          <div></div> {/* Empty div to maintain flex layout */}
-          <WorkButton onClick={onWork} columnTitle={title} />
+      {/* Column header with title and buttons */}
+      <div className="column-header">
+        <h2>{title}</h2>
+        <div className="column-buttons">
+          {showWorkButton && (
+            <WorkButton onClick={onWork} columnTitle={title} />
+          )}
+          {showAddCardButton && (
+            <button 
+              className="add-card-button" 
+              onClick={onAddCard}
+              title="Add a new card"
+            >
+              + Add Card
+            </button>
+          )}
         </div>
-      )}
+      </div>
       <div className="cards-container">
         {cards.map((card) => (
           <CardComponent 
@@ -64,7 +79,7 @@ export const Column: React.FC<ColumnProps> = ({
             onClick={() => onCardClick(card.id)}
             stage={card.stage}
             completionDay={card.completionDay}
-            onWorkerDrop={(workerId, workerType) => onWorkerDrop(card.id, workerId, workerType)}
+            onWorkerDrop={(workerId) => onWorkerDrop(card.id, workerId)}
           />
         ))}
       </div>

@@ -16,6 +16,42 @@ const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+// Generate a random job title
+const generateRandomJobTitle = (): string => {
+  const actions = ['Create', 'Implement', 'Design', 'Develop', 'Test', 'Refactor', 'Optimize', 'Fix', 'Update', 'Add'];
+  const subjects = ['user interface', 'authentication', 'database', 'API', 'dashboard', 'reporting', 'search functionality', 
+                   'payment system', 'notification system', 'user profile', 'settings page', 'analytics', 'integration',
+                   'documentation', 'error handling', 'performance', 'security', 'accessibility', 'mobile view'];
+  
+  const randomAction = actions[Math.floor(Math.random() * actions.length)];
+  const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+  
+  return `${randomAction} ${randomSubject}`;
+};
+
+// Generate a random card ID (next letter in sequence)
+const generateNextCardId = (existingCards: Card[]): string => {
+  // Find the highest letter ID
+  const letterIds = existingCards
+    .map(card => card.id)
+    .filter(id => /^[A-Z]$/.test(id)) // Only single uppercase letters
+    .sort();
+  
+  if (letterIds.length === 0) {
+    return 'A';
+  }
+  
+  const lastLetterId = letterIds[letterIds.length - 1];
+  const nextCharCode = lastLetterId.charCodeAt(0) + 1;
+  
+  // If we've gone beyond 'Z', start with double letters
+  if (nextCharCode > 90) {
+    return 'AA';
+  }
+  
+  return String.fromCharCode(nextCharCode);
+};
+
 // Define the Card type
 interface Card {
   id: string;
@@ -232,11 +268,11 @@ function App() {
     // Increment the day counter
     setCurrentDay(prevDay => prevDay + 1);
     
-    // Increment age for all cards except those in the done column
-    const agedCards = cards.map(card => ({
-      ...card,
-      age: card.stage === 'done' ? card.age : card.age + 1
-    }));
+  // Increment age for all cards except those in the 'options' or 'done' columns
+  const agedCards = cards.map(card => ({
+    ...card,
+    age: (card.stage === 'done' || card.stage === 'options') ? card.age : card.age + 1
+  }));
     
     // Apply worker output rules to cards with assigned workers
     const cardsWithWorkerOutput = agedCards.map(card => {
@@ -385,6 +421,41 @@ function App() {
     setSelectedWorkerId(null); // Clear selection after drop
   };
 
+  // Handle adding a new random card to the options column
+  const handleAddCard = () => {
+    console.log('Add Card button clicked');
+    
+    // Generate a new card ID
+    const newCardId = generateNextCardId(cards);
+    console.log('Generated new card ID:', newCardId);
+    
+    // Create a new card with random work items
+    const newCard: Card = {
+      id: newCardId,
+      content: generateRandomJobTitle(),
+      stage: 'options',
+      age: 0,
+      startDay: currentDay,
+      isBlocked: false,
+      workItems: {
+        red: { total: getRandomInt(1, 10), completed: 0 },
+        blue: { total: getRandomInt(1, 10), completed: 0 },
+        green: { total: getRandomInt(1, 10), completed: 0 }
+      },
+      assignedWorkers: []
+    };
+    
+    console.log('Created new card:', newCard);
+    
+    // Add the new card to the cards array
+    setCards(prevCards => {
+      console.log('Previous cards:', prevCards);
+      const updatedCards = [...prevCards, newCard];
+      console.log('Updated cards:', updatedCards);
+      return updatedCards;
+    });
+  };
+
   // Handle card click to move from options/finished columns
   const handleCardClick = (cardId: string) => {
     const clickedCard = cards.find(card => card.id === cardId);
@@ -492,6 +563,8 @@ function App() {
                 title="Options" 
                 cards={optionsCards} 
                 type="options"
+                showAddCardButton={true}
+                onAddCard={handleAddCard}
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
               />
