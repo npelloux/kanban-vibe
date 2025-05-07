@@ -5,6 +5,7 @@ import { NextDayButton } from './components/NextDayButton'
 import { WorkerPool } from './components/WorkerPool'
 import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram'
 import { WipAgingDiagram } from './components/WipAgingDiagram'
+import { FlowMetrics } from './components/FlowMetrics'
 import { TabNavigation } from './components/TabNavigation'
 import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
@@ -563,8 +564,7 @@ function App() {
       case 'metrics':
         return (
           <div className="flow-metrics-container">
-            <h2>Flow Metrics (Coming Soon)</h2>
-            <p>This view will show additional flow metrics.</p>
+            <FlowMetrics cards={cards} currentDay={currentDay} />
           </div>
         );
       default:
