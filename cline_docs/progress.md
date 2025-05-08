@@ -5,7 +5,6 @@
 - The website is currently functional and accessible at http://localhost:5173/ when launched locally with "npm run dev".
 
 ## What you're working on now
-- Create add button + delete worker capability.
 - Create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm.
 
 ## What's left to build
@@ -41,7 +40,7 @@
 - ✅ create a "save context" / "import context pair functionnality that enable to export the current kanban state to a json file when it's saved. Import shall restore the context given a compatible json file; 
 - ✅ Create max WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move to an activity if the max WIP is reached for the next activity
 - ✅ Create min WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move out of an activity if min limit would be broken in current activity
-- Create add button + delete worker capability.
+- ✅ Create add button + delete worker capability.
 - create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
 
 
@@ -124,4 +123,12 @@
     - Age tracking for cards in different columns
     - Tab navigation functionality
   - Tests for the stagedone function that determines card movement between columns
-  - All tests are now passing, ensuring the application works as expected
+- All tests are now passing, ensuring the application works as expected
+- Implemented worker management functionality:
+  - Added "Add Worker" button to the WorkerPool component
+  - Created worker type selection interface (red, blue, green)
+  - Implemented worker addition functionality with unique ID generation
+  - Added delete capability for workers with hover-activated delete buttons
+  - Updated App.tsx to handle worker state management (adding/deleting)
+  - Added CSS styling for the new worker management UI elements
+  - Ensured proper cleanup when deleting workers (removing from cards they're assigned to)
