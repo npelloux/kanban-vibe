@@ -240,7 +240,60 @@ function App() {
   ];
   
   // State to track workers
-  const [workers] = useState<Worker[]>(initialWorkers);
+  const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
+  
+  // Generate a unique worker ID
+  const generateWorkerId = (): string => {
+    // Find the highest numeric ID
+    const numericIds = workers
+      .map(worker => parseInt(worker.id))
+      .filter(id => !isNaN(id))
+      .sort((a, b) => b - a);
+    
+    // If no numeric IDs, start with 1
+    if (numericIds.length === 0) {
+      return '1';
+    }
+    
+    // Return the next ID
+    return (numericIds[0] + 1).toString();
+  };
+  
+  // Handle adding a new worker
+  const handleAddWorker = (type: WorkerType) => {
+    const newWorkerId = generateWorkerId();
+    const newWorker: Worker = {
+      id: newWorkerId,
+      type
+    };
+    
+    setWorkers(prevWorkers => [...prevWorkers, newWorker]);
+  };
+  
+  // Handle deleting a worker
+  const handleDeleteWorker = (workerId: string) => {
+    // First, remove the worker from any cards it's assigned to
+    const updatedCards = cards.map(card => {
+      if (card.assignedWorkers.some(worker => worker.id === workerId)) {
+        return {
+          ...card,
+          assignedWorkers: card.assignedWorkers.filter(worker => worker.id !== workerId)
+        };
+      }
+      return card;
+    });
+    
+    // Then remove the worker from the workers array
+    setWorkers(prevWorkers => prevWorkers.filter(worker => worker.id !== workerId));
+    
+    // Update cards
+    setCards(updatedCards);
+    
+    // If the deleted worker was selected, clear the selection
+    if (selectedWorkerId === workerId) {
+      setSelectedWorkerId(null);
+    }
+  };
   
   // State to track selected worker
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
@@ -799,7 +852,9 @@ function App() {
       <WorkerPool 
         workers={workers} 
         selectedWorkerId={selectedWorkerId} 
-        onWorkerSelect={handleWorkerSelect} 
+        onWorkerSelect={handleWorkerSelect}
+        onAddWorker={handleAddWorker}
+        onDeleteWorker={handleDeleteWorker}
       />
       
       {renderContent()}
