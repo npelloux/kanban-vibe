@@ -5,7 +5,8 @@
 - The website is currently functional and accessible at http://localhost:5173/ when launched locally with "npm run dev".
 
 ## What you're working on now
-- Next step is to setup ci cd capabilities on supabase & vercel to validate a full continuous deployment pipeline. Ask for credentials when usefull.
+- Create add button + delete worker capability.
+- Create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm.
 
 ## What's left to build
 - ✅ Add a dummy test to validate the testing capabilities of the CI CD pipeline
@@ -38,7 +39,9 @@
 - ✅ we have a little issue with the kanban board title alignemnt between blue & green activities; Fix it. 
 - ✅ remove the options | red active | red finished | blue active | blue  finished | green | done subtitles and replace them by Min & max fields set to zero for now; 
 - ✅ create a "save context" / "import context pair functionnality that enable to export the current kanban state to a json file when it's saved. Import shall restore the context given a compatible json file; 
-- Create max WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move to an activity if the max WIP is reached for the next activity
+- ✅ Create max WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move to an activity if the max WIP is reached for the next activity
+- ✅ Create min WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move out of an activity if min limit would be broken in current activity
+- Create add button + delete worker capability.
 - create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
 
 
@@ -46,6 +49,11 @@
 - Added completion day display for cards in the done column
 - Prevented age updates for cards in the done column
 - Made text bold for cards in the done column
+- Implemented min WIP limit enforcement:
+  - Added function to check if moving a card out of a column would violate the min WIP limit
+  - Updated card movement logic in both manual (click) and automatic (Next Day) scenarios
+  - Added alerts for min WIP limit violations when attempting to move cards manually
+  - Added console logs for min WIP limit violations during automatic movement
 - Made all 6 columns visible without a scrollbar
 - Reorganized column headers with activity types in the first row and status in the second row
 - Implemented drag & drop functionality for worker attribution

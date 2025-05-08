@@ -8,6 +8,7 @@ import { WipAgingDiagram } from './components/WipAgingDiagram'
 import { FlowMetrics } from './components/FlowMetrics'
 import { TabNavigation } from './components/TabNavigation'
 import { ContextActions } from './components/ContextActions'
+import { WipLimitEditor } from './components/WipLimitEditor'
 import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
 import type { WorkerType } from './components/Worker'
@@ -170,7 +171,6 @@ function App() {
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   
   // State for WIP limits
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wipLimits, setWipLimits] = useState({
     options: { min: 0, max: 0 },
     redActive: { min: 0, max: 0 },
@@ -180,6 +180,56 @@ function App() {
     green: { min: 0, max: 0 },
     done: { min: 0, max: 0 }
   });
+  
+  // Function to update WIP limits for a specific column
+  const handleWipLimitUpdate = (column: keyof typeof wipLimits, min: number, max: number) => {
+    setWipLimits(prevLimits => ({
+      ...prevLimits,
+      [column]: { min, max }
+    }));
+  };
+  
+  // Map stage to column key
+  const getColumnKey = (stage: string): keyof typeof wipLimits => {
+    if (stage === 'options') return 'options';
+    if (stage === 'red-active') return 'redActive';
+    if (stage === 'red-finished') return 'redFinished';
+    if (stage === 'blue-active') return 'blueActive';
+    if (stage === 'blue-finished') return 'blueFinished';
+    if (stage === 'green') return 'green';
+    if (stage === 'done') return 'done';
+    return 'options'; // Default fallback
+  };
+
+  // Check if moving a card to a column would exceed the max WIP limit
+  const wouldExceedWipLimit = (targetStage: string): boolean => {
+    const columnKey = getColumnKey(targetStage);
+    const maxWip = wipLimits[columnKey].max;
+    
+    // If max WIP is 0, there is no constraint
+    if (maxWip === 0) return false;
+    
+    // Count cards in the target column
+    const cardsInColumn = cards.filter(card => card.stage === targetStage).length;
+    
+    // Check if adding one more card would exceed the limit
+    return cardsInColumn >= maxWip;
+  };
+  
+  // Check if moving a card out of a column would violate the min WIP limit
+  const wouldViolateMinWipLimit = (sourceStage: string): boolean => {
+    const columnKey = getColumnKey(sourceStage);
+    const minWip = wipLimits[columnKey].min;
+    
+    // If min WIP is 0, there is no constraint
+    if (minWip === 0) return false;
+    
+    // Count cards in the source column
+    const cardsInColumn = cards.filter(card => card.stage === sourceStage).length;
+    
+    // Check if removing one card would violate the min limit
+    return cardsInColumn <= minWip;
+  };
   
   // Initialize workers
   const initialWorkers: Worker[] = [
@@ -267,17 +317,49 @@ function App() {
     });
     
     // Process each card and move it to the next stage if stagedone returns true
+    // and the WIP limits are not violated
     const updatedCards = cardsWithWorkerOutput.map(card => {
       if (stagedone(card)) {
+        // Check if moving the card out would violate min WIP limit
+        if (wouldViolateMinWipLimit(card.stage)) {
+          console.log(`Cannot move card ${card.id} out of ${card.stage}: Min WIP limit would be violated.`);
+          return card;
+        }
+        
         if (card.stage === 'red-active') {
+          // Check if moving to red-finished would exceed max WIP limit
+          if (wouldExceedWipLimit('red-finished')) {
+            console.log(`Cannot move card ${card.id} to Red Finished: Max WIP limit would be exceeded.`);
+            return card;
+          }
           return { ...card, stage: 'red-finished' };
         } else if (card.stage === 'red-finished') {
+          // Check if moving to blue-active would exceed max WIP limit
+          if (wouldExceedWipLimit('blue-active')) {
+            console.log(`Cannot move card ${card.id} to Blue Active: Max WIP limit would be exceeded.`);
+            return card;
+          }
           return { ...card, stage: 'blue-active' };
         } else if (card.stage === 'blue-active') {
+          // Check if moving to blue-finished would exceed max WIP limit
+          if (wouldExceedWipLimit('blue-finished')) {
+            console.log(`Cannot move card ${card.id} to Blue Finished: Max WIP limit would be exceeded.`);
+            return card;
+          }
           return { ...card, stage: 'blue-finished' };
         } else if (card.stage === 'blue-finished') {
+          // Check if moving to green would exceed max WIP limit
+          if (wouldExceedWipLimit('green')) {
+            console.log(`Cannot move card ${card.id} to Green Activities: Max WIP limit would be exceeded.`);
+            return card;
+          }
           return { ...card, stage: 'green' };
         } else if (card.stage === 'green') {
+          // Check if moving to done would exceed max WIP limit
+          if (wouldExceedWipLimit('done')) {
+            console.log(`Cannot move card ${card.id} to Done: Max WIP limit would be exceeded.`);
+            return card;
+          }
           // When a card moves to done, store the current day as completionDay
           return { 
             ...card, 
@@ -378,6 +460,18 @@ function App() {
     
     // Handle moving cards between columns
     if (clickedCard.stage === 'options') {
+      // Check if moving to red-active would exceed max WIP limit
+      if (wouldExceedWipLimit('red-active')) {
+        alert(`Cannot move card to Red Active: Max WIP limit of ${wipLimits.redActive.max} would be exceeded.`);
+        return;
+      }
+      
+      // Check if moving out of options would violate min WIP limit
+      if (wouldViolateMinWipLimit('options')) {
+        alert(`Cannot move card out of Options: Min WIP limit of ${wipLimits.options.min} would be violated.`);
+        return;
+      }
+      
       // Move from options to red-active and update startDay to current day
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
@@ -388,6 +482,18 @@ function App() {
       setCards(updatedCards);
       return;
     } else if (clickedCard.stage === 'red-finished') {
+      // Check if moving to blue-active would exceed max WIP limit
+      if (wouldExceedWipLimit('blue-active')) {
+        alert(`Cannot move card to Blue Active: Max WIP limit of ${wipLimits.blueActive.max} would be exceeded.`);
+        return;
+      }
+      
+      // Check if moving out of red-finished would violate min WIP limit
+      if (wouldViolateMinWipLimit('red-finished')) {
+        alert(`Cannot move card out of Red Finished: Min WIP limit of ${wipLimits.redFinished.min} would be violated.`);
+        return;
+      }
+      
       // Move from red-finished to blue-active
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
@@ -398,6 +504,18 @@ function App() {
       setCards(updatedCards);
       return;
     } else if (clickedCard.stage === 'blue-finished') {
+      // Check if moving to green would exceed max WIP limit
+      if (wouldExceedWipLimit('green')) {
+        alert(`Cannot move card to Green Activities: Max WIP limit of ${wipLimits.green.max} would be exceeded.`);
+        return;
+      }
+      
+      // Check if moving out of blue-finished would violate min WIP limit
+      if (wouldViolateMinWipLimit('blue-finished')) {
+        alert(`Cannot move card out of Blue Finished: Min WIP limit of ${wipLimits.blueFinished.min} would be violated.`);
+        return;
+      }
+      
       // Move from blue-finished to green
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
@@ -532,46 +650,53 @@ function App() {
             {/* Second row - WIP Limits */}
             <div className="kanban-subheader-row">
               <div className="kanban-subheader-cell kanban-subheader-empty">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.options.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.options.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.options.min} 
+                  max={wipLimits.options.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('options', min, max)} 
+                />
               </div>
               <div className="kanban-subheader-cell kanban-subheader-active">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.redActive.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.redActive.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.redActive.min} 
+                  max={wipLimits.redActive.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('redActive', min, max)} 
+                />
               </div>
               <div className="kanban-subheader-cell kanban-subheader-finished">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.redFinished.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.redFinished.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.redFinished.min} 
+                  max={wipLimits.redFinished.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('redFinished', min, max)} 
+                />
               </div>
               <div className="kanban-subheader-cell kanban-subheader-active">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.blueActive.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.blueActive.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.blueActive.min} 
+                  max={wipLimits.blueActive.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('blueActive', min, max)} 
+                />
               </div>
               <div className="kanban-subheader-cell kanban-subheader-finished">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.blueFinished.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.blueFinished.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.blueFinished.min} 
+                  max={wipLimits.blueFinished.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('blueFinished', min, max)} 
+                />
               </div>
               <div className="kanban-subheader-cell kanban-subheader-empty">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.green.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.green.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.green.min} 
+                  max={wipLimits.green.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('green', min, max)} 
+                />
               </div>
               <div className="kanban-subheader-cell kanban-subheader-empty">
-                <div className="wip-limit-container">
-                  <div className="wip-limit-label">Min: {wipLimits.done.min}</div>
-                  <div className="wip-limit-label">Max: {wipLimits.done.max}</div>
-                </div>
+                <WipLimitEditor 
+                  min={wipLimits.done.min} 
+                  max={wipLimits.done.max} 
+                  onUpdate={(min, max) => handleWipLimitUpdate('done', min, max)} 
+                />
               </div>
             </div>
             
