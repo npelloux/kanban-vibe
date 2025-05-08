@@ -889,75 +889,216 @@ function App() {
   const executePolicyDay = (policyType: PolicyType) => {
     // Implement the policy algorithm based on the policy type
     if (policyType === 'siloted-expert') {
-      // 1. Assign workers to cards in their own active color
+      // 1. Move cards from options to red active (respecting WIP limits)
+      moveCardsFromOptionsToRedActive();
+      
+      // 2. Move cards from finished columns to next activity (respecting WIP limits)
+      moveCardsFromFinishedToNextActivity();
+      
+      // 3. Assign workers to cards in their own active color
       assignWorkersToMatchingCards();
       
-      // 2. Click the "Next Day" button to advance the simulation
+      // 4. Click the "Next Day" button to advance the simulation
       handleNextDay();
+    }
+  };
+  
+  // Function to move cards from options to red active
+  const moveCardsFromOptionsToRedActive = () => {
+    // Check if moving to red-active would exceed max WIP limit
+    if (wouldExceedWipLimit('red-active')) {
+      console.log('Cannot move cards to Red Active: Max WIP limit would be exceeded.');
+      return;
+    }
+    
+    // Check if moving out of options would violate min WIP limit
+    if (wouldViolateMinWipLimit('options')) {
+      console.log('Cannot move cards out of Options: Min WIP limit would be violated.');
+      return;
+    }
+    
+    // Get all cards in options
+    const optionsCardsToMove = [...optionsCards];
+    
+    // Sort by ID to ensure consistent order
+    optionsCardsToMove.sort((a, b) => a.id.localeCompare(b.id));
+    
+    // Move cards one by one until we hit the WIP limit
+    for (const card of optionsCardsToMove) {
+      // Check if we've hit the WIP limit
+      if (wouldExceedWipLimit('red-active')) {
+        break;
+      }
+      
+      // Move the card to red-active
+      setCards(prevCards => 
+        prevCards.map(c => 
+          c.id === card.id 
+            ? { ...c, stage: 'red-active', startDay: currentDay } 
+            : c
+        )
+      );
+    }
+  };
+  
+  // Function to move cards from finished columns to next activity
+  const moveCardsFromFinishedToNextActivity = () => {
+    // Move cards from red-finished to blue-active
+    moveCardsToNextStage('red-finished', 'blue-active');
+    
+    // Move cards from blue-finished to green
+    moveCardsToNextStage('blue-finished', 'green');
+  };
+  
+  // Helper function to move cards from one stage to the next
+  const moveCardsToNextStage = (fromStage: string, toStage: string) => {
+    // Check if moving to the next stage would exceed max WIP limit
+    if (wouldExceedWipLimit(toStage)) {
+      console.log(`Cannot move cards to ${toStage}: Max WIP limit would be exceeded.`);
+      return;
+    }
+    
+    // Check if moving out of the current stage would violate min WIP limit
+    if (wouldViolateMinWipLimit(fromStage)) {
+      console.log(`Cannot move cards out of ${fromStage}: Min WIP limit would be violated.`);
+      return;
+    }
+    
+    // Get all cards in the current stage
+    const cardsToMove = cards.filter(card => card.stage === fromStage);
+    
+    // Sort by age (oldest first) to prioritize older cards
+    cardsToMove.sort((a, b) => b.age - a.age);
+    
+    // Move cards one by one until we hit the WIP limit
+    for (const card of cardsToMove) {
+      // Check if we've hit the WIP limit
+      if (wouldExceedWipLimit(toStage)) {
+        break;
+      }
+      
+      // Check if the card is ready to move (all required work completed)
+      if (stagedone(card)) {
+        // Move the card to the next stage
+        setCards(prevCards => 
+          prevCards.map(c => 
+            c.id === card.id 
+              ? { ...c, stage: toStage } 
+              : c
+          )
+        );
+      }
     }
   };
   
   // Function to assign workers to cards in their matching color columns
   const assignWorkersToMatchingCards = () => {
-    // Create a copy of the workers array to track which workers have been assigned
-    const availableWorkers = [...workers];
+    // Reset all assigned workers first
+    setCards(prevCards => 
+      prevCards.map(card => ({
+        ...card,
+        assignedWorkers: []
+      }))
+    );
     
     // Get cards in active columns
-    const redActiveCardsWithSpace = redActiveCards.filter(card => card.assignedWorkers.length < 3);
-    const blueActiveCardsWithSpace = blueActiveCards.filter(card => card.assignedWorkers.length < 3);
-    const greenCardsWithSpace = greenCards.filter(card => card.assignedWorkers.length < 3);
+    const redActiveCardsWithSpace = cards.filter(card => 
+      card.stage === 'red-active' && card.assignedWorkers.length < 3
+    );
+    const blueActiveCardsWithSpace = cards.filter(card => 
+      card.stage === 'blue-active' && card.assignedWorkers.length < 3
+    );
+    const greenCardsWithSpace = cards.filter(card => 
+      card.stage === 'green' && card.assignedWorkers.length < 3
+    );
     
     // Sort cards by age (oldest first) to prioritize older cards
     redActiveCardsWithSpace.sort((a, b) => b.age - a.age);
     blueActiveCardsWithSpace.sort((a, b) => b.age - a.age);
     greenCardsWithSpace.sort((a, b) => b.age - a.age);
     
+    // Get workers by type
+    const redWorkers = workers.filter(worker => worker.type === 'red');
+    const blueWorkers = workers.filter(worker => worker.type === 'blue');
+    const greenWorkers = workers.filter(worker => worker.type === 'green');
+    
+    // Create a temporary copy of cards to track assignments
+    let tempCards = [...cards];
+    
     // Assign red workers to red active cards
-    const redWorkers = availableWorkers.filter(worker => worker.type === 'red');
-    assignWorkersToCards(redWorkers, redActiveCardsWithSpace);
+    tempCards = assignWorkersToCardsInBatch(redWorkers, redActiveCardsWithSpace, tempCards);
     
     // Assign blue workers to blue active cards
-    const blueWorkers = availableWorkers.filter(worker => worker.type === 'blue');
-    assignWorkersToCards(blueWorkers, blueActiveCardsWithSpace);
+    tempCards = assignWorkersToCardsInBatch(blueWorkers, blueActiveCardsWithSpace, tempCards);
     
     // Assign green workers to green cards
-    const greenWorkers = availableWorkers.filter(worker => worker.type === 'green');
-    assignWorkersToCards(greenWorkers, greenCardsWithSpace);
+    tempCards = assignWorkersToCardsInBatch(greenWorkers, greenCardsWithSpace, tempCards);
+    
+    // Update the cards state with all worker assignments
+    setCards(tempCards);
   };
   
-  // Helper function to assign workers to cards
-  const assignWorkersToCards = (workers: Worker[], cards: Card[]) => {
-    if (workers.length === 0 || cards.length === 0) return;
+  // Helper function to assign workers to cards in batch
+  const assignWorkersToCardsInBatch = (
+    workers: Worker[], 
+    cardsToAssign: Card[], 
+    allCards: Card[]
+  ): Card[] => {
+    if (workers.length === 0 || cardsToAssign.length === 0) return allCards;
     
     // Create a copy of the cards array to update
-    const updatedCards = [...cards];
+    const updatedCards = [...allCards];
     
-    // Assign workers to cards
+    // Distribute workers across cards (one worker per card first)
     let workerIndex = 0;
     let cardIndex = 0;
     
-    while (workerIndex < workers.length && cardIndex < updatedCards.length) {
+    // First pass: assign one worker per card
+    while (workerIndex < workers.length && cardIndex < cardsToAssign.length) {
       const worker = workers[workerIndex];
-      const card = updatedCards[cardIndex];
+      const card = cardsToAssign[cardIndex];
       
-      // Check if the card has space for another worker
-      if (card.assignedWorkers.length < 3) {
+      // Find the card in the updated cards array
+      const cardToUpdate = updatedCards.find(c => c.id === card.id);
+      if (cardToUpdate) {
         // Assign the worker to the card
-        setCards(prevCards => 
-          prevCards.map(c => 
-            c.id === card.id 
-              ? { ...c, assignedWorkers: [...c.assignedWorkers, worker] } 
-              : c
-          )
-        );
+        cardToUpdate.assignedWorkers = [...cardToUpdate.assignedWorkers, worker];
+      }
+      
+      // Move to the next worker and card
+      workerIndex++;
+      cardIndex++;
+    }
+    
+    // If we have more workers than cards, start assigning additional workers to cards
+    if (workerIndex < workers.length) {
+      // Reset card index to start from the beginning
+      cardIndex = 0;
+      
+      // Second pass: assign remaining workers to cards (up to 3 per card)
+      while (workerIndex < workers.length && cardIndex < cardsToAssign.length) {
+        const worker = workers[workerIndex];
+        const card = cardsToAssign[cardIndex];
         
-        // Move to the next worker
-        workerIndex++;
-      } else {
-        // Card is full, move to the next card
+        // Find the card in the updated cards array
+        const cardToUpdate = updatedCards.find(c => c.id === card.id);
+        if (cardToUpdate && cardToUpdate.assignedWorkers.length < 3) {
+          // Assign the worker to the card
+          cardToUpdate.assignedWorkers = [...cardToUpdate.assignedWorkers, worker];
+          workerIndex++;
+        }
+        
+        // Move to the next card
         cardIndex++;
+        
+        // If we've gone through all cards but still have workers, start over
+        if (cardIndex >= cardsToAssign.length && workerIndex < workers.length) {
+          cardIndex = 0;
+        }
       }
     }
+    
+    return updatedCards;
   };
 
   return (
