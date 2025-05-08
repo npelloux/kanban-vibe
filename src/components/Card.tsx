@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { WorkerType } from './Worker';
 
 export interface WorkItemsType {
@@ -91,11 +91,43 @@ export const Card: React.FC<CardProps> = ({
   // Check if all work is completed
   const isCompleted = totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
 
+  // Reference to the card element
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Effect to add event listener for custom workerdrop event (for mobile)
+  useEffect(() => {
+    const cardElement = cardRef.current;
+    
+    // Handler for the custom workerdrop event
+    const handleWorkerDrop = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { workerId, workerType } = customEvent.detail;
+      
+      if (onWorkerDrop && workerId && workerType) {
+        onWorkerDrop(workerId, workerType);
+      }
+    };
+    
+    // Add event listener
+    if (cardElement) {
+      cardElement.addEventListener('workerdrop', handleWorkerDrop);
+    }
+    
+    // Clean up
+    return () => {
+      if (cardElement) {
+        cardElement.removeEventListener('workerdrop', handleWorkerDrop);
+      }
+    };
+  }, [onWorkerDrop]);
+
   return (
     <div 
+      ref={cardRef}
       className={`card ${isBlocked ? 'card-blocked' : ''} ${isCompleted ? 'card-completed' : ''} ${isDragOver ? 'card-drag-over' : ''}`} 
       data-testid="card" 
       data-card-id={id}
+      data-stage={stage}
       onClick={onClick}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

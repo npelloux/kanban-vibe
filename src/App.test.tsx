@@ -33,12 +33,12 @@ describe('App Component', () => {
     expect(screen.getByRole('heading', { name: 'Done' })).toBeInTheDocument();
   });
 
-  it('displays the current day as Day 0', () => {
-    // Arrange & Act
+  it('displays the current day as 0', () => {
+    // Arrange
     render(<App />);
     
     // Assert
-    expect(screen.getByText('Day 0')).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
   });
 
   it('increments the day counter when Next Day is clicked', () => {
@@ -48,8 +48,8 @@ describe('App Component', () => {
     // Act - click Next Day button
     fireEvent.click(screen.getByText('Next Day'));
     
-    // Assert
-    expect(screen.getByText('Day 1')).toBeInTheDocument();
+    // Assert - use a more specific selector to find the day number
+    expect(screen.getByTestId('day-counter')).toHaveTextContent('1');
   });
 
   it('renders the worker pool with the correct workers', () => {

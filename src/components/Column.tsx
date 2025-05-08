@@ -40,8 +40,11 @@ export const Column: React.FC<ColumnProps> = ({
   onWorkerDrop = () => {},
   onAddCard = () => {}
 }) => {
+  // Determine the stage value for data-stage attribute
+  const stageValue = `${type}${status === 'active' ? '-active' : ''}`;
+  
   return (
-    <div className={`column column-${type} column-${status}`}>
+    <div className={`column column-${type} column-${status}`} data-stage={stageValue}>
       {/* Column header with title and buttons */}
       <div className="column-header">
         <h2>{title}</h2>

@@ -6,8 +6,7 @@ import { WorkerPool } from './components/WorkerPool'
 import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram'
 import { WipAgingDiagram } from './components/WipAgingDiagram'
 import { FlowMetrics } from './components/FlowMetrics'
-import { TabNavigation } from './components/TabNavigation'
-import { ContextActions } from './components/ContextActions'
+import { NavigationBar } from './components/NavigationBar'
 import { WipLimitEditor } from './components/WipLimitEditor'
 import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
@@ -837,14 +836,10 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>Kanban Vibe</h1>
-        <div className="day-counter">Day {currentDay}</div>
-      </header>
-      
-      <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
-      
-      <ContextActions 
+      <NavigationBar 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange}
+        currentDay={currentDay}
         onSaveContext={handleSaveContext}
         onImportContext={handleImportContext}
       />
