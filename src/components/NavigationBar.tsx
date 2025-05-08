@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Logo } from './Logo';
+import { PolicyRunner } from './PolicyRunner';
 import type { TabType } from './TabNavigation';
+import type { PolicyType } from './PolicyRunner';
 
 interface NavigationBarProps {
   activeTab: TabType;
@@ -8,6 +10,10 @@ interface NavigationBarProps {
   currentDay: number;
   onSaveContext: () => void;
   onImportContext: (file: File) => void;
+  onRunPolicy?: (policyType: PolicyType, days: number) => void;
+  isPolicyRunning?: boolean;
+  policyProgress?: { currentDay: number; totalDays: number };
+  onCancelPolicy?: () => void;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({ 
@@ -15,7 +21,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   onTabChange, 
   currentDay,
   onSaveContext,
-  onImportContext
+  onImportContext,
+  onRunPolicy,
+  isPolicyRunning = false,
+  policyProgress,
+  onCancelPolicy
 }) => {
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
@@ -132,6 +142,15 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               </div>
             )}
           </div>
+          
+          {onRunPolicy && (
+            <PolicyRunner
+              onRunPolicy={onRunPolicy}
+              isRunning={isPolicyRunning}
+              progress={policyProgress}
+              onCancel={onCancelPolicy}
+            />
+          )}
         </div>
         
         <div className="day-counter">

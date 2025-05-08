@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NavigationBar } from '../NavigationBar';
@@ -8,6 +7,8 @@ describe('NavigationBar Component', () => {
   const mockOnTabChange = vi.fn();
   const mockOnSaveContext = vi.fn();
   const mockOnImportContext = vi.fn();
+  const mockOnRunPolicy = vi.fn();
+  const mockOnCancelPolicy = vi.fn();
   
   const defaultProps = {
     activeTab: 'kanban' as const,
@@ -17,15 +18,24 @@ describe('NavigationBar Component', () => {
     onImportContext: mockOnImportContext
   };
   
+  const propsWithPolicy = {
+    ...defaultProps,
+    onRunPolicy: mockOnRunPolicy,
+    isPolicyRunning: false,
+    onCancelPolicy: mockOnCancelPolicy
+  };
+  
   beforeEach(() => {
     vi.clearAllMocks();
   });
   
   it('renders with all required elements', () => {
-    render(<NavigationBar {...defaultProps} />);
+    const { container } = render(<NavigationBar {...defaultProps} />);
     
     // Check for logo
-    expect(screen.getByText('Kanban Vibe')).toBeInTheDocument();
+    const logoImage = container.querySelector('.logo-image');
+    expect(logoImage).toBeInTheDocument();
+    expect(logoImage).toHaveAttribute('alt', 'Kanban Vibe Logo');
     
     // Check for tabs
     expect(screen.getByText('Kanban Board')).toBeInTheDocument();
@@ -122,5 +132,33 @@ describe('NavigationBar Component', () => {
     
     // Import dropdown should be open
     expect(screen.getByText('Import Context')).toBeInTheDocument();
+  });
+  
+  it('renders PolicyRunner when onRunPolicy prop is provided', () => {
+    render(<NavigationBar {...propsWithPolicy} />);
+    
+    // Policy button should be visible
+    expect(screen.getByLabelText('Run policy')).toBeInTheDocument();
+  });
+  
+  it('does not render PolicyRunner when onRunPolicy prop is not provided', () => {
+    render(<NavigationBar {...defaultProps} />);
+    
+    // Policy button should not be visible
+    expect(screen.queryByLabelText('Run policy')).not.toBeInTheDocument();
+  });
+  
+  it('passes policy props to PolicyRunner component', () => {
+    // Render with policy running
+    render(
+      <NavigationBar 
+        {...propsWithPolicy} 
+        isPolicyRunning={true}
+        policyProgress={{ currentDay: 3, totalDays: 10 }}
+      />
+    );
+    
+    // Policy progress should be visible
+    expect(screen.getByText('Day 3 of 10')).toBeInTheDocument();
   });
 });

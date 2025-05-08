@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import { Column } from './components/Column'
 import { NextDayButton } from './components/NextDayButton'
@@ -11,6 +11,7 @@ import { WipLimitEditor } from './components/WipLimitEditor'
 import type { TabType } from './components/TabNavigation'
 import type { WorkItemsType } from './components/Card'
 import type { WorkerType } from './components/Worker'
+import type { PolicyType } from './components/PolicyRunner'
 
 // Generate a random number between min and max (inclusive)
 const getRandomInt = (min: number, max: number): number => {
@@ -159,6 +160,9 @@ interface KanbanState {
   historicalData: HistoricalData[];
 }
 
+// Policy execution interval in milliseconds
+const POLICY_EXECUTION_INTERVAL = 500;
+
 function App() {
   // Initialize with day 0
   const [currentDay, setCurrentDay] = useState<number>(0);
@@ -168,6 +172,11 @@ function App() {
   
   // State for historical data
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  
+  // State for policy execution
+  const [isPolicyRunning, setIsPolicyRunning] = useState<boolean>(false);
+  const [policyProgress, setPolicyProgress] = useState<{ currentDay: number; totalDays: number } | undefined>(undefined);
+  const policyIntervalRef = useRef<number | null>(null);
   
   // State for WIP limits
   const [wipLimits, setWipLimits] = useState({
@@ -834,6 +843,123 @@ function App() {
     }
   };
 
+  // Function to run a policy
+  const handleRunPolicy = (policyType: PolicyType, days: number) => {
+    if (isPolicyRunning) return;
+    
+    setIsPolicyRunning(true);
+    setPolicyProgress({ currentDay: 0, totalDays: days });
+    
+    let currentPolicyDay = 0;
+    
+    // Clear any existing interval
+    if (policyIntervalRef.current) {
+      window.clearInterval(policyIntervalRef.current);
+    }
+    
+    // Start the policy execution interval
+    policyIntervalRef.current = window.setInterval(() => {
+      if (currentPolicyDay >= days) {
+        // Policy execution complete
+        handleCancelPolicy();
+        return;
+      }
+      
+      // Execute one day of the policy
+      executePolicyDay(policyType);
+      
+      // Update progress
+      currentPolicyDay++;
+      setPolicyProgress({ currentDay: currentPolicyDay, totalDays: days });
+    }, POLICY_EXECUTION_INTERVAL);
+  };
+  
+  // Function to cancel a running policy
+  const handleCancelPolicy = () => {
+    if (policyIntervalRef.current) {
+      window.clearInterval(policyIntervalRef.current);
+      policyIntervalRef.current = null;
+    }
+    
+    setIsPolicyRunning(false);
+    setPolicyProgress(undefined);
+  };
+  
+  // Function to execute a single day of the policy
+  const executePolicyDay = (policyType: PolicyType) => {
+    // Implement the policy algorithm based on the policy type
+    if (policyType === 'siloted-expert') {
+      // 1. Assign workers to cards in their own active color
+      assignWorkersToMatchingCards();
+      
+      // 2. Click the "Next Day" button to advance the simulation
+      handleNextDay();
+    }
+  };
+  
+  // Function to assign workers to cards in their matching color columns
+  const assignWorkersToMatchingCards = () => {
+    // Create a copy of the workers array to track which workers have been assigned
+    const availableWorkers = [...workers];
+    
+    // Get cards in active columns
+    const redActiveCardsWithSpace = redActiveCards.filter(card => card.assignedWorkers.length < 3);
+    const blueActiveCardsWithSpace = blueActiveCards.filter(card => card.assignedWorkers.length < 3);
+    const greenCardsWithSpace = greenCards.filter(card => card.assignedWorkers.length < 3);
+    
+    // Sort cards by age (oldest first) to prioritize older cards
+    redActiveCardsWithSpace.sort((a, b) => b.age - a.age);
+    blueActiveCardsWithSpace.sort((a, b) => b.age - a.age);
+    greenCardsWithSpace.sort((a, b) => b.age - a.age);
+    
+    // Assign red workers to red active cards
+    const redWorkers = availableWorkers.filter(worker => worker.type === 'red');
+    assignWorkersToCards(redWorkers, redActiveCardsWithSpace);
+    
+    // Assign blue workers to blue active cards
+    const blueWorkers = availableWorkers.filter(worker => worker.type === 'blue');
+    assignWorkersToCards(blueWorkers, blueActiveCardsWithSpace);
+    
+    // Assign green workers to green cards
+    const greenWorkers = availableWorkers.filter(worker => worker.type === 'green');
+    assignWorkersToCards(greenWorkers, greenCardsWithSpace);
+  };
+  
+  // Helper function to assign workers to cards
+  const assignWorkersToCards = (workers: Worker[], cards: Card[]) => {
+    if (workers.length === 0 || cards.length === 0) return;
+    
+    // Create a copy of the cards array to update
+    const updatedCards = [...cards];
+    
+    // Assign workers to cards
+    let workerIndex = 0;
+    let cardIndex = 0;
+    
+    while (workerIndex < workers.length && cardIndex < updatedCards.length) {
+      const worker = workers[workerIndex];
+      const card = updatedCards[cardIndex];
+      
+      // Check if the card has space for another worker
+      if (card.assignedWorkers.length < 3) {
+        // Assign the worker to the card
+        setCards(prevCards => 
+          prevCards.map(c => 
+            c.id === card.id 
+              ? { ...c, assignedWorkers: [...c.assignedWorkers, worker] } 
+              : c
+          )
+        );
+        
+        // Move to the next worker
+        workerIndex++;
+      } else {
+        // Card is full, move to the next card
+        cardIndex++;
+      }
+    }
+  };
+
   return (
     <div className="app">
       <NavigationBar 
@@ -842,6 +968,10 @@ function App() {
         currentDay={currentDay}
         onSaveContext={handleSaveContext}
         onImportContext={handleImportContext}
+        onRunPolicy={handleRunPolicy}
+        isPolicyRunning={isPolicyRunning}
+        policyProgress={policyProgress}
+        onCancelPolicy={handleCancelPolicy}
       />
       
       <WorkerPool 
@@ -855,7 +985,7 @@ function App() {
       {renderContent()}
       
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-        <NextDayButton onClick={handleNextDay} />
+        <NextDayButton onClick={handleNextDay} disabled={isPolicyRunning} />
       </div>
     </div>
   )

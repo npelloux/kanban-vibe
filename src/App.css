@@ -1108,3 +1108,160 @@
   color: #333;
   text-align: center;
 }
+
+/* Policy Runner styles */
+.policy-runner {
+  position: relative;
+  margin-left: 0.75rem;
+}
+
+.policy-button {
+  background-color: var(--classic-blue);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.policy-button:hover {
+  background-color: #0747a6;
+}
+
+.policy-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.policy-options-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 300px;
+  z-index: 100;
+}
+
+.policy-options-content {
+  padding: 1rem;
+}
+
+.policy-options-content h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.policy-type-selector {
+  margin-bottom: 1rem;
+}
+
+.policy-type-selector label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.policy-description {
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.days-input {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.days-input label {
+  font-weight: 500;
+}
+
+.days-input input {
+  width: 60px;
+  padding: 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.run-policy-button {
+  background-color: var(--classic-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.run-policy-button:hover {
+  background-color: #0747a6;
+}
+
+.policy-progress {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 300px;
+  padding: 1rem;
+  z-index: 100;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--classic-blue);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.cancel-policy-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.cancel-policy-button:hover {
+  background-color: #d32f2f;
+}
