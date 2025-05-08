@@ -2,7 +2,7 @@
 
 - Finished setting up CI/CD and continuous deployment pipeline to ensure fast feedback.
 ## What works
-- The website is currently functional and accessible at http://localhost:5173/ when launched locally with "npm run dev".
+- The website is currently functional and accessible at http://localhost:5175/ when launched locally with "npm run dev".
 
 ## What you're working on now
 - Create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm.
@@ -41,6 +41,7 @@
 - ✅ Create max WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move to an activity if the max WIP is reached for the next activity
 - ✅ Create min WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move out of an activity if min limit would be broken in current activity
 - ✅ Create add button + delete worker capability.
+- ✅ Replace the SVG logo and text title with the kanban-vibe-v1.png image
 - create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
 
 
@@ -132,3 +133,7 @@
   - Updated App.tsx to handle worker state management (adding/deleting)
   - Added CSS styling for the new worker management UI elements
   - Ensured proper cleanup when deleting workers (removing from cards they're assigned to)
+- Updated the application branding:
+  - Replaced the SVG logo and text title with the kanban-vibe-v1.png image
+  - Modified the Logo component to use the image file instead of the SVG
+  - Updated the CSS styling for the logo container to properly display the image

@@ -42,17 +42,11 @@
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
-.logo-svg {
-  flex-shrink: 0;
-}
-
-.logo-text {
-  font-weight: bold;
-  color: var(--classic-blue);
-  white-space: nowrap;
+.logo-image {
+  height: 40px;
+  object-fit: contain;
 }
 
 /* Navigation Bar styles */
