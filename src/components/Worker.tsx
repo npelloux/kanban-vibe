@@ -78,14 +78,38 @@ export const Worker: React.FC<WorkerProps> = ({ type, id, isSelected, onClick })
     // Get the touch position
     const touch = e.touches[0];
     
+    // Move the worker element to follow the touch
+    if (workerRef.current) {
+      // Create a visual clone for dragging if it doesn't exist
+      let dragClone = document.getElementById('worker-drag-clone');
+      if (!dragClone) {
+        dragClone = document.createElement('div');
+        dragClone.id = 'worker-drag-clone';
+        dragClone.className = `worker worker-${type} worker-dragging-clone`;
+        dragClone.innerHTML = `<div class="worker-avatar">${id}</div>`;
+        document.body.appendChild(dragClone);
+      }
+      
+      // Position the clone at the touch point
+      dragClone.style.position = 'absolute';
+      dragClone.style.left = `${touch.clientX - 20}px`;
+      dragClone.style.top = `${touch.clientY - 20}px`;
+      dragClone.style.zIndex = '1000';
+      dragClone.style.opacity = '0.8';
+    }
+    
     // Find the element under the touch point
     const elementsUnderTouch = document.elementsFromPoint(touch.clientX, touch.clientY);
     
     // Find if there's a card element under the touch
-    const cardElement = elementsUnderTouch.find(el => 
-      el.classList.contains('card') && 
-      !el.classList.contains('card-completed')
-    );
+    const cardElement = elementsUnderTouch.find(el => {
+      if (!el.classList.contains('card')) return false;
+      if (el.classList.contains('card-completed')) return false;
+      
+      // Check if the card is in an active stage
+      const stage = el.getAttribute('data-stage') || '';
+      return stage.includes('active') || stage === 'green';
+    });
     
     // Remove drag-over class from all cards
     document.querySelectorAll('.card-drag-over').forEach(card => {
@@ -98,32 +122,53 @@ export const Worker: React.FC<WorkerProps> = ({ type, id, isSelected, onClick })
     }
   };
   
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
     // Remove dragging class
     if (workerRef.current) {
       workerRef.current.classList.remove('worker-dragging');
       setIsDragging(false);
     }
     
-    // Find the card element that has the drag-over class
-    const cardElement = document.querySelector('.card-drag-over');
+    // Remove the drag clone if it exists
+    const dragClone = document.getElementById('worker-drag-clone');
+    if (dragClone) {
+      document.body.removeChild(dragClone);
+    }
+    
+    // Get the touch position of the last touch
+    const touch = e.changedTouches[0];
+    
+    // Find the element under the touch point
+    const elementsUnderTouch = document.elementsFromPoint(touch.clientX, touch.clientY);
+    
+    // Find if there's a valid card element under the touch
+    const cardElement = elementsUnderTouch.find(el => {
+      if (!el.classList.contains('card')) return false;
+      if (el.classList.contains('card-completed')) return false;
+      
+      // Check if the card is in an active stage
+      const stage = el.getAttribute('data-stage') || '';
+      return stage.includes('active') || stage === 'green';
+    });
+    
+    // Remove drag-over class from all cards
+    document.querySelectorAll('.card-drag-over').forEach(card => {
+      card.classList.remove('card-drag-over');
+    });
     
     if (cardElement) {
-      // Get the card's stage attribute
-      const stage = cardElement.closest('[data-stage]')?.getAttribute('data-stage') || '';
+      // Dispatch a custom event to the card element
+      const dropEvent = new CustomEvent('workerdrop', {
+        detail: { workerId: id, workerType: type }
+      });
       
-      // Only allow drop if the card is in an active stage
-      if (stage && (stage.includes('active') || stage === 'green')) {
-        // Dispatch a custom event to the card element
-        const dropEvent = new CustomEvent('workerdrop', {
-          detail: { workerId: id, workerType: type }
-        });
-        
-        cardElement.dispatchEvent(dropEvent);
-      }
+      cardElement.dispatchEvent(dropEvent);
       
-      // Remove drag-over class
-      cardElement.classList.remove('card-drag-over');
+      // Add a visual feedback for successful drop
+      cardElement.classList.add('card-worker-dropped');
+      setTimeout(() => {
+        cardElement.classList.remove('card-worker-dropped');
+      }, 300);
     }
     
     // Clear the dragged worker data

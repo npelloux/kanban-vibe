@@ -304,6 +304,24 @@
   position: relative;
 }
 
+.worker-dragging-clone {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-worker-dropped {
+  animation: pulse-success 0.3s ease-in-out;
+}
+
+@keyframes pulse-success {
+  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   /* Navigation bar */
