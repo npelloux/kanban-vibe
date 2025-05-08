@@ -1,4 +1,4 @@
-#root {
+ #root {
   max-width: 100%;
   margin: 0 auto;
   padding: 0.5rem;
@@ -175,12 +175,99 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.wip-limit-container:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .wip-limit-label {
   font-size: 0.75rem;
   color: #333;
   margin: 0.1rem 0;
+}
+
+.wip-limit-edit-hint {
+  font-size: 0.65rem;
+  color: #666;
+  margin-top: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.wip-limit-container:hover .wip-limit-edit-hint {
+  opacity: 1;
+}
+
+.wip-limit-editor {
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.wip-limit-inputs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wip-limit-input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.wip-limit-input-group label {
+  font-size: 0.7rem;
+  margin-bottom: 0.2rem;
+  color: #333;
+}
+
+.wip-limit-input {
+  width: 3rem;
+  padding: 0.25rem;
+  font-size: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.wip-limit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.wip-limit-save,
+.wip-limit-cancel {
+  border: none;
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.wip-limit-save {
+  background-color: #4caf50;
+  color: white;
+}
+
+.wip-limit-save:hover {
+  background-color: #43a047;
+}
+
+.wip-limit-cancel {
+  background-color: #f44336;
+  color: white;
+}
+
+.wip-limit-cancel:hover {
+  background-color: #e53935;
 }
 
 .kanban-subheader-empty {
