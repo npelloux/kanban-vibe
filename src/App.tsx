@@ -241,10 +241,10 @@ function App() {
   
   // Initialize workers
   const initialWorkers: Worker[] = [
-    { id: '1', type: 'red' },
-    { id: '3', type: 'blue' },
-    { id: '4', type: 'blue' },
-    { id: '5', type: 'green' }
+    { id: 'bob', type: 'red' },
+    { id: 'zoe', type: 'blue' },
+    { id: 'lea', type: 'blue' },
+    { id: 'taz', type: 'green' }
   ];
   
   // State to track workers

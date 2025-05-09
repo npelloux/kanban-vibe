@@ -53,9 +53,9 @@ export const Column: React.FC<ColumnProps> = ({
             <button 
               className="add-card-button" 
               onClick={onAddCard}
-              title="Add a new card"
+              title="Add a new job"
             >
-              + Add Card
+              + New
             </button>
           )}
         </div>
