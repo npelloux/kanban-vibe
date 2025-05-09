@@ -100,19 +100,19 @@ This document outlines all the capabilities of the Kanban Vibe application, alon
 
 ### Business Rules
 - Workers produce output when the "Next Day" button is clicked
-- Workers specialized in a column's color produce 1-6 work items (randomly determined)
+- Workers specialized in a column's color produce 3-6 work items (randomly determined)
 - Workers not specialized in a column's color produce 0-3 work items (randomly determined)
 - Worker output is applied to the work items of the card they are assigned to
 - Workers are unassigned from cards after the "Next Day" button is clicked
 
 ### Examples
 **Passing:**
-- A red worker assigned to a card in Red Active produces 1-6 red work items
+- A red worker assigned to a card in Red Active produces 3-6 red work items
 - A blue worker assigned to a card in Red Active produces 0-3 red work items
 - After clicking "Next Day", workers are no longer assigned to any cards
 
 **Not Passing:**
-- A specialized worker produces less than 1 or more than 6 work items
+- A specialized worker produces less than 3 or more than 6 work items
 - A non-specialized worker produces more than 3 work items
 - Workers remain assigned to cards after clicking "Next Day"
 

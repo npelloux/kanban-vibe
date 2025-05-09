@@ -5,7 +5,7 @@
 - The website is currently functional and accessible at http://localhost:5175/ when launched locally with "npm run dev".
 
 ## What you're working on now
-- Create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm.
+- All current tasks have been completed.
 
 ## What's left to build
 - ✅ Add a dummy test to validate the testing capabilities of the CI CD pipeline
@@ -23,7 +23,7 @@
 - ✅ Make the 6 column isible without the need to have a slidebar. 
 - ✅ Reorganize column headers with activity types in the first row and status in the second row
 - ✅ Make the workers attribution using a drag & drop mouse feature. 
-- ✅ Implement workers output rules : A worker can work only any active column. It work output is computed when "next day" button is clicked. The output for a worker is computed using these rules : 1st rule "a worker working on a column colored like his own color shall output 1 to 6 boxes of his own color. Meaning : The worker is specialized on its color task. His output is randomly choosen between 1 to 6 like a dice.". 2nd rule : "a worker working on a column of a different color has an output of 0 to 3 boxes of the column color, randomly choosen. Meaning: The worker helps on another task he is not a specialist in, so his output is lower". 
+- ✅ Implement workers output rules : A worker can work only any active column. It work output is computed when "next day" button is clicked. The output for a worker is computed using these rules : 1st rule "a worker working on a column colored like his own color shall output 3 to 6 boxes of his own color. Meaning : The worker is specialized on its color task. His output is randomly choosen between 3 to 6.". 2nd rule : "a worker working on a column of a different color has an output of 0 to 3 boxes of the column color, randomly choosen. Meaning: The worker helps on another task he is not a specialist in, so his output is lower". 
 - ✅ Workers should be able to work on the same card up to 3 workers
 - ✅ The cards in the blue activities should always be red-complete. Red-complete meaning that all its red works has been completed. Same thing for green column : all red & blue shall be completed; At last : Done cards whould have all work completed.
 - ✅ Remove on red worker and one green
@@ -42,7 +42,7 @@
 - ✅ Create min WIP constraint on activities, configurable by the user. If zero there is no constraint. A card cannot move out of an activity if min limit would be broken in current activity
 - ✅ Create add button + delete worker capability.
 - ✅ Replace the SVG logo and text title with the kanban-vibe-v1.png image
-- create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
+- ✅ create a "policy" feature to automate the run for a given number of days using a preconfigured algorithm. The first policy will be "siloted expert" where workers always work on the cards in their own active color; The finished tasks will go to the next column as soon as possible; The max WIP must be respected at all time
 
 
 ## Progress status
@@ -59,7 +59,7 @@
 - Implemented drag & drop functionality for worker attribution
 - Added visual feedback during drag & drop operations
 - Implemented worker output rules for the "next day" button:
-  - Workers specialized in a column's color produce 1-6 work items
+  - Workers specialized in a column's color produce 3-6 work items
   - Workers not specialized in a column's color produce 0-3 work items
 - Implemented support for up to 3 workers per card
 - Added display of multiple workers on cards
@@ -137,3 +137,9 @@
   - Replaced the SVG logo and text title with the kanban-vibe-v1.png image
   - Modified the Logo component to use the image file instead of the SVG
   - Updated the CSS styling for the logo container to properly display the image
+- Implemented policy feature to automate simulation:
+  - Created PolicyRunner component with policy selection and day configuration
+  - Implemented "Siloted Expert" policy algorithm
+  - Added progress tracking with visual progress bar
+  - Added cancel functionality to stop policy execution
+  - Limited maximum work items in cards to 8

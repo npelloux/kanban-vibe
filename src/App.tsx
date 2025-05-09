@@ -350,8 +350,8 @@ function App() {
         let outputAmount = 0;
         
         if (workerType === columnColor) {
-          // Worker is specialized in this color - output 1-6 boxes
-          outputAmount = getRandomInt(1, 6);
+          // Worker is specialized in this color - output 3-6 boxes
+          outputAmount = getRandomInt(3, 6);
         } else {
           // Worker is not specialized - output 0-3 boxes
           outputAmount = getRandomInt(0, 3);
@@ -496,9 +496,9 @@ function App() {
       startDay: currentDay,
       isBlocked: false,
       workItems: {
-        red: { total: getRandomInt(1, 10), completed: 0 },
-        blue: { total: getRandomInt(1, 10), completed: 0 },
-        green: { total: getRandomInt(1, 10), completed: 0 }
+        red: { total: getRandomInt(1, 8), completed: 0 },
+        blue: { total: getRandomInt(1, 8), completed: 0 },
+        green: { total: getRandomInt(1, 8), completed: 0 }
       },
       assignedWorkers: []
     };

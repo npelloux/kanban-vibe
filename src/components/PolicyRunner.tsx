@@ -44,7 +44,7 @@ export const PolicyRunner: React.FC<PolicyRunnerProps> = ({
   const getPolicyDescription = (policy: PolicyType): string => {
     switch (policy) {
       case 'siloted-expert':
-        return 'Workers always work on cards in their own active color. Finished tasks move to the next column as soon as possible. Max WIP limits are respected at all times.';
+        return 'Workers always work on cards in their own active color (producing 3-6 work items). Finished tasks move to the next column as soon as possible. Max WIP limits are respected at all times.';
       default:
         return '';
     }
