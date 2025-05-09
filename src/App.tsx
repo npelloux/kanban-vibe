@@ -889,126 +889,313 @@ function App() {
   const executePolicyDay = (policyType: PolicyType) => {
     // Implement the policy algorithm based on the policy type
     if (policyType === 'siloted-expert') {
+      console.log('Executing policy day for siloted-expert');
+      
+      // Get the current state of cards
+      const currentCards = [...cards];
+      
       // 1. Move cards from options to red active (respecting WIP limits)
-      moveCardsFromOptionsToRedActive();
+      const cardsAfterOptionsToRed = moveCardsFromOptionsToRedActiveSync(currentCards);
+      console.log('Cards after moving from options to red active:', cardsAfterOptionsToRed);
       
       // 2. Move cards from finished columns to next activity (respecting WIP limits)
-      moveCardsFromFinishedToNextActivity();
+      const cardsAfterFinishedToNext = moveCardsFromFinishedToNextActivitySync(cardsAfterOptionsToRed);
+      console.log('Cards after moving from finished to next activity:', cardsAfterFinishedToNext);
       
       // 3. Assign workers to cards in their own active color
-      assignWorkersToMatchingCards();
+      const cardsWithWorkers = assignWorkersToMatchingCardsSync(cardsAfterFinishedToNext);
+      console.log('Cards after assigning workers:', cardsWithWorkers);
       
-      // 4. Click the "Next Day" button to advance the simulation
-      handleNextDay();
+      // 4. Apply worker output and advance the day
+      // This is similar to handleNextDay but operates directly on our local cards state
+      
+      // Increment the day counter
+      const newDay = currentDay + 1;
+      
+      // Increment age for all cards except those in the 'options' or 'done' columns
+      const agedCards = cardsWithWorkers.map(card => ({
+        ...card,
+        age: (card.stage === 'done' || card.stage === 'options') ? card.age : card.age + 1
+      }));
+      
+      // Apply worker output rules to cards with assigned workers
+      const cardsWithWorkerOutput = agedCards.map(card => {
+        if (!card.assignedWorkers.length || !card.stage.includes('active') && card.stage !== 'green') {
+          return card;
+        }
+        
+        const updatedWorkItems = { ...card.workItems };
+        const columnColor = card.stage.includes('red') ? 'red' : 
+                            card.stage.includes('blue') ? 'blue' : 'green';
+        
+        // Process each assigned worker
+        card.assignedWorkers.forEach(worker => {
+          const workerType = worker.type;
+          
+          // Determine output based on worker color and column color
+          let outputAmount = 0;
+          
+          if (workerType === columnColor) {
+            // Worker is specialized in this color - output 3-6 boxes
+            outputAmount = getRandomInt(3, 6);
+          } else {
+            // Worker is not specialized - output 0-3 boxes
+            outputAmount = getRandomInt(0, 3);
+          }
+          
+          // Apply the output to the work items
+          if (updatedWorkItems[columnColor]) {
+            const newCompleted = Math.min(
+              updatedWorkItems[columnColor].total,
+              updatedWorkItems[columnColor].completed + outputAmount
+            );
+            
+            updatedWorkItems[columnColor] = {
+              ...updatedWorkItems[columnColor],
+              completed: newCompleted
+            };
+          }
+        });
+        
+        return {
+          ...card,
+          workItems: updatedWorkItems
+        };
+      });
+      
+      // Process each card and move it to the next stage if stagedone returns true
+      // and the WIP limits are not violated
+      let updatedCards = [...cardsWithWorkerOutput];
+      
+      updatedCards = updatedCards.map(card => {
+        if (stagedone(card)) {
+          // Check if moving the card out would violate min WIP limit
+          const sourceStage = card.stage;
+          const cardsInSourceStage = updatedCards.filter(c => c.stage === sourceStage).length;
+          const minWipSource = wipLimits[getColumnKey(sourceStage)].min;
+          
+          if (minWipSource > 0 && cardsInSourceStage <= minWipSource) {
+            console.log(`Cannot move card ${card.id} out of ${sourceStage}: Min WIP limit would be violated.`);
+            return card;
+          }
+          
+          if (card.stage === 'red-active') {
+            // Check if moving to red-finished would exceed max WIP limit
+            const redFinishedCount = updatedCards.filter(c => c.stage === 'red-finished').length;
+            const maxRedFinished = wipLimits.redFinished.max;
+            
+            if (maxRedFinished > 0 && redFinishedCount >= maxRedFinished) {
+              console.log(`Cannot move card ${card.id} to Red Finished: Max WIP limit would be exceeded.`);
+              return card;
+            }
+            
+            return { ...card, stage: 'red-finished' };
+          } else if (card.stage === 'red-finished') {
+            // Check if moving to blue-active would exceed max WIP limit
+            const blueActiveCount = updatedCards.filter(c => c.stage === 'blue-active').length;
+            const maxBlueActive = wipLimits.blueActive.max;
+            
+            if (maxBlueActive > 0 && blueActiveCount >= maxBlueActive) {
+              console.log(`Cannot move card ${card.id} to Blue Active: Max WIP limit would be exceeded.`);
+              return card;
+            }
+            
+            return { ...card, stage: 'blue-active' };
+          } else if (card.stage === 'blue-active') {
+            // Check if moving to blue-finished would exceed max WIP limit
+            const blueFinishedCount = updatedCards.filter(c => c.stage === 'blue-finished').length;
+            const maxBlueFinished = wipLimits.blueFinished.max;
+            
+            if (maxBlueFinished > 0 && blueFinishedCount >= maxBlueFinished) {
+              console.log(`Cannot move card ${card.id} to Blue Finished: Max WIP limit would be exceeded.`);
+              return card;
+            }
+            
+            return { ...card, stage: 'blue-finished' };
+          } else if (card.stage === 'blue-finished') {
+            // Check if moving to green would exceed max WIP limit
+            const greenCount = updatedCards.filter(c => c.stage === 'green').length;
+            const maxGreen = wipLimits.green.max;
+            
+            if (maxGreen > 0 && greenCount >= maxGreen) {
+              console.log(`Cannot move card ${card.id} to Green Activities: Max WIP limit would be exceeded.`);
+              return card;
+            }
+            
+            return { ...card, stage: 'green' };
+          } else if (card.stage === 'green') {
+            // Check if moving to done would exceed max WIP limit
+            const doneCount = updatedCards.filter(c => c.stage === 'done').length;
+            const maxDone = wipLimits.done.max;
+            
+            if (maxDone > 0 && doneCount >= maxDone) {
+              console.log(`Cannot move card ${card.id} to Done: Max WIP limit would be exceeded.`);
+              return card;
+            }
+            
+            // When a card moves to done, store the current day as completionDay
+            return { 
+              ...card, 
+              stage: 'done',
+              completionDay: newDay
+            };
+          }
+        }
+        return card;
+      });
+      
+      // Reset all assigned workers
+      updatedCards = updatedCards.map(card => ({
+        ...card,
+        assignedWorkers: []
+      }));
+      
+      // Update the state with all changes
+      setCurrentDay(newDay);
+      setCards(updatedCards);
+      setSelectedWorkerId(null);
     }
   };
   
-  // Function to move cards from options to red active
-  const moveCardsFromOptionsToRedActive = () => {
-    // Check if moving to red-active would exceed max WIP limit
-    if (wouldExceedWipLimit('red-active')) {
-      console.log('Cannot move cards to Red Active: Max WIP limit would be exceeded.');
-      return;
-    }
-    
-    // Check if moving out of options would violate min WIP limit
-    if (wouldViolateMinWipLimit('options')) {
-      console.log('Cannot move cards out of Options: Min WIP limit would be violated.');
-      return;
-    }
+  // Function to move cards from options to red active (synchronous version)
+  const moveCardsFromOptionsToRedActiveSync = (currentCards: Card[]): Card[] => {
+    // Create a copy of the cards to modify
+    let updatedCards = [...currentCards];
     
     // Get all cards in options
-    const optionsCardsToMove = [...optionsCards];
+    const optionsCardsToMove = updatedCards.filter(card => card.stage === 'options');
     
     // Sort by ID to ensure consistent order
     optionsCardsToMove.sort((a, b) => a.id.localeCompare(b.id));
     
+    // Check if moving to red-active would exceed max WIP limit
+    const redActiveCount = updatedCards.filter(card => card.stage === 'red-active').length;
+    const maxRedActive = wipLimits.redActive.max;
+    const canMoveToRedActive = maxRedActive === 0 || redActiveCount < maxRedActive;
+    
+    // Check if moving out of options would violate min WIP limit
+    const optionsCount = optionsCardsToMove.length;
+    const minOptions = wipLimits.options.min;
+    const canMoveFromOptions = minOptions === 0 || optionsCount > minOptions;
+    
+    if (!canMoveToRedActive) {
+      console.log('Cannot move cards to Red Active: Max WIP limit would be exceeded.');
+      return updatedCards;
+    }
+    
+    if (!canMoveFromOptions) {
+      console.log('Cannot move cards out of Options: Min WIP limit would be violated.');
+      return updatedCards;
+    }
+    
     // Move cards one by one until we hit the WIP limit
     for (const card of optionsCardsToMove) {
-      // Check if we've hit the WIP limit
-      if (wouldExceedWipLimit('red-active')) {
+      // Check if we've hit the WIP limit after each move
+      const currentRedActiveCount = updatedCards.filter(card => card.stage === 'red-active').length;
+      if (maxRedActive !== 0 && currentRedActiveCount >= maxRedActive) {
         break;
       }
       
       // Move the card to red-active
-      setCards(prevCards => 
-        prevCards.map(c => 
-          c.id === card.id 
-            ? { ...c, stage: 'red-active', startDay: currentDay } 
-            : c
-        )
+      updatedCards = updatedCards.map(c => 
+        c.id === card.id 
+          ? { ...c, stage: 'red-active', startDay: currentDay } 
+          : c
       );
     }
+    
+    return updatedCards;
   };
   
-  // Function to move cards from finished columns to next activity
-  const moveCardsFromFinishedToNextActivity = () => {
+  
+  // Function to move cards from finished columns to next activity (synchronous version)
+  const moveCardsFromFinishedToNextActivitySync = (currentCards: Card[]): Card[] => {
+    // Create a copy of the cards to modify
+    let updatedCards = [...currentCards];
+    
     // Move cards from red-finished to blue-active
-    moveCardsToNextStage('red-finished', 'blue-active');
+    updatedCards = moveCardsToNextStageSync(updatedCards, 'red-finished', 'blue-active');
     
     // Move cards from blue-finished to green
-    moveCardsToNextStage('blue-finished', 'green');
+    updatedCards = moveCardsToNextStageSync(updatedCards, 'blue-finished', 'green');
+    
+    return updatedCards;
   };
   
-  // Helper function to move cards from one stage to the next
-  const moveCardsToNextStage = (fromStage: string, toStage: string) => {
-    // Check if moving to the next stage would exceed max WIP limit
-    if (wouldExceedWipLimit(toStage)) {
-      console.log(`Cannot move cards to ${toStage}: Max WIP limit would be exceeded.`);
-      return;
-    }
-    
-    // Check if moving out of the current stage would violate min WIP limit
-    if (wouldViolateMinWipLimit(fromStage)) {
-      console.log(`Cannot move cards out of ${fromStage}: Min WIP limit would be violated.`);
-      return;
-    }
+  
+  // Helper function to move cards from one stage to the next (synchronous version)
+  const moveCardsToNextStageSync = (currentCards: Card[], fromStage: string, toStage: string): Card[] => {
+    // Create a copy of the cards to modify
+    let updatedCards = [...currentCards];
     
     // Get all cards in the current stage
-    const cardsToMove = cards.filter(card => card.stage === fromStage);
+    const cardsToMove = updatedCards.filter(card => card.stage === fromStage);
     
     // Sort by age (oldest first) to prioritize older cards
     cardsToMove.sort((a, b) => b.age - a.age);
     
+    // Check if moving to the next stage would exceed max WIP limit
+    const toStageCount = updatedCards.filter(card => card.stage === toStage).length;
+    const maxToStage = wipLimits[getColumnKey(toStage)].max;
+    const canMoveToStage = maxToStage === 0 || toStageCount < maxToStage;
+    
+    // Check if moving out of the current stage would violate min WIP limit
+    const fromStageCount = cardsToMove.length;
+    const minFromStage = wipLimits[getColumnKey(fromStage)].min;
+    const canMoveFromStage = minFromStage === 0 || fromStageCount > minFromStage;
+    
+    if (!canMoveToStage) {
+      console.log(`Cannot move cards to ${toStage}: Max WIP limit would be exceeded.`);
+      return updatedCards;
+    }
+    
+    if (!canMoveFromStage) {
+      console.log(`Cannot move cards out of ${fromStage}: Min WIP limit would be violated.`);
+      return updatedCards;
+    }
+    
     // Move cards one by one until we hit the WIP limit
     for (const card of cardsToMove) {
-      // Check if we've hit the WIP limit
-      if (wouldExceedWipLimit(toStage)) {
+      // Check if we've hit the WIP limit after each move
+      const currentToStageCount = updatedCards.filter(card => card.stage === toStage).length;
+      if (maxToStage !== 0 && currentToStageCount >= maxToStage) {
         break;
       }
       
       // Check if the card is ready to move (all required work completed)
       if (stagedone(card)) {
         // Move the card to the next stage
-        setCards(prevCards => 
-          prevCards.map(c => 
-            c.id === card.id 
-              ? { ...c, stage: toStage } 
-              : c
-          )
+        updatedCards = updatedCards.map(c => 
+          c.id === card.id 
+            ? { ...c, stage: toStage } 
+            : c
         );
       }
     }
+    
+    return updatedCards;
   };
   
-  // Function to assign workers to cards in their matching color columns
-  const assignWorkersToMatchingCards = () => {
+  
+  // Function to assign workers to cards in their matching color columns (synchronous version)
+  const assignWorkersToMatchingCardsSync = (currentCards: Card[]): Card[] => {
+    // Create a copy of the cards to modify
+    let updatedCards = [...currentCards];
+    
     // Reset all assigned workers first
-    setCards(prevCards => 
-      prevCards.map(card => ({
-        ...card,
-        assignedWorkers: []
-      }))
-    );
+    updatedCards = updatedCards.map(card => ({
+      ...card,
+      assignedWorkers: []
+    }));
     
     // Get cards in active columns
-    const redActiveCardsWithSpace = cards.filter(card => 
+    const redActiveCardsWithSpace = updatedCards.filter(card => 
       card.stage === 'red-active' && card.assignedWorkers.length < 3
     );
-    const blueActiveCardsWithSpace = cards.filter(card => 
+    const blueActiveCardsWithSpace = updatedCards.filter(card => 
       card.stage === 'blue-active' && card.assignedWorkers.length < 3
     );
-    const greenCardsWithSpace = cards.filter(card => 
+    const greenCardsWithSpace = updatedCards.filter(card => 
       card.stage === 'green' && card.assignedWorkers.length < 3
     );
     
@@ -1022,21 +1209,18 @@ function App() {
     const blueWorkers = workers.filter(worker => worker.type === 'blue');
     const greenWorkers = workers.filter(worker => worker.type === 'green');
     
-    // Create a temporary copy of cards to track assignments
-    let tempCards = [...cards];
-    
     // Assign red workers to red active cards
-    tempCards = assignWorkersToCardsInBatch(redWorkers, redActiveCardsWithSpace, tempCards);
+    updatedCards = assignWorkersToCardsInBatch(redWorkers, redActiveCardsWithSpace, updatedCards);
     
     // Assign blue workers to blue active cards
-    tempCards = assignWorkersToCardsInBatch(blueWorkers, blueActiveCardsWithSpace, tempCards);
+    updatedCards = assignWorkersToCardsInBatch(blueWorkers, blueActiveCardsWithSpace, updatedCards);
     
     // Assign green workers to green cards
-    tempCards = assignWorkersToCardsInBatch(greenWorkers, greenCardsWithSpace, tempCards);
+    updatedCards = assignWorkersToCardsInBatch(greenWorkers, greenCardsWithSpace, updatedCards);
     
-    // Update the cards state with all worker assignments
-    setCards(tempCards);
+    return updatedCards;
   };
+  
   
   // Helper function to assign workers to cards in batch
   const assignWorkersToCardsInBatch = (
