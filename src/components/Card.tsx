@@ -156,7 +156,6 @@ export const Card: React.FC<CardProps> = ({
         {/* Red work items */}
         {workItems.red && workItems.red.total > 0 && (
           <div className="card-work-items-section">
-            <div className="card-work-items-label">Red:</div>
             <div className="card-work-items">
               {Array.from({ length: workItems.red.total }, (_, index) => (
                 <div 
@@ -172,7 +171,6 @@ export const Card: React.FC<CardProps> = ({
         {/* Blue work items */}
         {workItems.blue && workItems.blue.total > 0 && (
           <div className="card-work-items-section">
-            <div className="card-work-items-label">Blue:</div>
             <div className="card-work-items">
               {Array.from({ length: workItems.blue.total }, (_, index) => (
                 <div 
@@ -188,7 +186,6 @@ export const Card: React.FC<CardProps> = ({
         {/* Green work items */}
         {workItems.green && workItems.green.total > 0 && (
           <div className="card-work-items-section">
-            <div className="card-work-items-label">Green:</div>
             <div className="card-work-items">
               {Array.from({ length: workItems.green.total }, (_, index) => (
                 <div 
