@@ -72,7 +72,7 @@ describe('Context Actions', () => {
     const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
     if (!optionsColumn) throw new Error('Options column not found');
     
-    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    const addCardButton = within(optionsColumn).getByText('+ New');
     fireEvent.click(addCardButton);
     
     const optionsCards = within(optionsColumn).queryAllByTestId('card');

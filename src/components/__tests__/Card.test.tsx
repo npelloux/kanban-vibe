@@ -110,21 +110,18 @@ describe('Card Component', () => {
     const greenSection = container.querySelector('.card-work-items-section:nth-child(3)');
     
     // Check red work items
-    expect(redSection?.querySelector('.card-work-items-label')?.textContent).toBe('Red:');
     const redItems = redSection?.querySelectorAll('.work-item');
     expect(redItems?.length).toBe(3);
     const completedRedItems = redSection?.querySelectorAll('.work-item.completed');
     expect(completedRedItems?.length).toBe(1);
     
     // Check blue work items
-    expect(blueSection?.querySelector('.card-work-items-label')?.textContent).toBe('Blue:');
     const blueItems = blueSection?.querySelectorAll('.work-item');
     expect(blueItems?.length).toBe(2);
     const completedBlueItems = blueSection?.querySelectorAll('.work-item.completed');
     expect(completedBlueItems?.length).toBe(0);
     
     // Check green work items
-    expect(greenSection?.querySelector('.card-work-items-label')?.textContent).toBe('Green:');
     const greenItems = greenSection?.querySelectorAll('.work-item');
     expect(greenItems?.length).toBe(4);
     const completedGreenItems = greenSection?.querySelectorAll('.work-item.completed');

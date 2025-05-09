@@ -37,7 +37,7 @@ describe('Column Component', () => {
     render(<Column title="Options" cards={[]} showAddCardButton={true} />);
     
     // Assert
-    expect(screen.getByText('+ Add Card')).toBeInTheDocument();
+    expect(screen.getByText('+ New')).toBeInTheDocument();
   });
 
   it('does not show Add Card button by default', () => {
@@ -45,7 +45,7 @@ describe('Column Component', () => {
     render(<Column title="Options" cards={[]} />);
     
     // Assert
-    expect(screen.queryByText('+ Add Card')).not.toBeInTheDocument();
+    expect(screen.queryByText('+ New')).not.toBeInTheDocument();
   });
 
   it('calls onAddCard when Add Card button is clicked', () => {
@@ -54,7 +54,7 @@ describe('Column Component', () => {
     render(<Column title="Options" cards={[]} showAddCardButton={true} onAddCard={mockOnAddCard} />);
     
     // Act
-    fireEvent.click(screen.getByText('+ Add Card'));
+    fireEvent.click(screen.getByText('+ New'));
     
     // Assert
     expect(mockOnAddCard).toHaveBeenCalledTimes(1);

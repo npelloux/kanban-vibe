@@ -60,7 +60,7 @@ describe('WIP Limits', () => {
       const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
       if (!optionsColumn) throw new Error('Options column not found');
       
-      const addCardButton = within(optionsColumn).getByText('+ Add Card');
+      const addCardButton = within(optionsColumn).getByText('+ New');
       fireEvent.click(addCardButton); // Add first card
       fireEvent.click(addCardButton); // Add second card
       
@@ -122,7 +122,7 @@ describe('WIP Limits', () => {
       const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
       if (!optionsColumn) throw new Error('Options column not found');
       
-      const addCardButton = within(optionsColumn).getByText('+ Add Card');
+      const addCardButton = within(optionsColumn).getByText('+ New');
       fireEvent.click(addCardButton);
       
       // Move the card to Red Active
@@ -141,7 +141,7 @@ describe('WIP Limits', () => {
       const cardId = redActiveCards[0].getAttribute('data-card-id');
       
       // Assign a red worker to the card to complete the work
-      const redWorker = screen.getByTestId('worker-1');
+      const redWorker = screen.getByTestId('worker-bob');
       fireEvent.click(redWorker); // Select the worker
       fireEvent.click(redActiveCards[0]); // Drop on the card
       
@@ -172,7 +172,7 @@ describe('WIP Limits', () => {
       const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
       if (!optionsColumn) throw new Error('Options column not found');
       
-      const addCardButton = within(optionsColumn).getByText('+ Add Card');
+      const addCardButton = within(optionsColumn).getByText('+ New');
       fireEvent.click(addCardButton);
       
       // Set min WIP limit for Options to 1
@@ -226,7 +226,7 @@ describe('WIP Limits', () => {
       const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
       if (!optionsColumn) throw new Error('Options column not found');
       
-      const addCardButton = within(optionsColumn).getByText('+ Add Card');
+      const addCardButton = within(optionsColumn).getByText('+ New');
       fireEvent.click(addCardButton); // Add first card
       fireEvent.click(addCardButton); // Add second card
       
@@ -271,7 +271,7 @@ describe('WIP Limits', () => {
       fireEvent.click(saveButton);
       
       // Assign a red worker to the first card to complete the work
-      const redWorker = screen.getByTestId('worker-1');
+      const redWorker = screen.getByTestId('worker-bob');
       fireEvent.click(redWorker); // Select the worker
       fireEvent.click(redActiveCards[0]); // Drop on the first card
       

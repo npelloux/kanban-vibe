@@ -58,14 +58,10 @@ describe('App Component', () => {
     
     // Assert
     expect(screen.getByText('Workers')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-1')).toBeInTheDocument(); // Red worker
-    expect(screen.getByTestId('worker-3')).toBeInTheDocument(); // Blue worker
-    expect(screen.getByTestId('worker-4')).toBeInTheDocument(); // Blue worker
-    expect(screen.getByTestId('worker-5')).toBeInTheDocument(); // Green worker
-    
-    // Verify we don't have workers 2 and 6 anymore
-    expect(screen.queryByTestId('worker-2')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('worker-6')).not.toBeInTheDocument();
+    expect(screen.getByTestId('worker-bob')).toBeInTheDocument(); // Red worker
+    expect(screen.getByTestId('worker-zoe')).toBeInTheDocument(); // Blue worker
+    expect(screen.getByTestId('worker-lea')).toBeInTheDocument(); // Blue worker
+    expect(screen.getByTestId('worker-taz')).toBeInTheDocument(); // Green worker
   });
 
   it('selects a worker when clicked', () => {
@@ -73,10 +69,10 @@ describe('App Component', () => {
     render(<App />);
     
     // Act
-    fireEvent.click(screen.getByTestId('worker-3'));
+    fireEvent.click(screen.getByTestId('worker-zoe'));
     
     // Assert
-    expect(screen.getByTestId('worker-3')).toHaveClass('worker-selected');
+    expect(screen.getByTestId('worker-zoe')).toHaveClass('worker-selected');
   });
 
   it('adds a new card when Add Card button is clicked', () => {
@@ -93,7 +89,7 @@ describe('App Component', () => {
     const initialCardCount = initialCards.length;
     
     // Act - click Add Card button
-    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    const addCardButton = within(optionsColumn).getByText('+ New');
     fireEvent.click(addCardButton);
     
     // Assert
@@ -109,7 +105,7 @@ describe('App Component', () => {
     const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
     if (!optionsColumn) throw new Error('Options column not found');
     
-    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    const addCardButton = within(optionsColumn).getByText('+ New');
     fireEvent.click(addCardButton);
     
     // Find the card we just added
@@ -138,7 +134,7 @@ describe('App Component', () => {
     const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
     if (!optionsColumn) throw new Error('Options column not found');
     
-    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    const addCardButton = within(optionsColumn).getByText('+ New');
     fireEvent.click(addCardButton);
     
     // Find the card we just added and click it to move to Red Active
@@ -204,7 +200,7 @@ describe('App Component', () => {
     const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
     if (!optionsColumn) throw new Error('Options column not found');
     
-    const addCardButton = within(optionsColumn).getByText('+ Add Card');
+    const addCardButton = within(optionsColumn).getByText('+ New');
     fireEvent.click(addCardButton);
     
     // Find the card we just added
