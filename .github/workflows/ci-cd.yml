@@ -78,7 +78,7 @@ jobs:
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}
           localDir: ./dist
-          remoteDir: /kanban-vibe/
+          remoteDir: /
 # Instructions:
 # 1. Add your SFTP server, username, and password as GitHub repository secrets:
 #    - SFTP_SERVER: your Ionos SFTP server (e.g. ssh.your-domain.com)
