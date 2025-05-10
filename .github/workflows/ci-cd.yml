@@ -2,70 +2,87 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-    - uses: actions/checkout@v4
-      with:
-        path: .
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    
-    - name: Install dependencies
-      uses: bahmutov/npm-install@v1
-    
-    - name: Run linting
-      run: npm run lint || echo "No linting configured"
-    
-    - name: Run tests
-      run: npm test --
-    
-    - name: Install gh-pages
-      run: npm install --save-dev gh-pages
+      - uses: actions/checkout@v4
 
-    - name: Build
-      run: npm run build
-    
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-files-${{ matrix.node-version }}
-        path: ./dist
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "npm"
 
-  deploy:
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: Run linting
+        run: npm run lint || echo "No linting configured"
+
+      - name: Run tests
+        run: npm test --
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: ./dist
+
+  deploy-vercel:
     needs: build-and-test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Vercel install
-      run:  npm install --global vercel@latest 
+      - uses: actions/checkout@v4
 
-    - name: Vercel pull
-      run:  vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Vercel install
+        run: npm install --global vercel@latest
 
-    - name: Vercel build
-      run:  vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Vercel pull
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-    - name: Vercel deploy
-      run:  vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-  
+      - name: Vercel build
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
+      - name: Vercel deploy
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
 
+  deploy-ionos:
+    needs: build-and-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
+          path: ./dist
+
+      - name: Deploy to Ionos via SFTP
+        uses: wangyucode/sftp-upload-action@v1.0
+        with:
+          host: ${{ secrets.SFTP_SERVER }}
+          port: 22
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          localDir: ./dist
+          remoteDir: /kanban-vibe/
+# Instructions:
+# 1. Add your SFTP server, username, and password as GitHub repository secrets:
+#    - SFTP_SERVER: your Ionos SFTP server (e.g. ssh.your-domain.com)
+#    - SFTP_USERNAME: your SFTP username
+#    - SFTP_PASSWORD: your SFTP password
+# 2. Replace /path/to/your/webroot with the correct path for your Ionos hosting.
+# 3. This workflow will build your static site and deploy it to your Ionos server on every push to main.
