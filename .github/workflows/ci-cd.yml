@@ -71,7 +71,7 @@ jobs:
           path: ./dist
 
       - name: Deploy to Ionos via SFTP
-        uses: wangyucode/sftp-upload-action@v1.0
+        uses: wangyucode/sftp-upload-action@latest
         with:
           host: ${{ secrets.SFTP_SERVER }}
           port: 22
