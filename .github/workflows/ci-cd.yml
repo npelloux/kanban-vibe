@@ -73,9 +73,9 @@ jobs:
       - name: Deploy to Ionos via SFTP
         uses: Dylan700/sftp-upload-action@latest
         with:
-          server: sftp.server.com
-          username: jason-bourne
-          password: ${{secrets.password}}
+          server: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
           port: 22
           uploads: ./dist/ => ./
         
