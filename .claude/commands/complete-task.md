@@ -1,3 +1,7 @@
+---
+description: Complete the current task following the defined workflow
+---
+
 # Complete Task
 
 ## Workflow

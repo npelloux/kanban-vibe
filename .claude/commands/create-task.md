@@ -1,3 +1,7 @@
+---
+description: Generate well-formed tasks from PRD deliverables and add them to GitHub
+---
+
 # Create Tasks
 
 Generate well-formed tasks from PRD deliverables and add them to GitHub.
