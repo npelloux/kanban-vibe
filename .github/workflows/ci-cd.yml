@@ -82,7 +82,7 @@ jobs:
 # Instructions:
 # 1. Add your SFTP server, username, and password as GitHub repository secrets:
 #    - SFTP_SERVER: your Ionos SFTP server (e.g. ssh.your-domain.com)
-#    - SFTP_USERNAME: your SFTP username
+#    - SFTP_USERNAME: your SFTP usernam
 #    - SFTP_PASSWORD: your SFTP password
 # 2. Replace /path/to/your/webroot with the correct path for your Ionos hosting.
 # 3. This workflow will build your static site and deploy it to your Ionos server on every push to main.

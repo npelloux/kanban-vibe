@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__packmind__save_standard",
+      "mcp__packmind__create_standard",
+      "mcp__packmind__list_packages",
+      "mcp__packmind__list_standards",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
