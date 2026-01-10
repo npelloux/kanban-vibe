@@ -229,4 +229,81 @@ describe('App Component', () => {
     const movedCardContent = movedCardContentElement ? movedCardContentElement.textContent : '';
     expect(movedCardContent).toBe(cardContent);
   });
+
+  describe('Block Toggle', () => {
+    it('toggles card blocked state when block toggle is clicked', () => {
+      // Arrange
+      render(<App />);
+
+      // Add a card to Options column
+      const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+      const addCardButton = within(optionsColumn).getByText('+ New');
+      fireEvent.click(addCardButton);
+
+      // Find the card and verify it's not blocked
+      const card = within(optionsColumn).getByTestId('card');
+      expect(card).not.toHaveClass('card-blocked');
+
+      // Act - click the block toggle
+      const toggleButton = within(card).getByRole('button', { name: /toggle block/i });
+      fireEvent.click(toggleButton);
+
+      // Assert - card should now be blocked
+      expect(card).toHaveClass('card-blocked');
+      expect(within(card).getByText('BLOCKED!')).toBeInTheDocument();
+    });
+
+    it('unblocks card when block toggle is clicked on blocked card', () => {
+      // Arrange
+      render(<App />);
+
+      // Add a card and block it
+      const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+      const addCardButton = within(optionsColumn).getByText('+ New');
+      fireEvent.click(addCardButton);
+
+      const card = within(optionsColumn).getByTestId('card');
+      const toggleButton = within(card).getByRole('button', { name: /toggle block/i });
+
+      // Block the card
+      fireEvent.click(toggleButton);
+      expect(card).toHaveClass('card-blocked');
+
+      // Act - click toggle again to unblock
+      fireEvent.click(toggleButton);
+
+      // Assert - card should no longer be blocked
+      expect(card).not.toHaveClass('card-blocked');
+      expect(within(card).queryByText('BLOCKED!')).not.toBeInTheDocument();
+    });
+
+    it('does not move card when block toggle is clicked', () => {
+      // Arrange
+      render(<App />);
+
+      // Add a card
+      const optionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+      const addCardButton = within(optionsColumn).getByText('+ New');
+      fireEvent.click(addCardButton);
+
+      const card = within(optionsColumn).getByTestId('card');
+      const cardId = card.getAttribute('data-card-id');
+
+      // Act - click the block toggle
+      const toggleButton = within(card).getByRole('button', { name: /toggle block/i });
+      fireEvent.click(toggleButton);
+
+      // Assert - card should still be in Options column (not moved to Red Active)
+      const updatedOptionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
+      const cardStillInOptions = within(updatedOptionsColumn).queryAllByTestId('card')
+        .find(c => c.getAttribute('data-card-id') === cardId);
+      expect(cardStillInOptions).toBeInTheDocument();
+
+      // And should NOT be in Red Active
+      const redActiveColumn = screen.getByRole('heading', { name: 'Red Active' }).closest('.column') as HTMLElement;
+      const cardInRedActive = within(redActiveColumn).queryAllByTestId('card')
+        .find(c => c.getAttribute('data-card-id') === cardId);
+      expect(cardInRedActive).toBeUndefined();
+    });
+  });
 });

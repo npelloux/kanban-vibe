@@ -28,17 +28,19 @@ interface ColumnProps {
   onCardClick?: (cardId: string) => void;
   onWorkerDrop?: (cardId: string, workerId: string) => void;
   onAddCard?: () => void;
+  onToggleBlock?: (cardId: string) => void;
 }
 
-export const Column: React.FC<ColumnProps> = ({ 
-  title, 
-  cards, 
+export const Column: React.FC<ColumnProps> = ({
+  title,
+  cards,
   showAddCardButton = false,
   type = 'default',
   status = 'active',
   onCardClick = () => {},
   onWorkerDrop = () => {},
-  onAddCard = () => {}
+  onAddCard = () => {},
+  onToggleBlock
 }) => {
   // Determine the stage value for data-stage attribute
   const stageValue = `${type}${status === 'active' ? '-active' : ''}`;
@@ -62,9 +64,9 @@ export const Column: React.FC<ColumnProps> = ({
       </div>
       <div className="cards-container">
         {cards.map((card) => (
-          <CardComponent 
-            key={card.id} 
-            id={card.id} 
+          <CardComponent
+            key={card.id}
+            id={card.id}
             content={card.content}
             age={card.age}
             startDay={card.startDay}
@@ -75,6 +77,7 @@ export const Column: React.FC<ColumnProps> = ({
             stage={card.stage}
             completionDay={card.completionDay}
             onWorkerDrop={(workerId) => onWorkerDrop(card.id, workerId)}
+            onToggleBlock={onToggleBlock}
           />
         ))}
       </div>

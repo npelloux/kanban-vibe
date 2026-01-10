@@ -759,7 +759,29 @@
 .card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.card-block-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  line-height: 1;
+}
+
+.card-block-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.card-block-toggle:focus {
+  outline: 2px solid var(--classic-blue);
+  outline-offset: 2px;
 }
 
 .card-id {

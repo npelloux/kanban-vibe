@@ -21,14 +21,15 @@ interface CardProps {
   }[];
   onClick?: () => void;
   onWorkerDrop?: (workerId: string, workerType: WorkerType) => void;
+  onToggleBlock?: (cardId: string) => void;
   stage?: string;
   completionDay?: number;
 }
 
-export const Card: React.FC<CardProps> = ({ 
-  id, 
-  content, 
-  age = 0, 
+export const Card: React.FC<CardProps> = ({
+  id,
+  content,
+  age = 0,
   startDay = 1,
   isBlocked = false,
   workItems = {
@@ -39,6 +40,7 @@ export const Card: React.FC<CardProps> = ({
   assignedWorkers = [],
   onClick,
   onWorkerDrop,
+  onToggleBlock,
   stage = '',
   completionDay
 }) => {
@@ -91,6 +93,14 @@ export const Card: React.FC<CardProps> = ({
   // Check if all work is completed
   const isCompleted = totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
 
+  // Handle block toggle click
+  const handleToggleBlockClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleBlock) {
+      onToggleBlock(id);
+    }
+  };
+
   // Reference to the card element
   const cardRef = useRef<HTMLDivElement>(null);
   
@@ -137,6 +147,17 @@ export const Card: React.FC<CardProps> = ({
         <span className="card-id">{id}</span>
         {age > 0 && stage !== 'done' && <span className="card-age">Age: {age} days</span>}
         {stage === 'done' && completionDay && <span className="card-age">Completion day: {completionDay}</span>}
+        {onToggleBlock && (
+          <button
+            className="card-block-toggle"
+            onClick={handleToggleBlockClick}
+            aria-label="Toggle block"
+            aria-pressed={isBlocked}
+            type="button"
+          >
+            {isBlocked ? '🔒' : '🔓'}
+          </button>
+        )}
       </div>
       <div className="card-content" style={stage === 'done' ? { fontWeight: 'bold' } : {}}>{content}</div>
       
