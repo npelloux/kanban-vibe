@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Card } from '../Card';
 
@@ -176,12 +176,134 @@ describe('Card Component', () => {
       content: 'Test Card Content',
       stage: 'done'
     };
-    
+
     // Act
     const { container } = render(<Card {...cardProps} />);
-    
+
     // Assert
     const cardContent = container.querySelector('.card-content');
     expect(cardContent).toHaveStyle('font-weight: bold');
+  });
+
+  describe('Block Toggle', () => {
+    it('displays unlock icon when card is not blocked', () => {
+      // Arrange
+      const cardProps = {
+        id: '1',
+        content: 'Test Card',
+        isBlocked: false,
+        onToggleBlock: vi.fn()
+      };
+
+      // Act
+      render(<Card {...cardProps} />);
+
+      // Assert
+      const toggleButton = screen.getByRole('button', { name: /toggle block/i });
+      expect(toggleButton).toBeInTheDocument();
+      expect(toggleButton).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('displays lock icon when card is blocked', () => {
+      // Arrange
+      const cardProps = {
+        id: '1',
+        content: 'Test Card',
+        isBlocked: true,
+        onToggleBlock: vi.fn()
+      };
+
+      // Act
+      render(<Card {...cardProps} />);
+
+      // Assert
+      const toggleButton = screen.getByRole('button', { name: /toggle block/i });
+      expect(toggleButton).toBeInTheDocument();
+      expect(toggleButton).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('calls onToggleBlock with card id when toggle clicked', () => {
+      // Arrange
+      const onToggleBlock = vi.fn();
+      const cardProps = {
+        id: 'card-42',
+        content: 'Test Card',
+        isBlocked: false,
+        onToggleBlock
+      };
+
+      // Act
+      render(<Card {...cardProps} />);
+      const toggleButton = screen.getByRole('button', { name: /toggle block/i });
+      fireEvent.click(toggleButton);
+
+      // Assert
+      expect(onToggleBlock).toHaveBeenCalledTimes(1);
+      expect(onToggleBlock).toHaveBeenCalledWith('card-42');
+    });
+
+    it('does not trigger onClick when toggle button clicked', () => {
+      // Arrange
+      const onClick = vi.fn();
+      const onToggleBlock = vi.fn();
+      const cardProps = {
+        id: '1',
+        content: 'Test Card',
+        isBlocked: false,
+        onClick,
+        onToggleBlock
+      };
+
+      // Act
+      render(<Card {...cardProps} />);
+      const toggleButton = screen.getByRole('button', { name: /toggle block/i });
+      fireEvent.click(toggleButton);
+
+      // Assert
+      expect(onToggleBlock).toHaveBeenCalledTimes(1);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('does not render toggle button when onToggleBlock is not provided', () => {
+      // Arrange
+      const cardProps = {
+        id: '1',
+        content: 'Test Card',
+        isBlocked: false
+      };
+
+      // Act
+      render(<Card {...cardProps} />);
+
+      // Assert
+      const toggleButton = screen.queryByRole('button', { name: /toggle block/i });
+      expect(toggleButton).not.toBeInTheDocument();
+    });
+
+    it('toggle button works on cards in any stage', () => {
+      // Arrange
+      const stages = ['options', 'red-active', 'red-finished', 'blue-active', 'blue-finished', 'green', 'done'];
+      const onToggleBlock = vi.fn();
+
+      // Act & Assert - verify toggle works in all stages
+      stages.forEach(stage => {
+        const { unmount } = render(
+          <Card
+            id="1"
+            content="Test Card"
+            stage={stage}
+            isBlocked={false}
+            onToggleBlock={onToggleBlock}
+          />
+        );
+
+        const toggleButton = screen.getByRole('button', { name: /toggle block/i });
+        fireEvent.click(toggleButton);
+
+        unmount();
+      });
+
+      expect(onToggleBlock).toHaveBeenCalledTimes(stages.length);
+    });
   });
 });

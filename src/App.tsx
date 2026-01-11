@@ -589,6 +589,17 @@ function App() {
     }
   };
 
+  // Handle toggling the blocked state of a card
+  const handleToggleBlock = (cardId: string) => {
+    setCards(prevCards =>
+      prevCards.map(card =>
+        card.id === cardId
+          ? { ...card, isBlocked: !card.isBlocked }
+          : card
+      )
+    );
+  };
+
   // Update historical data when cards change
   useEffect(() => {
     // Create a new data point for the current day
@@ -763,59 +774,66 @@ function App() {
             
             {/* Columns with cards */}
             <div className="kanban-columns">
-              <Column 
-                title="Options" 
-                cards={optionsCards} 
+              <Column
+                title="Options"
+                cards={optionsCards}
                 type="options"
                 showAddCardButton={true}
                 onAddCard={handleAddCard}
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
-              <Column 
-                title="Red Active" 
-                cards={redActiveCards} 
+              <Column
+                title="Red Active"
+                cards={redActiveCards}
                 type="red"
                 status="active"
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
-              <Column 
-                title="Red Finished" 
-                cards={redFinishedCards} 
+              <Column
+                title="Red Finished"
+                cards={redFinishedCards}
                 type="red"
                 status="finished"
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
-              <Column 
-                title="Blue Active" 
-                cards={blueActiveCards} 
+              <Column
+                title="Blue Active"
+                cards={blueActiveCards}
                 type="blue"
                 status="active"
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
-              <Column 
-                title="Blue Finished" 
-                cards={blueFinishedCards} 
+              <Column
+                title="Blue Finished"
+                cards={blueFinishedCards}
                 type="blue"
                 status="finished"
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
-              <Column 
-                title="Green Activities" 
-                cards={greenCards} 
+              <Column
+                title="Green Activities"
+                cards={greenCards}
                 type="green"
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
-              <Column 
-                title="Done" 
+              <Column
+                title="Done"
                 cards={doneCards}
                 onCardClick={handleCardClick}
                 onWorkerDrop={handleWorkerDrop}
+                onToggleBlock={handleToggleBlock}
               />
             </div>
           </main>
