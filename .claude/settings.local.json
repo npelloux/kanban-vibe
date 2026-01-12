@@ -27,7 +27,14 @@
       "Bash(handleNextDay)",
       "Bash(./scripts/start-task.sh:*)",
       "Bash(bash:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npm install)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(./docs/script/cleanup-task.sh:*)",
+      "Bash(git clean:*)"
     ]
   }
 }
