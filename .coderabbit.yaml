@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit Configuration
+# Docs: https://docs.coderabbit.ai/reference/configuration
+
+language: en-US
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  sequence_diagrams: true
+  auto_review:
+    enabled: true
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+    issue_assessment:
+      mode: "warning"
+  tools:
+    gitleaks:
+      enabled: true
+    semgrep:
+      enabled: true
+    actionlint:
+      enabled: true
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "docs/conventions/software-design.md"
+      - "docs/conventions/anti-patterns.md"
+      - "docs/conventions/testing.md"
+      - "docs/conventions/standard-patterns.md"
+      - "docs/conventions/codebase-structure.md"
+      - "docs/architecture/overview.md"
+      - "docs/workflow/code-review.md"
