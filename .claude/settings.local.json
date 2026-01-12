@@ -8,10 +8,26 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(./scripts/create-task.sh \"phase2-enhanced-ux\" \"[M1-D1.1] Add block toggle to card component\" \"$\\(cat <<''EOF''\n## Deliverable: Users can block/unblock any card via UI click with visual feedback\n\n### Context\n**PRD:** `docs/project/PRD/active/PRD-phase2-enhanced-ux.md` — M1: Card Blocking UI, D1.1\n\nUsers currently cannot mark cards as blocked without editing code. This deliverable adds a visual toggle button on each card that allows users to block/unblock cards during simulation, enabling experimentation with blocked work scenarios without code changes.\n\n### Traceability\n- **PRD Section:** M1-D1.1 \"Add block toggle to card component\"\n- **Functional Requirement:** Visual toggle button \\(lock/unlock icon\\) on each card\n- **Success Criteria:** SC-1 \"Users can block/unblock cards via UI click\"\n\n### Acceptance Criteria\n- [ ] Lock icon \\(🔒\\) displays on card header when blocked\n- [ ] Unlock icon \\(🔓\\) displays on card header when not blocked\n- [ ] Clicking the icon toggles the `isBlocked` state\n- [ ] Blocked cards display red border \\(existing `.card-blocked` class\\)\n- [ ] Blocked cards show \"BLOCKED!\" badge \\(existing behavior\\)\n- [ ] Toggle works in all column stages \\(options through done\\)\n- [ ] Click on toggle does not trigger card click/move behavior\n\n### Edge Case Scenarios\n- Click toggle rapidly multiple times → State toggles correctly without race conditions\n- Toggle card that is mid-drag-over → Drag state and block state remain independent\n- Toggle card with assigned workers → Workers remain assigned, card becomes blocked\n- Toggle blocked card during policy execution → Policy respects blocked state on next iteration\n\n### Implementation Guidelines\n- Modify `src/components/Card.tsx` to add toggle button in card header\n- Use existing `isBlocked` prop which is already passed to Card component\n- Add new `onToggleBlock?: \\(cardId: string\\) => void` prop to Card component\n- Toggle button should use `e.stopPropagation\\(\\)` to prevent triggering card click\n- Follow existing pattern for click handlers in Card component \\(see `onClick` prop usage\\)\n- Reuse existing `.card-blocked` CSS class for visual styling\n- Button styling should match existing card UI \\(see `src/App.css` for card styles\\)\n\n### Embedded Reasoning\n**Why:** Users need to experiment with blocked work scenarios to understand flow impacts, but currently this requires code changes, breaking the \"safe experimentation\" principle.\n**What:** A toggle button on each card that switches the `isBlocked` state with immediate visual feedback.\n**How:** Add a clickable icon in the card header that calls a new `onToggleBlock` callback, with event propagation stopped to prevent card movement.\n\n### Testing Strategy\n- **Unit:** Test Card component renders correct icon based on `isBlocked` prop\n- **Unit:** Test toggle click calls `onToggleBlock` with correct card ID\n- **Unit:** Test toggle click does not trigger `onClick` handler\n- **Integration:** Test toggling block state updates card appearance in real-time\n- **Edge Cases:** Test rapid clicking, test during drag operations\n\n### Dependencies\nNone - this is a foundational feature for Phase 2\n\n### Verification\n1. Click unlock icon on any unblocked card → Card shows locked icon, red border, \"BLOCKED!\" badge\n2. Click lock icon on blocked card → Card shows unlock icon, normal styling\n3. Run `npm test` → All Card component tests pass\n4. Manual test: Click toggle during policy run → Card respects blocked state\nEOF\n\\)\")",
       "Bash(gh milestone:*)",
       "Bash(gh auth status:*)",
-      "Skill(next-tdd)"
+      "Skill(next-tdd)",
+      "Bash(./docs/script/list-tasks.sh:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Skill(complete-task)",
+      "Bash(npm run lint)",
+      "Bash(gh pr create:*)",
+      "Bash(gh auth login:*)",
+      "Bash(./docs/script/get-pr-feedback.sh:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git pull:*)",
+      "Bash(gh:*)",
+      "Bash(handleNextDay)",
+      "Bash(./scripts/start-task.sh:*)",
+      "Bash(bash:*)",
+      "Bash(test:*)"
     ]
   }
 }
