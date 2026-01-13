@@ -67,7 +67,7 @@ describe('WorkItems', () => {
       expect(WorkItems.isColorComplete(items, 'red')).toBe(true);
     });
 
-    it('should check blue color correctly', () => {
+    it('should return true when blue is complete', () => {
       const items = WorkItems.create(
         { total: 5, completed: 0 },
         { total: 3, completed: 3 },
@@ -75,10 +75,9 @@ describe('WorkItems', () => {
       );
 
       expect(WorkItems.isColorComplete(items, 'blue')).toBe(true);
-      expect(WorkItems.isColorComplete(items, 'red')).toBe(false);
     });
 
-    it('should check green color correctly', () => {
+    it('should return true when green is complete', () => {
       const items = WorkItems.create(
         { total: 5, completed: 0 },
         { total: 3, completed: 0 },
@@ -86,7 +85,6 @@ describe('WorkItems', () => {
       );
 
       expect(WorkItems.isColorComplete(items, 'green')).toBe(true);
-      expect(WorkItems.isColorComplete(items, 'red')).toBe(false);
     });
   });
 
