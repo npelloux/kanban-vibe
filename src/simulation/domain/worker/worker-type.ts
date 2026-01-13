@@ -1,10 +1,10 @@
-export type { WorkerType } from '../card/work-items';
+export { ALL_WORKER_TYPES, type WorkerType } from '../card/work-items';
 
-export const ALL_WORKER_TYPES = ['red', 'blue', 'green'] as const;
+import { ALL_WORKER_TYPES, type WorkerType } from '../card/work-items';
 
-export function isValidWorkerType(value: unknown): value is typeof ALL_WORKER_TYPES[number] {
+export function isValidWorkerType(value: unknown): value is WorkerType {
   return (
     typeof value === 'string' &&
-    ALL_WORKER_TYPES.includes(value as typeof ALL_WORKER_TYPES[number])
+    ALL_WORKER_TYPES.includes(value as WorkerType)
   );
 }

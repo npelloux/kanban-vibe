@@ -9,7 +9,9 @@ export interface WorkItems {
   readonly green: WorkProgress;
 }
 
-export type WorkerType = 'red' | 'blue' | 'green';
+export const ALL_WORKER_TYPES = Object.freeze(['red', 'blue', 'green'] as const);
+
+export type WorkerType = (typeof ALL_WORKER_TYPES)[number];
 
 function validateWorkProgress(progress: WorkProgress, colorName: string): void {
   if (!Number.isInteger(progress.total) || progress.total < 0) {

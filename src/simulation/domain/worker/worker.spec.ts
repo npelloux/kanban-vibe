@@ -8,9 +8,15 @@ import { Worker } from './worker';
 
 describe('WorkerType', () => {
   describe('ALL_WORKER_TYPES', () => {
-    it('should contain red, blue, and green', () => {
+    it('should contain red', () => {
       expect(ALL_WORKER_TYPES).toContain('red');
+    });
+
+    it('should contain blue', () => {
       expect(ALL_WORKER_TYPES).toContain('blue');
+    });
+
+    it('should contain green', () => {
       expect(ALL_WORKER_TYPES).toContain('green');
     });
 
@@ -18,9 +24,8 @@ describe('WorkerType', () => {
       expect(ALL_WORKER_TYPES).toHaveLength(3);
     });
 
-    it('should be readonly', () => {
-      const types: readonly WorkerType[] = ALL_WORKER_TYPES;
-      expect(types).toBe(ALL_WORKER_TYPES);
+    it('should be frozen for runtime immutability', () => {
+      expect(Object.isFrozen(ALL_WORKER_TYPES)).toBe(true);
     });
   });
 
@@ -88,6 +93,12 @@ describe('Worker', () => {
 
     it('should throw for empty id', () => {
       expect(() => Worker.create('', 'red')).toThrow(
+        'Worker id cannot be empty'
+      );
+    });
+
+    it('should throw for whitespace-only id', () => {
+      expect(() => Worker.create('   ', 'red')).toThrow(
         'Worker id cannot be empty'
       );
     });
