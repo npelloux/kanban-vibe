@@ -7,12 +7,13 @@ export interface Worker {
 
 export const Worker = {
   create(id: string, type: WorkerType): Worker {
-    if (id.trim() === '') {
+    const trimmedId = id.trim();
+    if (trimmedId === '') {
       throw new Error('Worker id cannot be empty');
     }
     if (!isValidWorkerType(type)) {
       throw new Error(`Invalid worker type: ${type}`);
     }
-    return { id, type };
+    return { id: trimmedId, type };
   },
 } as const;
