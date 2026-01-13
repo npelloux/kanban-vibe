@@ -96,7 +96,7 @@ export const Card = {
     return { ...card, isBlocked };
   },
 
-  withCompletionDay(card: Card, completionDay: number): Card {
+  withCompletionDay(card: Card, completionDay: number | null): Card {
     return { ...card, completionDay };
   },
 
