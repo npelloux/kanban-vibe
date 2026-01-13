@@ -14,6 +14,46 @@ describe('WorkItems', () => {
       expect(items.blue).toEqual(blue);
       expect(items.green).toEqual(green);
     });
+
+    it('should throw when red total is negative', () => {
+      expect(() =>
+        WorkItems.create(
+          { total: -1, completed: 0 },
+          { total: 3, completed: 0 },
+          { total: 4, completed: 0 }
+        )
+      ).toThrow('red total must be a non-negative integer');
+    });
+
+    it('should throw when blue completed is negative', () => {
+      expect(() =>
+        WorkItems.create(
+          { total: 5, completed: 0 },
+          { total: 3, completed: -1 },
+          { total: 4, completed: 0 }
+        )
+      ).toThrow('blue completed must be a non-negative integer');
+    });
+
+    it('should throw when green total is not an integer', () => {
+      expect(() =>
+        WorkItems.create(
+          { total: 5, completed: 0 },
+          { total: 3, completed: 0 },
+          { total: 4.5, completed: 0 }
+        )
+      ).toThrow('green total must be a non-negative integer');
+    });
+
+    it('should throw when completed is NaN', () => {
+      expect(() =>
+        WorkItems.create(
+          { total: 5, completed: NaN },
+          { total: 3, completed: 0 },
+          { total: 4, completed: 0 }
+        )
+      ).toThrow('red completed must be a non-negative integer');
+    });
   });
 
   describe('empty', () => {

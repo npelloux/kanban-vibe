@@ -11,8 +11,20 @@ export interface WorkItems {
 
 export type WorkerType = 'red' | 'blue' | 'green';
 
+function validateWorkProgress(progress: WorkProgress, colorName: string): void {
+  if (!Number.isInteger(progress.total) || progress.total < 0) {
+    throw new Error(`${colorName} total must be a non-negative integer`);
+  }
+  if (!Number.isInteger(progress.completed) || progress.completed < 0) {
+    throw new Error(`${colorName} completed must be a non-negative integer`);
+  }
+}
+
 export const WorkItems = {
   create(red: WorkProgress, blue: WorkProgress, green: WorkProgress): WorkItems {
+    validateWorkProgress(red, 'red');
+    validateWorkProgress(blue, 'blue');
+    validateWorkProgress(green, 'green');
     return { red, blue, green };
   },
 
