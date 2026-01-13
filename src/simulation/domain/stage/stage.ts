@@ -51,21 +51,15 @@ export const Stage = {
   },
 } as const;
 
-const STAGE_TYPE_SET = new Set<string>([
-  'options',
-  'red-active',
-  'red-finished',
-  'blue-active',
-  'blue-finished',
-  'green',
-  'done',
-]);
+const STAGE_MAP = new Map<string, Stage>(
+  ALL_STAGES.map((stage) => [stage.type, stage])
+);
 
 export function parseStage(value: string): Stage | null {
-  if (typeof value !== 'string' || !STAGE_TYPE_SET.has(value)) {
+  if (typeof value !== 'string') {
     return null;
   }
-  return { type: value as StageType };
+  return STAGE_MAP.get(value) ?? null;
 }
 
 export function isActiveStage(stage: Stage): boolean {

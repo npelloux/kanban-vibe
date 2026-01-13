@@ -51,6 +51,19 @@ describe('Stage', () => {
       expect(ALL_STAGES).toHaveLength(7);
     });
 
+    it('should contain all expected stage types', () => {
+      const types = ALL_STAGES.map((s) => s.type);
+      expect(types).toEqual([
+        'options',
+        'red-active',
+        'red-finished',
+        'blue-active',
+        'blue-finished',
+        'green',
+        'done',
+      ]);
+    });
+
     it('should be frozen for runtime immutability', () => {
       expect(Object.isFrozen(ALL_STAGES)).toBe(true);
     });
