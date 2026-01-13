@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Card, type CardCreateProps } from './card';
+import { Card, type CardCreateProps, type WorkerType } from './card';
 import { CardId } from './card-id';
-
-// Temporary type until dependencies are implemented
-type WorkerType = 'red' | 'blue' | 'green';
 
 describe('Card', () => {
   const validCardId = CardId.create('A')!;
@@ -37,6 +34,7 @@ describe('Card', () => {
     });
 
     it('should create a card with optional properties', () => {
+      const workerType: WorkerType = 'red';
       const props: CardCreateProps = {
         id: validCardId,
         content: 'Test task',
@@ -46,7 +44,7 @@ describe('Card', () => {
         age: 5,
         isBlocked: true,
         completionDay: 10,
-        assignedWorkers: [{ id: 'bob', type: 'red' as WorkerType }],
+        assignedWorkers: [{ id: 'bob', type: workerType }],
       };
 
       const card = Card.create(props);
@@ -78,10 +76,10 @@ describe('Card', () => {
         workItems: defaultWorkItems,
         startDay: 1,
         assignedWorkers: [
-          { id: 'w1', type: 'red' as WorkerType },
-          { id: 'w2', type: 'red' as WorkerType },
-          { id: 'w3', type: 'blue' as WorkerType },
-          { id: 'w4', type: 'green' as WorkerType },
+          { id: 'w1', type: 'red' },
+          { id: 'w2', type: 'red' },
+          { id: 'w3', type: 'blue' },
+          { id: 'w4', type: 'green' },
         ],
       };
 
@@ -101,8 +99,6 @@ describe('Card', () => {
         startDay: 1,
       });
 
-      // TypeScript should prevent these at compile time
-      // These tests verify runtime immutability if spreading
       const cardCopy = { ...card };
       expect(cardCopy.id).toBe(card.id);
       expect(cardCopy.content).toBe(card.content);
@@ -277,9 +273,9 @@ describe('Card', () => {
         workItems: defaultWorkItems,
         startDay: 1,
         assignedWorkers: [
-          { id: 'w1', type: 'red' as WorkerType },
-          { id: 'w2', type: 'blue' as WorkerType },
-          { id: 'w3', type: 'green' as WorkerType },
+          { id: 'w1', type: 'red' },
+          { id: 'w2', type: 'blue' },
+          { id: 'w3', type: 'green' },
         ],
       });
 
@@ -298,8 +294,8 @@ describe('Card', () => {
         workItems: defaultWorkItems,
         startDay: 1,
         assignedWorkers: [
-          { id: 'w1', type: 'red' as WorkerType },
-          { id: 'w2', type: 'blue' as WorkerType },
+          { id: 'w1', type: 'red' },
+          { id: 'w2', type: 'blue' },
         ],
       });
 
@@ -317,7 +313,7 @@ describe('Card', () => {
         stage: 'red-active',
         workItems: defaultWorkItems,
         startDay: 1,
-        assignedWorkers: [{ id: 'w1', type: 'red' as WorkerType }],
+        assignedWorkers: [{ id: 'w1', type: 'red' }],
       });
 
       const updated = Card.removeWorker(original, 'nonexistent');
@@ -335,8 +331,8 @@ describe('Card', () => {
         workItems: defaultWorkItems,
         startDay: 1,
         assignedWorkers: [
-          { id: 'w1', type: 'red' as WorkerType },
-          { id: 'w2', type: 'blue' as WorkerType },
+          { id: 'w1', type: 'red' },
+          { id: 'w2', type: 'blue' },
         ],
       });
 
