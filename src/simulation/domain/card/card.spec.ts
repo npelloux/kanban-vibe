@@ -89,23 +89,6 @@ describe('Card', () => {
     });
   });
 
-  describe('immutability', () => {
-    it('should return new objects on spread', () => {
-      const card = Card.create({
-        id: validCardId,
-        content: 'Test',
-        stage: 'options',
-        workItems: defaultWorkItems,
-        startDay: 1,
-      });
-
-      const cardCopy = { ...card };
-      expect(cardCopy).not.toBe(card);
-      expect(cardCopy.id).toBe(card.id);
-      expect(cardCopy.content).toBe(card.content);
-    });
-  });
-
   describe('withStage', () => {
     it('should return a new card with updated stage', () => {
       const original = Card.create({
@@ -186,6 +169,7 @@ describe('Card', () => {
       const updated = Card.withBlocked(original, false);
 
       expect(updated.isBlocked).toBe(false);
+      expect(updated).not.toBe(original);
       expect(original.isBlocked).toBe(true);
     });
   });

@@ -63,7 +63,9 @@ export const Card = {
     }
 
     if (assignedWorkers.length > MAX_ASSIGNED_WORKERS) {
-      throw new Error('Cannot assign more than 3 workers to a card');
+      throw new Error(
+        `Cannot assign more than ${MAX_ASSIGNED_WORKERS} workers to a card`
+      );
     }
 
     return {
@@ -104,7 +106,9 @@ export const Card = {
 
   addWorker(card: Card, worker: AssignedWorker): Card {
     if (card.assignedWorkers.length >= MAX_ASSIGNED_WORKERS) {
-      throw new Error('Cannot assign more than 3 workers to a card');
+      throw new Error(
+        `Cannot assign more than ${MAX_ASSIGNED_WORKERS} workers to a card`
+      );
     }
     return {
       ...card,
