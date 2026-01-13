@@ -51,7 +51,7 @@ export interface CardCreateProps {
   readonly assignedWorkers?: readonly AssignedWorker[];
 }
 
-const MAX_ASSIGNED_WORKERS = 3;
+export const MAX_ASSIGNED_WORKERS = 3;
 
 export const Card = {
   create(props: CardCreateProps): Card {

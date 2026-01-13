@@ -90,7 +90,7 @@ describe('Card', () => {
   });
 
   describe('immutability', () => {
-    it('should have readonly properties', () => {
+    it('should return new objects on spread', () => {
       const card = Card.create({
         id: validCardId,
         content: 'Test',
@@ -100,6 +100,7 @@ describe('Card', () => {
       });
 
       const cardCopy = { ...card };
+      expect(cardCopy).not.toBe(card);
       expect(cardCopy.id).toBe(card.id);
       expect(cardCopy.content).toBe(card.content);
     });
@@ -306,7 +307,7 @@ describe('Card', () => {
       expect(original.assignedWorkers).toHaveLength(2);
     });
 
-    it('should return same structure when worker not found', () => {
+    it('should return new card with same workers when worker not found', () => {
       const original = Card.create({
         id: validCardId,
         content: 'Test',
@@ -319,6 +320,8 @@ describe('Card', () => {
       const updated = Card.removeWorker(original, 'nonexistent');
 
       expect(updated.assignedWorkers).toHaveLength(1);
+      expect(updated).not.toBe(original);
+      expect(updated.assignedWorkers[0].id).toBe('w1');
     });
   });
 
