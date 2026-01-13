@@ -1,4 +1,11 @@
 import type { CardId } from './card-id';
+import type {
+  WorkProgress,
+  WorkItems,
+  WorkerType,
+} from './work-items';
+
+export type { WorkProgress, WorkItems, WorkerType };
 
 export type Stage =
   | 'options'
@@ -8,19 +15,6 @@ export type Stage =
   | 'blue-finished'
   | 'green'
   | 'done';
-
-export type WorkerType = 'red' | 'blue' | 'green';
-
-export interface WorkItem {
-  readonly total: number;
-  readonly completed: number;
-}
-
-export interface WorkItems {
-  readonly red: WorkItem;
-  readonly blue: WorkItem;
-  readonly green: WorkItem;
-}
 
 export interface AssignedWorker {
   readonly id: string;
