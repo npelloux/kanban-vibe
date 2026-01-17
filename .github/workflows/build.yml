@@ -34,7 +34,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.projectKey=${{ github.event.repository.name }}
+            -Dsonar.projectKey=npelloux_kanban-vibe_2042ba2c-cf64-4408-801f-1fadd7756e00
             -Dsonar.projectName=${{ github.repository }}
             -Dsonar.sources=.
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/.next/**,**/coverage/**
