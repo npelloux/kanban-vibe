@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
+import { draggedWorkerData, type WorkerType } from './workerDragState';
 
-export type WorkerType = 'red' | 'blue' | 'green' | 'options';
+// Re-export WorkerType for use by other components
+export type { WorkerType };
 
 interface WorkerProps {
   type: WorkerType;
@@ -8,21 +10,6 @@ interface WorkerProps {
   isSelected: boolean;
   onClick: () => void;
 }
-
-// Create a global variable to store the currently dragged worker data
-// This is needed because mobile touch events don't have dataTransfer like desktop drag events
-interface DraggedWorkerData {
-  id: string;
-  type: WorkerType;
-  element: HTMLElement | null;
-}
-
-// Export for use in other components
-export const draggedWorkerData: DraggedWorkerData = {
-  id: '',
-  type: 'red',
-  element: null
-};
 
 export const Worker: React.FC<WorkerProps> = ({ type, id, isSelected, onClick }) => {
   const workerRef = useRef<HTMLDivElement>(null);

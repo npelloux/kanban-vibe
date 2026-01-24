@@ -615,20 +615,21 @@ function App() {
         done: doneCards.length
       }
     };
-    
-    // Check if we already have data for this day
-    const existingDataIndex = historicalData.findIndex(data => data.day === currentDay);
-    
-    if (existingDataIndex >= 0) {
-      // Update existing data point
-      const updatedHistoricalData = [...historicalData];
-      updatedHistoricalData[existingDataIndex] = newDataPoint;
-      setHistoricalData(updatedHistoricalData);
-    } else {
-      // Add new data point
-      setHistoricalData(prevData => [...prevData, newDataPoint]);
-    }
-  }, [currentDay, optionsCards.length, redActiveCards.length, redFinishedCards.length, 
+
+    // Update or add data point using functional update to avoid dependency on historicalData
+    setHistoricalData(prevData => {
+      const existingDataIndex = prevData.findIndex(data => data.day === currentDay);
+      if (existingDataIndex >= 0) {
+        // Update existing data point
+        const updatedHistoricalData = [...prevData];
+        updatedHistoricalData[existingDataIndex] = newDataPoint;
+        return updatedHistoricalData;
+      } else {
+        // Add new data point
+        return [...prevData, newDataPoint];
+      }
+    });
+  }, [currentDay, optionsCards.length, redActiveCards.length, redFinishedCards.length,
       blueActiveCards.length, blueFinishedCards.length, greenCards.length, doneCards.length]);
 
   // Handle tab change
