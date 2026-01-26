@@ -1,4 +1,4 @@
-name: Build & SonarQube
+name: Build & SonarCloud
 
 on:
   push:
@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones disabled for better relevancy of analysis
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -23,19 +25,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test --if-present
+      - name: Run tests with coverage
+        run: npm test -- --run --coverage
 
-      # ✅ SonarQube Scan
-      - name: SonarQube Scan (sonar-scanner)
+      - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: https://sonarcloud.io
         with:
           args: >
-            -Dsonar.projectKey=npelloux_kanban-vibe_2042ba2c-cf64-4408-801f-1fadd7756e00
-            -Dsonar.projectName=${{ github.repository }}
-            -Dsonar.sources=.
+            -Dsonar.organization=npelloux
+            -Dsonar.projectKey=npelloux_kanban-vibe
+            -Dsonar.projectName=kanban-vibe
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts,**/*.spec.tsx,**/*.test.ts,**/*.test.tsx
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/.next/**,**/coverage/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.typescript.tsconfigPath=tsconfig.json

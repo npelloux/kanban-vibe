@@ -13,5 +13,17 @@ export default defineConfig({
       'default',
       ['allure-vitest/reporter', { resultsDir: 'allure-results' }]
     ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'html'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.spec.{ts,tsx}',
+        'src/**/*.test.{ts,tsx}',
+        'src/setupTests.ts',
+        'src/main.tsx',
+      ],
+    },
   } as VitestUserConfig['test'],
 })
