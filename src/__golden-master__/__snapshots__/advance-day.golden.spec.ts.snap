@@ -1,0 +1,209 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Golden Master: Day Advancement (handleNextDay) > Snapshot Tests for Complex Scenarios > captures day advancement with WIP limits active 1`] = `
+{
+  "cards": [
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "C",
+      "isBlocked": false,
+      "stage": "blue-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "D",
+      "isBlocked": false,
+      "stage": "blue-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+  ],
+  "newDay": 6,
+}
+`;
+
+exports[`Golden Master: Day Advancement (handleNextDay) > Snapshot Tests for Complex Scenarios > captures empty board advancement 1`] = `
+{
+  "cards": [],
+  "newDay": 1,
+}
+`;
+
+exports[`Golden Master: Day Advancement (handleNextDay) > Snapshot Tests for Complex Scenarios > captures full day advancement with multiple cards 1`] = `
+{
+  "cards": [
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "options",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 3,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-finished",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 6,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "C",
+      "isBlocked": false,
+      "stage": "blue-finished",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 5,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 10,
+      "assignedWorkers": [],
+      "completionDay": 8,
+      "content": "Test card",
+      "id": "D",
+      "isBlocked": false,
+      "stage": "done",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+  ],
+  "newDay": 11,
+}
+`;
