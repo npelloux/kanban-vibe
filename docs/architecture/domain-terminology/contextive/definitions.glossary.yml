@@ -1,0 +1,135 @@
+contexts:
+  - name: Kanban Simulation
+    domainVisionStatement: |
+      A domain model for simulating Kanban board workflows, enabling users to
+      experiment with WIP limits, worker assignments, and flow policies to
+      understand their impact on delivery metrics.
+    terms:
+      - name: Card
+        definition: |
+          A unit of work that flows through the Kanban board stages from
+          Options to Done. Each card has work items that must be completed
+          by workers before it can transition to the next stage.
+        examples:
+          - "The card moved from red-active to red-finished when all red work was complete."
+          - "A blocked card cannot transition even if its work is complete."
+        aliases:
+          - WorkItem
+          - Ticket
+
+      - name: CardId
+        definition: |
+          A unique identifier for a card, represented as uppercase letters
+          (A, B, C... Z, AA, AB...). CardIds are branded types ensuring
+          type safety at compile time.
+        examples:
+          - "Card A was created first, followed by Card B."
+          - "After Z, the next card ID is AA."
+
+      - name: Worker
+        definition: |
+          A resource that can be assigned to cards to complete work items.
+          Each worker has a type (red, blue, or green) that determines their
+          specialization and output efficiency.
+        examples:
+          - "Assign a red worker to a card in red-active to complete red work."
+          - "A maximum of 3 workers can be assigned to any single card."
+
+      - name: WorkerType
+        definition: |
+          The specialization of a worker, which can be 'red', 'blue', or 'green'.
+          Workers produce more output (3-6 units) when working on their specialized
+          color, and less output (0-3 units) on non-matching colors.
+        examples:
+          - "A red worker assigned to red-active produces 3-6 work units per day."
+          - "A blue worker on a green stage produces only 0-3 work units."
+        aliases:
+          - WorkerColor
+          - Specialization
+
+      - name: Stage
+        definition: |
+          A column on the Kanban board representing a phase in the workflow.
+          Cards progress through stages in order: options, red-active, red-finished,
+          blue-active, blue-finished, green, done.
+        examples:
+          - "Cards in the options stage have not started work yet."
+          - "The done stage contains all completed cards."
+        aliases:
+          - Column
+          - Phase
+
+      - name: WorkItems
+        definition: |
+          A composite value object tracking the work required and completed for
+          each color (red, blue, green). Each color has a total amount of work
+          and a completed amount. Work is done when completed >= total.
+        examples:
+          - "This card needs 5 red work items and 3 have been completed."
+          - "All work items must be complete for the card to reach done."
+
+      - name: WorkProgress
+        definition: |
+          Tracks the total and completed work units for a single color.
+          Contains two values: total (work required) and completed (work done).
+        examples:
+          - "Red work progress: 3 of 5 completed."
+          - "When completed equals total, the color's work is finished."
+
+      - name: WipLimits
+        definition: |
+          Work-in-Progress limits that constrain how many cards can be in each
+          column. Each column has a min and max constraint. A value of 0 means
+          no constraint. Min prevents cards from leaving, max prevents cards
+          from entering.
+        examples:
+          - "With a max WIP of 3 on red-active, no fourth card can enter."
+          - "A min WIP of 1 on blue-active prevents the last card from leaving."
+        aliases:
+          - WIPLimits
+          - WipConstraints
+
+      - name: Board
+        definition: |
+          The aggregate root containing all simulation state: cards, workers,
+          the current day, and WIP limits. All domain operations are performed
+          through the board to maintain consistency.
+        examples:
+          - "The board contains 5 cards and 3 workers on day 10."
+          - "Advancing the day updates all cards and applies worker output."
+        aliases:
+          - KanbanBoard
+          - SimulationState
+
+      - name: Policy
+        definition: |
+          An automated strategy for running the simulation without manual
+          intervention. Policies define how cards move and how workers are
+          assigned during each simulated day.
+        examples:
+          - "The siloted-expert policy assigns specialized workers to matching columns."
+          - "Run the policy for 30 days to see the cumulative flow diagram."
+        aliases:
+          - SimulationPolicy
+          - AutomationPolicy
+
+      - name: Day
+        definition: |
+          A discrete time unit in the simulation. Each day, workers produce
+          output, cards age, and eligible cards transition to the next stage.
+          The current day is tracked on the board.
+        examples:
+          - "On day 5, three cards were completed."
+          - "Cards in active stages age by 1 each day."
+
+      - name: Blocked
+        definition: |
+          A state flag on a card indicating it cannot transition to the next
+          stage, regardless of work completion. Blocked cards still age and
+          can receive worker output.
+        examples:
+          - "The card is blocked waiting for external approval."
+          - "Unblock the card to allow it to proceed when work is complete."
+        aliases:
+          - IsBlocked
+          - BlockedState
