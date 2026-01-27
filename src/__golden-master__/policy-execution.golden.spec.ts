@@ -12,7 +12,6 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 
-// Types duplicated from App.tsx for golden master isolation
 interface WorkItemsType {
   red: { total: number; completed: number };
   blue: { total: number; completed: number };
@@ -56,7 +55,6 @@ interface PolicyDayResult {
   newDay: number;
 }
 
-// stagedone duplicated from App.tsx - DO NOT MODIFY
 const stagedone = (card: Card): boolean => {
   if (card.isBlocked) {
     return false;
@@ -100,7 +98,6 @@ const stagedone = (card: Card): boolean => {
   return totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
 };
 
-// Helper functions duplicated from App.tsx - DO NOT MODIFY
 const getColumnKey = (stage: string): keyof WipLimits => {
   if (stage === 'options') return 'options';
   if (stage === 'red-active') return 'redActive';
@@ -112,7 +109,6 @@ const getColumnKey = (stage: string): keyof WipLimits => {
   return 'options';
 };
 
-// Move cards from options to red-active (policy step 1)
 const moveCardsFromOptionsToRedActive = (
   cards: Card[],
   currentDay: number,
@@ -150,7 +146,6 @@ const moveCardsFromOptionsToRedActive = (
   return updatedCards;
 };
 
-// Move cards from one stage to next (policy helper)
 const moveCardsToNextStage = (
   cards: Card[],
   fromStage: string,
@@ -191,7 +186,6 @@ const moveCardsToNextStage = (
   return updatedCards;
 };
 
-// Move finished cards to next activity (policy step 2)
 const moveCardsFromFinishedToNextActivity = (
   cards: Card[],
   wipLimits: WipLimits
@@ -202,7 +196,6 @@ const moveCardsFromFinishedToNextActivity = (
   return updatedCards;
 };
 
-// Assign workers to cards in batch (policy helper)
 const assignWorkersToCardsInBatch = (
   workersToAssign: Worker[],
   cardsToAssign: Card[],
@@ -215,7 +208,6 @@ const assignWorkersToCardsInBatch = (
   let workerIndex = 0;
   let cardIndex = 0;
 
-  // First pass: one worker per card
   while (workerIndex < workersToAssign.length && cardIndex < cardsToAssign.length) {
     const worker = workersToAssign[workerIndex];
     const card = cardsToAssign[cardIndex];
@@ -229,7 +221,6 @@ const assignWorkersToCardsInBatch = (
     cardIndex++;
   }
 
-  // Second pass: remaining workers (up to 3 per card)
   if (workerIndex < workersToAssign.length) {
     cardIndex = 0;
 
@@ -246,14 +237,12 @@ const assignWorkersToCardsInBatch = (
       cardIndex++;
 
       if (cardIndex >= cardsToAssign.length) {
-        // Check if any card can still accept workers
         const canAnyCardAcceptWorkers = cardsToAssign.some(c => {
           const card = updatedCards.find(uc => uc.id === c.id);
           return card && card.assignedWorkers.length < 3;
         });
 
         if (!canAnyCardAcceptWorkers) {
-          // No cards can accept more workers, break out
           break;
         }
 
@@ -265,14 +254,13 @@ const assignWorkersToCardsInBatch = (
   return updatedCards;
 };
 
-// Assign workers to matching color columns (policy step 3)
 const assignWorkersToMatchingCards = (
   cards: Card[],
   workers: Worker[]
 ): Card[] => {
-  let updatedCards = cards.map(card => ({
+  let updatedCards: Card[] = cards.map(card => ({
     ...card,
-    assignedWorkers: []
+    assignedWorkers: [] as Worker[]
   }));
 
   const redActiveCards = updatedCards.filter(card =>
@@ -300,7 +288,6 @@ const assignWorkersToMatchingCards = (
   return updatedCards;
 };
 
-// Full siloted-expert policy day execution
 const executePolicyDay = (
   cards: Card[],
   workers: Worker[],
@@ -308,25 +295,19 @@ const executePolicyDay = (
   wipLimits: WipLimits,
   getRandomInt: (min: number, max: number) => number
 ): PolicyDayResult => {
-  // Step 1: Move cards from options to red-active
   const cardsAfterOptionsToRed = moveCardsFromOptionsToRedActive(cards, currentDay, wipLimits);
 
-  // Step 2: Move finished cards to next activity
   const cardsAfterFinishedToNext = moveCardsFromFinishedToNextActivity(cardsAfterOptionsToRed, wipLimits);
 
-  // Step 3: Assign workers to matching color columns
   const cardsWithWorkers = assignWorkersToMatchingCards(cardsAfterFinishedToNext, workers);
 
-  // Step 4: Advance the day
   const newDay = currentDay + 1;
 
-  // Age cards
   const agedCards = cardsWithWorkers.map(card => ({
     ...card,
     age: (card.stage === 'done' || card.stage === 'options') ? card.age : card.age + 1
   }));
 
-  // Apply worker output
   const cardsWithWorkerOutput = agedCards.map(card => {
     if (!card.assignedWorkers.length || (!card.stage.includes('active') && card.stage !== 'green')) {
       return card;
@@ -359,7 +340,6 @@ const executePolicyDay = (
     return { ...card, workItems: updatedWorkItems };
   });
 
-  // Process stage transitions
   let updatedCards = [...cardsWithWorkerOutput];
   updatedCards = updatedCards.map(card => {
     if (stagedone(card)) {
@@ -406,7 +386,6 @@ const executePolicyDay = (
     return card;
   });
 
-  // Reset workers
   updatedCards = updatedCards.map(card => ({
     ...card,
     assignedWorkers: []
@@ -415,7 +394,6 @@ const executePolicyDay = (
   return { cards: updatedCards, newDay };
 };
 
-// Test fixtures
 const createCard = (overrides: Partial<Card> = {}): Card => ({
   id: 'A',
   content: 'Test card',
@@ -490,7 +468,6 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       const wipLimits = { ...createDefaultWipLimits(), redActive: { min: 0, max: 1 } };
       const result = moveCardsFromOptionsToRedActive(cards, 5, wipLimits);
 
-      // Only card A should move (alphabetically first)
       const movedCard = result.find(c => c.stage === 'red-active');
       expect(movedCard?.id).toBe('A');
     });
@@ -558,7 +535,6 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       ];
       const result = moveCardsFromFinishedToNextActivity(cards, wipLimits);
 
-      // Older card (B) should move
       expect(result.find(c => c.id === 'B')?.stage).toBe('blue-active');
       expect(result.find(c => c.id === 'A')?.stage).toBe('red-finished');
     });
@@ -639,7 +615,6 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       const workers = [createWorker('w1', 'red')];
       const result = assignWorkersToMatchingCards(cards, workers);
 
-      // Card B (older) should get the worker
       expect(result.find(c => c.id === 'B')?.assignedWorkers).toHaveLength(1);
       expect(result.find(c => c.id === 'A')?.assignedWorkers).toHaveLength(0);
     });
@@ -672,22 +647,20 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
     });
 
     it('moves cards from options and assigns workers', () => {
-      mockRandomValues = [0.2];  // Lower value to avoid completing all work in one day
+      mockRandomValues = [0.2];
       const cards = [createCard({ id: 'A', stage: 'options' })];
       const workers = [createWorker('w1', 'red')];
       const result = executePolicyDay(cards, workers, 5, createDefaultWipLimits(), mockGetRandomInt);
 
-      // Card should have moved to red-active and aged
       expect(result.cards[0].stage).toBe('red-active');
       expect(result.cards[0].age).toBe(1);
       expect(result.cards[0].startDay).toBe(5);
-      // Workers are reset at end of day
       expect(result.cards[0].assignedWorkers).toHaveLength(0);
       expect(result.newDay).toBe(6);
     });
 
     it('applies worker output to cards', () => {
-      mockRandomValues = [0.5]; // mid-range output
+      mockRandomValues = [0.5];
       const cards = [createCard({
         id: 'A',
         stage: 'red-active',
@@ -726,7 +699,7 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       const result = executePolicyDay(cards, [], 0, createDefaultWipLimits(), mockGetRandomInt);
 
       expect(result.cards.find(c => c.id === 'A')?.age).toBe(3);
-      expect(result.cards.find(c => c.id === 'B')?.age).toBe(1);  // Card B moves to red-active and ages
+      expect(result.cards.find(c => c.id === 'B')?.age).toBe(1);
       expect(result.cards.find(c => c.id === 'C')?.age).toBe(5);
     });
   });
@@ -741,7 +714,6 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       const workers = [createWorker('w1', 'red'), createWorker('w2', 'red')];
       let currentDay = 0;
 
-      // Run for 3 days
       for (let i = 0; i < 3; i++) {
         const result = executePolicyDay(cards, workers, currentDay, createDefaultWipLimits(), mockGetRandomInt);
         cards = result.cards;
@@ -749,12 +721,11 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       }
 
       expect(currentDay).toBe(3);
-      // Cards should have progressed
       expect(cards[0].age).toBeGreaterThan(0);
     });
 
     it('completes cards through full workflow over multiple days', () => {
-      mockRandomValues = [0.999]; // Max output to complete work quickly
+      mockRandomValues = [0.999];
       let cards: Card[] = [createCard({
         id: 'A',
         stage: 'options',
@@ -771,14 +742,12 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
       ];
       let currentDay = 0;
 
-      // Run for 10 days
       for (let i = 0; i < 10; i++) {
         const result = executePolicyDay(cards, workers, currentDay, createDefaultWipLimits(), mockGetRandomInt);
         cards = result.cards;
         currentDay = result.newDay;
       }
 
-      // Card should have reached done
       expect(cards[0].stage).toBe('done');
       expect(cards[0].completionDay).toBeDefined();
     });
