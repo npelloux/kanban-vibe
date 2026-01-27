@@ -1,0 +1,461 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Golden Master: Policy Execution (siloted-expert) > Snapshot Tests for Complex Scenarios > captures full policy day with multiple cards and workers 1`] = `
+{
+  "cards": [
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "red-finished",
+      "startDay": 10,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 3,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-finished",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "C",
+      "isBlocked": false,
+      "stage": "blue-finished",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 5,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "D",
+      "isBlocked": false,
+      "stage": "blue-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 3,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+  ],
+  "newDay": 11,
+}
+`;
+
+exports[`Golden Master: Policy Execution (siloted-expert) > Snapshot Tests for Complex Scenarios > captures multi-day execution state 1`] = `
+[
+  {
+    "cards": [
+      {
+        "age": 1,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "A",
+        "isBlocked": false,
+        "stage": "red-finished",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 0,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+      {
+        "age": 1,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "B",
+        "isBlocked": false,
+        "stage": "red-active",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 0,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 0,
+            "total": 5,
+          },
+        },
+      },
+    ],
+    "newDay": 1,
+  },
+  {
+    "cards": [
+      {
+        "age": 2,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "A",
+        "isBlocked": false,
+        "stage": "blue-finished",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+      {
+        "age": 2,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "B",
+        "isBlocked": false,
+        "stage": "red-finished",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 0,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+    ],
+    "newDay": 2,
+  },
+  {
+    "cards": [
+      {
+        "age": 3,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "A",
+        "isBlocked": false,
+        "stage": "green",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+      {
+        "age": 3,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "B",
+        "isBlocked": false,
+        "stage": "blue-finished",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+    ],
+    "newDay": 3,
+  },
+  {
+    "cards": [
+      {
+        "age": 4,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "A",
+        "isBlocked": false,
+        "stage": "green",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+      {
+        "age": 4,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "B",
+        "isBlocked": false,
+        "stage": "green",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+    ],
+    "newDay": 4,
+  },
+  {
+    "cards": [
+      {
+        "age": 5,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "A",
+        "isBlocked": false,
+        "stage": "green",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+      {
+        "age": 5,
+        "assignedWorkers": [],
+        "content": "Test card",
+        "id": "B",
+        "isBlocked": false,
+        "stage": "green",
+        "startDay": 0,
+        "workItems": {
+          "blue": {
+            "completed": 5,
+            "total": 5,
+          },
+          "green": {
+            "completed": 0,
+            "total": 5,
+          },
+          "red": {
+            "completed": 5,
+            "total": 5,
+          },
+        },
+      },
+    ],
+    "newDay": 5,
+  },
+]
+`;
+
+exports[`Golden Master: Policy Execution (siloted-expert) > Snapshot Tests for Complex Scenarios > captures policy with WIP limits active 1`] = `
+{
+  "cards": [
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 5,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 5,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "C",
+      "isBlocked": false,
+      "stage": "options",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 1,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "D",
+      "isBlocked": false,
+      "stage": "blue-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 5,
+          "total": 5,
+        },
+      },
+    },
+  ],
+  "newDay": 6,
+}
+`;
