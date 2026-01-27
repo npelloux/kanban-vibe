@@ -771,6 +771,34 @@ describe('Golden Master: Policy Execution (siloted-expert)', () => {
     });
   });
 
+  describe('Blocked Card Behavior', () => {
+    it('does not move blocked cards even when work is complete', () => {
+      const cards = [createCard({
+        id: 'A',
+        stage: 'red-active',
+        isBlocked: true,
+        workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
+      })];
+      const result = executePolicyDay(cards, [], 0, createDefaultWipLimits(), mockGetRandomInt);
+
+      expect(result.cards[0].stage).toBe('red-active');
+    });
+  });
+
+  describe('Green to Done Transitions', () => {
+    it('moves cards from green to done when green work is complete', () => {
+      const cards = [createCard({
+        id: 'A',
+        stage: 'green',
+        workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 5 }, green: { total: 5, completed: 5 } }
+      })];
+      const result = executePolicyDay(cards, [], 5, createDefaultWipLimits(), mockGetRandomInt);
+
+      expect(result.cards[0].stage).toBe('done');
+      expect(result.cards[0].completionDay).toBe(6);
+    });
+  });
+
   describe('Snapshot Tests for Complex Scenarios', () => {
     it('captures full policy day with multiple cards and workers', () => {
       mockRandomValues = [0.5, 0.5, 0.5, 0.5, 0.5];
