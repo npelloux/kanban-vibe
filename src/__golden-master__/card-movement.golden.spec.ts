@@ -464,6 +464,61 @@ describe('Golden Master: Card Movement (handleCardClick)', () => {
       expect(result.cards[0].stage).toBe('options');
       expect(result.alertMessage).toContain('Min WIP limit');
     });
+
+    it('overwrites startDay when card with existing startDay enters red-active', () => {
+      // Simulates a card that already has a startDay (perhaps from a previous entry)
+      const cards = [createCard({ id: 'A', stage: 'options', startDay: 3 })];
+      const result = moveCard('A', cards, 10, createDefaultWipLimits());
+
+      // Current behavior: startDay is always set to currentDay when entering red-active
+      expect(result.cards[0].startDay).toBe(10);
+    });
+
+    it('handles sequential moves of multiple cards in same day', () => {
+      // Move first card
+      const cards = [
+        createCard({ id: 'A', stage: 'options' }),
+        createCard({ id: 'B', stage: 'options' }),
+        createCard({ id: 'C', stage: 'red-finished' }),
+      ];
+      const result1 = moveCard('A', cards, 5, createDefaultWipLimits());
+
+      // Move second card using result from first move
+      const result2 = moveCard('B', result1.cards, 5, createDefaultWipLimits());
+
+      // Move third card using result from second move
+      const result3 = moveCard('C', result2.cards, 5, createDefaultWipLimits());
+
+      expect(result3.cards[0].stage).toBe('red-active');
+      expect(result3.cards[0].startDay).toBe(5);
+      expect(result3.cards[1].stage).toBe('red-active');
+      expect(result3.cards[1].startDay).toBe(5);
+      expect(result3.cards[2].stage).toBe('blue-active');
+    });
+
+    it('respects WIP limits during sequential same-day moves', () => {
+      const wipLimits = { ...createDefaultWipLimits(), redActive: { min: 0, max: 2 } };
+      const cards = [
+        createCard({ id: 'A', stage: 'options' }),
+        createCard({ id: 'B', stage: 'options' }),
+        createCard({ id: 'C', stage: 'options' }),
+      ];
+
+      // First move succeeds
+      const result1 = moveCard('A', cards, 5, wipLimits);
+      expect(result1.cards[0].stage).toBe('red-active');
+      expect(result1.alertMessage).toBeNull();
+
+      // Second move succeeds (now at limit)
+      const result2 = moveCard('B', result1.cards, 5, wipLimits);
+      expect(result2.cards[1].stage).toBe('red-active');
+      expect(result2.alertMessage).toBeNull();
+
+      // Third move blocked (would exceed limit)
+      const result3 = moveCard('C', result2.cards, 5, wipLimits);
+      expect(result3.cards[2].stage).toBe('options');
+      expect(result3.alertMessage).toContain('Max WIP limit');
+    });
   });
 
   describe('Snapshot Tests for Complex Scenarios', () => {
