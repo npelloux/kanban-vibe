@@ -1,0 +1,233 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Golden Master: Card Movement (handleCardClick) > Snapshot Tests for Complex Scenarios > captures blocked movement scenario 1`] = `
+{
+  "alertMessage": "Cannot move card to Red Active: Max WIP limit of 1 would be exceeded.",
+  "cards": [
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "options",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Golden Master: Card Movement (handleCardClick) > Snapshot Tests for Complex Scenarios > captures min WIP violation scenario 1`] = `
+{
+  "alertMessage": "Cannot move card out of Red Finished: Min WIP limit of 2 would be violated.",
+  "cards": [
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "red-finished",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-finished",
+      "startDay": 0,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Golden Master: Card Movement (handleCardClick) > Snapshot Tests for Complex Scenarios > captures movement with multiple cards in different stages 1`] = `
+{
+  "alertMessage": null,
+  "cards": [
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "A",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 10,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "B",
+      "isBlocked": false,
+      "stage": "red-active",
+      "startDay": 2,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "C",
+      "isBlocked": false,
+      "stage": "red-finished",
+      "startDay": 1,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "content": "Test card",
+      "id": "D",
+      "isBlocked": false,
+      "stage": "blue-active",
+      "startDay": 3,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+    {
+      "age": 0,
+      "assignedWorkers": [],
+      "completionDay": 8,
+      "content": "Test card",
+      "id": "E",
+      "isBlocked": false,
+      "stage": "done",
+      "startDay": 1,
+      "workItems": {
+        "blue": {
+          "completed": 0,
+          "total": 5,
+        },
+        "green": {
+          "completed": 0,
+          "total": 5,
+        },
+        "red": {
+          "completed": 0,
+          "total": 5,
+        },
+      },
+    },
+  ],
+}
+`;
