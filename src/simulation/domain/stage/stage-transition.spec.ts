@@ -47,25 +47,21 @@ describe('StageTransitionService.canTransition', () => {
       expect(canTransition(card)).toBe(false);
     });
 
-    it('returns false for blocked card in any stage', () => {
-      const stages: Stage[] = [
-        'options',
-        'red-active',
-        'red-finished',
-        'blue-active',
-        'blue-finished',
-        'green',
-        'done',
-      ];
-
-      for (const stage of stages) {
-        const card = buildCard(
-          stage,
-          buildWorkItems(redComplete, blueComplete, greenComplete),
-          true
-        );
-        expect(canTransition(card)).toBe(false);
-      }
+    it.each<Stage>([
+      'options',
+      'red-active',
+      'red-finished',
+      'blue-active',
+      'blue-finished',
+      'green',
+      'done',
+    ])('returns false for blocked card in %s stage', (stage) => {
+      const card = buildCard(
+        stage,
+        buildWorkItems(redComplete, blueComplete, greenComplete),
+        true
+      );
+      expect(canTransition(card)).toBe(false);
     });
   });
 
