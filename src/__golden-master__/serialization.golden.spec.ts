@@ -10,9 +10,10 @@
  *
  * @see PRD: docs/project/PRD/active/PRD-refactoring-clean-architecture.md M0-D0.7
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import fs from 'fs';
-import path from 'path';
+import { describe, it, expect } from 'vitest';
+import emptyBoardFixture from './fixtures/empty-board-day1.json';
+import smallProjectFixture from './fixtures/small-project-day5.json';
+import complexBlockedFixture from './fixtures/complex-blocked-cards-day15.json';
 
 interface WorkItemsType {
   red: { total: number; completed: number };
@@ -412,10 +413,8 @@ describe('Golden Master: State Serialization', () => {
   });
 
   describe('Fixture File Verification', () => {
-    it('should successfully load and verify empty board fixture', async () => {
-      const fixturePath = path.join(__dirname, 'fixtures', 'empty-board-day1.json');
-      const fixtureContent = fs.readFileSync(fixturePath, 'utf-8');
-      const fixtureState: KanbanState = JSON.parse(fixtureContent);
+    it('should successfully load and verify empty board fixture', () => {
+      const fixtureState = emptyBoardFixture as KanbanState;
 
       expect(fixtureState.currentDay).toBe(1);
       expect(fixtureState.cards).toHaveLength(0);
@@ -427,10 +426,8 @@ describe('Golden Master: State Serialization', () => {
       expect(deserialized).toEqual(fixtureState);
     });
 
-    it('should successfully load and verify small project fixture', async () => {
-      const fixturePath = path.join(__dirname, 'fixtures', 'small-project-day5.json');
-      const fixtureContent = fs.readFileSync(fixturePath, 'utf-8');
-      const fixtureState: KanbanState = JSON.parse(fixtureContent);
+    it('should successfully load and verify small project fixture', () => {
+      const fixtureState = smallProjectFixture as KanbanState;
 
       expect(fixtureState.currentDay).toBe(5);
       expect(fixtureState.cards).toHaveLength(3);
@@ -444,10 +441,8 @@ describe('Golden Master: State Serialization', () => {
       expect(deserialized).toEqual(fixtureState);
     });
 
-    it('should successfully load and verify complex blocked cards fixture', async () => {
-      const fixturePath = path.join(__dirname, 'fixtures', 'complex-blocked-cards-day15.json');
-      const fixtureContent = fs.readFileSync(fixturePath, 'utf-8');
-      const fixtureState: KanbanState = JSON.parse(fixtureContent);
+    it('should successfully load and verify complex blocked cards fixture', () => {
+      const fixtureState = complexBlockedFixture as KanbanState;
 
       expect(fixtureState.currentDay).toBe(15);
       expect(fixtureState.cards).toHaveLength(5);
