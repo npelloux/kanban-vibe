@@ -27,5 +27,8 @@ dist-ssr
 allure-results/
 allure-report/
 
+# Coverage reports
+coverage/
+
 # Claude local settings
 .claude/settings.local.json
