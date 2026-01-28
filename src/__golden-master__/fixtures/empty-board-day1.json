@@ -1,0 +1,49 @@
+{
+  "currentDay": 1,
+  "cards": [],
+  "workers": [
+    {
+      "id": "w1",
+      "type": "red"
+    },
+    {
+      "id": "w2",
+      "type": "blue"
+    },
+    {
+      "id": "w3",
+      "type": "green"
+    }
+  ],
+  "wipLimits": {
+    "options": {
+      "min": 0,
+      "max": 0
+    },
+    "redActive": {
+      "min": 0,
+      "max": 0
+    },
+    "redFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "blueActive": {
+      "min": 0,
+      "max": 0
+    },
+    "blueFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "green": {
+      "min": 0,
+      "max": 0
+    },
+    "done": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "historicalData": []
+}

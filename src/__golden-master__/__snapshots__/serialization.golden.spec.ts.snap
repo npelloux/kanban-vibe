@@ -1,0 +1,286 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Golden Master: State Serialization > JSON Structure Documentation > should serialize complex board state with all features to expected JSON structure 1`] = `
+"{
+  "currentDay": 10,
+  "cards": [
+    {
+      "id": "A",
+      "content": "Completed red card",
+      "stage": "red-finished",
+      "age": 3,
+      "startDay": 7,
+      "isBlocked": false,
+      "workItems": {
+        "red": {
+          "total": 5,
+          "completed": 5
+        },
+        "blue": {
+          "total": 3,
+          "completed": 0
+        },
+        "green": {
+          "total": 2,
+          "completed": 0
+        }
+      },
+      "assignedWorkers": []
+    },
+    {
+      "id": "B",
+      "content": "Blocked card",
+      "stage": "blue-active",
+      "age": 5,
+      "startDay": 5,
+      "isBlocked": true,
+      "workItems": {
+        "red": {
+          "total": 4,
+          "completed": 4
+        },
+        "blue": {
+          "total": 6,
+          "completed": 2
+        },
+        "green": {
+          "total": 1,
+          "completed": 0
+        }
+      },
+      "assignedWorkers": [
+        {
+          "id": "w2",
+          "type": "blue"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "content": "Done card",
+      "stage": "done",
+      "age": 8,
+      "startDay": 2,
+      "isBlocked": false,
+      "workItems": {
+        "red": {
+          "total": 3,
+          "completed": 3
+        },
+        "blue": {
+          "total": 3,
+          "completed": 3
+        },
+        "green": {
+          "total": 2,
+          "completed": 2
+        }
+      },
+      "assignedWorkers": [],
+      "completionDay": 10
+    }
+  ],
+  "workers": [
+    {
+      "id": "w1",
+      "type": "red"
+    },
+    {
+      "id": "w2",
+      "type": "blue"
+    },
+    {
+      "id": "w3",
+      "type": "green"
+    }
+  ],
+  "wipLimits": {
+    "options": {
+      "min": 0,
+      "max": 5
+    },
+    "redActive": {
+      "min": 1,
+      "max": 3
+    },
+    "redFinished": {
+      "min": 0,
+      "max": 2
+    },
+    "blueActive": {
+      "min": 1,
+      "max": 4
+    },
+    "blueFinished": {
+      "min": 0,
+      "max": 2
+    },
+    "green": {
+      "min": 0,
+      "max": 3
+    },
+    "done": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "historicalData": [
+    {
+      "day": 1,
+      "columnData": {
+        "options": 3,
+        "redActive": 0,
+        "redFinished": 0,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    },
+    {
+      "day": 2,
+      "columnData": {
+        "options": 2,
+        "redActive": 1,
+        "redFinished": 0,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    },
+    {
+      "day": 3,
+      "columnData": {
+        "options": 1,
+        "redActive": 2,
+        "redFinished": 0,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    }
+  ]
+}"
+`;
+
+exports[`Golden Master: State Serialization > JSON Structure Documentation > should serialize empty board state to expected JSON structure 1`] = `
+"{
+  "currentDay": 1,
+  "cards": [],
+  "workers": [],
+  "wipLimits": {
+    "options": {
+      "min": 0,
+      "max": 0
+    },
+    "redActive": {
+      "min": 0,
+      "max": 0
+    },
+    "redFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "blueActive": {
+      "min": 0,
+      "max": 0
+    },
+    "blueFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "green": {
+      "min": 0,
+      "max": 0
+    },
+    "done": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "historicalData": []
+}"
+`;
+
+exports[`Golden Master: State Serialization > JSON Structure Documentation > should serialize minimal populated board state to expected JSON structure 1`] = `
+"{
+  "currentDay": 5,
+  "cards": [
+    {
+      "id": "A",
+      "content": "Test card 1",
+      "stage": "red-active",
+      "age": 2,
+      "startDay": 1,
+      "isBlocked": false,
+      "workItems": {
+        "red": {
+          "total": 5,
+          "completed": 0
+        },
+        "blue": {
+          "total": 3,
+          "completed": 0
+        },
+        "green": {
+          "total": 2,
+          "completed": 0
+        }
+      },
+      "assignedWorkers": []
+    }
+  ],
+  "workers": [
+    {
+      "id": "w1",
+      "type": "red"
+    }
+  ],
+  "wipLimits": {
+    "options": {
+      "min": 0,
+      "max": 0
+    },
+    "redActive": {
+      "min": 1,
+      "max": 3
+    },
+    "redFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "blueActive": {
+      "min": 0,
+      "max": 0
+    },
+    "blueFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "green": {
+      "min": 0,
+      "max": 0
+    },
+    "done": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "historicalData": [
+    {
+      "day": 1,
+      "columnData": {
+        "options": 1,
+        "redActive": 0,
+        "redFinished": 0,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    }
+  ]
+}"
+`;
