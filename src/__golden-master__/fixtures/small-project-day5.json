@@ -1,0 +1,180 @@
+{
+  "currentDay": 5,
+  "cards": [
+    {
+      "id": "A",
+      "content": "Create user authentication",
+      "stage": "options",
+      "age": 0,
+      "startDay": 0,
+      "isBlocked": false,
+      "workItems": {
+        "red": {
+          "total": 8,
+          "completed": 0
+        },
+        "blue": {
+          "total": 5,
+          "completed": 0
+        },
+        "green": {
+          "total": 3,
+          "completed": 0
+        }
+      },
+      "assignedWorkers": []
+    },
+    {
+      "id": "B",
+      "content": "Design dashboard layout",
+      "stage": "red-active",
+      "age": 3,
+      "startDay": 2,
+      "isBlocked": false,
+      "workItems": {
+        "red": {
+          "total": 6,
+          "completed": 4
+        },
+        "blue": {
+          "total": 4,
+          "completed": 0
+        },
+        "green": {
+          "total": 2,
+          "completed": 0
+        }
+      },
+      "assignedWorkers": []
+    },
+    {
+      "id": "C",
+      "content": "Fix mobile responsive issues",
+      "stage": "blue-active",
+      "age": 5,
+      "startDay": 1,
+      "isBlocked": false,
+      "workItems": {
+        "red": {
+          "total": 4,
+          "completed": 4
+        },
+        "blue": {
+          "total": 7,
+          "completed": 2
+        },
+        "green": {
+          "total": 3,
+          "completed": 0
+        }
+      },
+      "assignedWorkers": []
+    }
+  ],
+  "workers": [
+    {
+      "id": "w1",
+      "type": "red"
+    },
+    {
+      "id": "w2",
+      "type": "blue"
+    },
+    {
+      "id": "w3",
+      "type": "green"
+    }
+  ],
+  "wipLimits": {
+    "options": {
+      "min": 0,
+      "max": 0
+    },
+    "redActive": {
+      "min": 0,
+      "max": 3
+    },
+    "redFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "blueActive": {
+      "min": 0,
+      "max": 2
+    },
+    "blueFinished": {
+      "min": 0,
+      "max": 0
+    },
+    "green": {
+      "min": 0,
+      "max": 0
+    },
+    "done": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "historicalData": [
+    {
+      "day": 1,
+      "columnData": {
+        "options": 3,
+        "redActive": 0,
+        "redFinished": 0,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    },
+    {
+      "day": 2,
+      "columnData": {
+        "options": 2,
+        "redActive": 1,
+        "redFinished": 0,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    },
+    {
+      "day": 3,
+      "columnData": {
+        "options": 1,
+        "redActive": 1,
+        "redFinished": 1,
+        "blueActive": 0,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    },
+    {
+      "day": 4,
+      "columnData": {
+        "options": 1,
+        "redActive": 1,
+        "redFinished": 0,
+        "blueActive": 1,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    },
+    {
+      "day": 5,
+      "columnData": {
+        "options": 1,
+        "redActive": 1,
+        "redFinished": 0,
+        "blueActive": 1,
+        "blueFinished": 0,
+        "green": 0,
+        "done": 0
+      }
+    }
+  ]
+}
