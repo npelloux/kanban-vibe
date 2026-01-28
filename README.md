@@ -56,7 +56,7 @@ The project is currently undergoing a comprehensive Clean Architecture refactori
 | **M2** | **Stage Transitions** | ✅ **Complete** | |
 | M2-D2.1 | StageTransitionService.canTransition() | ✅ Complete | [#53](https://github.com/npelloux/kanban-vibe/pull/53) |
 | M2-D2.2 | StageTransitionService.nextStage() | ✅ Complete | [#55](https://github.com/npelloux/kanban-vibe/pull/55) |
-| M2-D2.3 | CardAgingService | 🔄 **In Progress** | |
+| M2-D2.3 | CardAgingService | ✅ Complete | |
 
 ### In Progress
 
@@ -142,7 +142,8 @@ The primary focus is completing the Clean Architecture refactoring (M0-M9) to es
 The project is transitioning from a monolithic React application to Clean Architecture with domain-driven design:
 
 ### Domain Layer (✅ Implemented)
-```
+
+```text
 src/simulation/domain/
 ├── card/
 │   ├── card.ts              # Card value object
@@ -161,7 +162,8 @@ src/simulation/domain/
 ```
 
 ### Test Coverage
-```
+
+```text
 src/__golden-master__/      # Behavior characterization tests (✅ Complete)
 ├── stage-transitions.golden.spec.ts
 ├── worker-output.golden.spec.ts
@@ -173,7 +175,8 @@ src/__golden-master__/      # Behavior characterization tests (✅ Complete)
 ```
 
 ### Current Structure
-```
+
+```text
 src/
 ├── simulation/domain/    # ✅ Pure TypeScript domain logic
 ├── components/           # 🔄 React components (being refactored)
@@ -182,7 +185,8 @@ src/
 ```
 
 ### Future Architecture (Post-Refactoring)
-```
+
+```text
 src/simulation/
 ├── domain/              # ✅ Pure business logic
 ├── application/         # 📋 Use cases & orchestration
