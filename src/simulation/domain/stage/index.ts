@@ -8,3 +8,5 @@ export {
   isFinishedStage,
   stageToString,
 } from './stage';
+
+export { canTransition } from './stage-transition';
