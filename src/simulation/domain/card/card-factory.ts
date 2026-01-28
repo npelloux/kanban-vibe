@@ -91,7 +91,11 @@ export const CardFactory = {
 
   nextId(cards: readonly CardType[]): CardId {
     if (cards.length === 0) {
-      return CardIdUtil.create('A')!;
+      const initialId = CardIdUtil.create('A');
+      if (!initialId) {
+        throw new Error("Expected 'A' to be a valid CardId");
+      }
+      return initialId;
     }
 
     const sortedIds = cards

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { CardId } from './card-id';
+import { createValidCardId } from './card-test-fixtures';
 
 describe('CardId', () => {
   describe('create', () => {
@@ -81,37 +82,37 @@ describe('CardId', () => {
 
   describe('next', () => {
     it('should return "B" for "A"', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       expect(CardId.next(id)).toBe('B');
     });
 
     it('should return "AA" for "Z"', () => {
-      const id = CardId.create('Z')!;
+      const id = createValidCardId('Z');
       expect(CardId.next(id)).toBe('AA');
     });
 
     it('should return "AB" for "AA"', () => {
-      const id = CardId.create('AA')!;
+      const id = createValidCardId('AA');
       expect(CardId.next(id)).toBe('AB');
     });
 
     it('should return "BA" for "AZ"', () => {
-      const id = CardId.create('AZ')!;
+      const id = createValidCardId('AZ');
       expect(CardId.next(id)).toBe('BA');
     });
 
     it('should return "AAA" for "ZZ"', () => {
-      const id = CardId.create('ZZ')!;
+      const id = createValidCardId('ZZ');
       expect(CardId.next(id)).toBe('AAA');
     });
 
     it('should return "ZZA" for "ZYZ"', () => {
-      const id = CardId.create('ZYZ')!;
+      const id = createValidCardId('ZYZ');
       expect(CardId.next(id)).toBe('ZZA');
     });
 
     it('should return "AAAA" for "ZZZ"', () => {
-      const id = CardId.create('ZZZ')!;
+      const id = createValidCardId('ZZZ');
       expect(CardId.next(id)).toBe('AAAA');
     });
   });

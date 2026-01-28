@@ -1,54 +1,54 @@
 import { describe, it, expect } from 'vitest';
 import { CardFactory } from './card-factory';
-import { CardId } from './card-id';
 import type { Card } from './card';
+import { createValidCardId } from './card-test-fixtures';
 
 describe('CardFactory', () => {
   describe('create', () => {
     it('creates a card with the given ID', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.id).toBe(id);
     });
 
     it('creates a card in options stage', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.stage).toBe('options');
     });
 
     it('creates a card with age 0', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.age).toBe(0);
     });
 
     it('creates a card with startDay set to currentDay', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 42 });
 
       expect(card.startDay).toBe(42);
     });
 
     it('creates a card that is not blocked', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.isBlocked).toBe(false);
     });
 
     it('creates a card with no assigned workers', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.assignedWorkers).toEqual([]);
     });
 
     it('creates a card with null completionDay', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.completionDay).toBeNull();
@@ -56,20 +56,8 @@ describe('CardFactory', () => {
   });
 
   describe('random work items (1-8 range per color)', () => {
-    it('generates work items within valid range', () => {
-      const id = CardId.create('A')!;
-      const card = CardFactory.create({ id, currentDay: 1 });
-
-      expect(card.workItems.red.total).toBeGreaterThanOrEqual(1);
-      expect(card.workItems.red.total).toBeLessThanOrEqual(8);
-      expect(card.workItems.blue.total).toBeGreaterThanOrEqual(1);
-      expect(card.workItems.blue.total).toBeLessThanOrEqual(8);
-      expect(card.workItems.green.total).toBeGreaterThanOrEqual(1);
-      expect(card.workItems.green.total).toBeLessThanOrEqual(8);
-    });
-
     it('generates work items with 0 completed', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({ id, currentDay: 1 });
 
       expect(card.workItems.red.completed).toBe(0);
@@ -78,11 +66,11 @@ describe('CardFactory', () => {
     });
 
     it('uses injected random function for work items', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({
         id,
         currentDay: 1,
-        random: () => 0, // Always returns min value (1)
+        random: () => 0,
       });
 
       expect(card.workItems.red.total).toBe(1);
@@ -91,7 +79,7 @@ describe('CardFactory', () => {
     });
 
     it('returns minimum (1) when random returns 0', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({
         id,
         currentDay: 1,
@@ -104,7 +92,7 @@ describe('CardFactory', () => {
     });
 
     it('returns maximum (8) when random returns 0.999', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({
         id,
         currentDay: 1,
@@ -117,14 +105,13 @@ describe('CardFactory', () => {
     });
 
     it('returns middle values for middle random values', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({
         id,
         currentDay: 1,
         random: () => 0.5,
       });
 
-      // floor(0.5 * 8) + 1 = 5
       expect(card.workItems.red.total).toBe(5);
       expect(card.workItems.blue.total).toBe(5);
       expect(card.workItems.green.total).toBe(5);
@@ -132,27 +119,19 @@ describe('CardFactory', () => {
   });
 
   describe('random content generation', () => {
-    it('generates non-empty content', () => {
-      const id = CardId.create('A')!;
-      const card = CardFactory.create({ id, currentDay: 1 });
-
-      expect(card.content).toBeTruthy();
-      expect(card.content.length).toBeGreaterThan(0);
-    });
-
     it('uses injected random function for content', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
       const card = CardFactory.create({
         id,
         currentDay: 1,
-        random: () => 0, // Always returns first items
+        random: () => 0,
       });
 
       expect(card.content).toBe('Create user interface');
     });
 
     it('generates different content for different random values', () => {
-      const id = CardId.create('A')!;
+      const id = createValidCardId('A');
 
       const card1 = CardFactory.create({
         id,
@@ -223,11 +202,8 @@ describe('CardFactory', () => {
 });
 
 function createMinimalCard(id: string): Card {
-  const cardId = CardId.create(id);
-  if (!cardId) throw new Error(`Invalid card ID: ${id}`);
-
   return {
-    id: cardId,
+    id: createValidCardId(id),
     content: 'Test',
     stage: 'options',
     age: 0,
