@@ -1,4 +1,4 @@
-import type { Card, Stage, WorkItems } from '../card/card';
+import type { Card, WorkItems } from '../card/card';
 
 /**
  * Determines if a card can transition to the next stage based on work completion.
