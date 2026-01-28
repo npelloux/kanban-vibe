@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { CardAgingService } from './card-aging';
-import { Card } from './card';
-import type { Card as CardType } from './card';
+import { Card, type Card as CardType } from './card';
 import { CardId } from './card-id';
 import type { WorkItems } from './work-items';
 
