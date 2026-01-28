@@ -1,16 +1,7 @@
-import type { Card, WorkItems } from '../card/card';
+import type { Card } from '../card/card';
+import type { WorkItems, WorkerType } from '../card/work-items';
+import { WorkItems as WorkItemsUtil } from '../card/work-items';
 
-/**
- * Determines if a card can transition to the next stage based on work completion.
- *
- * Rules:
- * - Blocked cards cannot transition
- * - Options stage: never auto-transitions (manual move only)
- * - Red stages: require red work complete (total > 0 and completed >= total)
- * - Blue stages: require blue work complete (total > 0) AND red work complete
- * - Green stage: require all colors complete (green total > 0)
- * - Done stage: never transitions (nowhere to go)
- */
 export function canTransition(card: Card): boolean {
   if (card.isBlocked) {
     return false;
@@ -24,20 +15,20 @@ export function canTransition(card: Card): boolean {
 
     case 'red-active':
     case 'red-finished':
-      return isColorCompleteWithWork(workItems, 'red');
+      return hasWorkAndComplete(workItems, 'red');
 
     case 'blue-active':
     case 'blue-finished':
       return (
-        isColorCompleteWithWork(workItems, 'blue') &&
-        isColorComplete(workItems, 'red')
+        hasWorkAndComplete(workItems, 'blue') &&
+        WorkItemsUtil.isColorComplete(workItems, 'red')
       );
 
     case 'green':
       return (
-        isColorCompleteWithWork(workItems, 'green') &&
-        isColorComplete(workItems, 'red') &&
-        isColorComplete(workItems, 'blue')
+        hasWorkAndComplete(workItems, 'green') &&
+        WorkItemsUtil.isColorComplete(workItems, 'red') &&
+        WorkItemsUtil.isColorComplete(workItems, 'blue')
       );
 
     case 'done':
@@ -45,28 +36,12 @@ export function canTransition(card: Card): boolean {
 
     default: {
       const _exhaustive: never = stage;
-      return _exhaustive;
+      throw new Error(`Unsupported stage: ${_exhaustive}`);
     }
   }
 }
 
-/**
- * Checks if a color's work is complete (completed >= total).
- * A color with total = 0 is considered complete.
- */
-function isColorComplete(workItems: WorkItems, color: keyof WorkItems): boolean {
-  const progress = workItems[color];
-  return progress.completed >= progress.total;
-}
-
-/**
- * Checks if a color has work AND that work is complete.
- * Returns false if total = 0 (no work to complete).
- */
-function isColorCompleteWithWork(
-  workItems: WorkItems,
-  color: keyof WorkItems
-): boolean {
+function hasWorkAndComplete(workItems: WorkItems, color: WorkerType): boolean {
   const progress = workItems[color];
   return progress.total > 0 && progress.completed >= progress.total;
 }
