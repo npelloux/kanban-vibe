@@ -144,7 +144,7 @@ describe('StageTransitionService.canTransition', () => {
   });
 
   describe('blue-active stage', () => {
-    it('returns true when blue work is complete, total > 0, and red is complete', () => {
+    it('returns true when blue-active requirements are satisfied', () => {
       const card = buildCard(
         'blue-active',
         buildWorkItems(redComplete, blueComplete, greenNoWork)
@@ -180,7 +180,7 @@ describe('StageTransitionService.canTransition', () => {
       expect(canTransition(card)).toBe(false);
     });
 
-    it('returns true when red total is 0 but blue has work and is complete', () => {
+    it('returns true when red has no work but blue is complete', () => {
       const card = buildCard(
         'blue-active',
         buildWorkItems(redNoWork, blueComplete, greenNoWork)
@@ -191,7 +191,7 @@ describe('StageTransitionService.canTransition', () => {
   });
 
   describe('blue-finished stage', () => {
-    it('returns true when blue work is complete, total > 0, and red is complete', () => {
+    it('returns true when blue-finished requirements are satisfied', () => {
       const card = buildCard(
         'blue-finished',
         buildWorkItems(redComplete, blueComplete, greenNoWork)
@@ -220,7 +220,7 @@ describe('StageTransitionService.canTransition', () => {
   });
 
   describe('green stage', () => {
-    it('returns true when all work is complete and green total > 0', () => {
+    it('returns true when green requirements are satisfied', () => {
       const card = buildCard(
         'green',
         buildWorkItems(redComplete, blueComplete, greenComplete)
@@ -265,7 +265,7 @@ describe('StageTransitionService.canTransition', () => {
       expect(canTransition(card)).toBe(false);
     });
 
-    it('returns true when red and blue totals are 0 but green is complete', () => {
+    it('returns true when red and blue have no work but green is complete', () => {
       const card = buildCard(
         'green',
         buildWorkItems(redNoWork, blueNoWork, greenComplete)
@@ -287,7 +287,7 @@ describe('StageTransitionService.canTransition', () => {
   });
 
   describe('edge cases', () => {
-    it('handles cards with zero work in all colors in red-active', () => {
+    it('returns false when all colors have zero work in red-active', () => {
       const card = buildCard(
         'red-active',
         buildWorkItems(redNoWork, blueNoWork, greenNoWork)
@@ -296,7 +296,7 @@ describe('StageTransitionService.canTransition', () => {
       expect(canTransition(card)).toBe(false);
     });
 
-    it('handles cards with very large work values', () => {
+    it('returns true when red work is complete with large totals', () => {
       const card = buildCard(
         'red-active',
         buildWorkItems({ total: 1000000, completed: 1000000 }, blueNoWork, greenNoWork)
