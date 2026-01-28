@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { canTransition } from './stage-transition';
+import { canTransition, nextStage } from './stage-transition';
 import type { Card, Stage, WorkItems } from '../card/card';
 import { CardId } from '../card/card-id';
+import { Stage as StageFactory } from '../stage/stage';
 
 function buildCard(stage: Stage, workItems: WorkItems, isBlocked = false): Card {
   const id = CardId.create('TEST');
@@ -305,6 +306,89 @@ describe('StageTransitionService.canTransition', () => {
       );
 
       expect(canTransition(card)).toBe(true);
+    });
+  });
+});
+
+describe('StageTransitionService.nextStage', () => {
+  describe('stage transitions', () => {
+    it('should return red-active for options stage', () => {
+      const stage = StageFactory.options();
+      const result = nextStage(stage);
+
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('red-active');
+    });
+
+    it('should return red-finished for red-active stage', () => {
+      const stage = StageFactory.redActive();
+      const result = nextStage(stage);
+
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('red-finished');
+    });
+
+    it('should return blue-active for red-finished stage', () => {
+      const stage = StageFactory.redFinished();
+      const result = nextStage(stage);
+
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('blue-active');
+    });
+
+    it('should return blue-finished for blue-active stage', () => {
+      const stage = StageFactory.blueActive();
+      const result = nextStage(stage);
+
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('blue-finished');
+    });
+
+    it('should return green for blue-finished stage', () => {
+      const stage = StageFactory.blueFinished();
+      const result = nextStage(stage);
+
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('green');
+    });
+
+    it('should return done for green stage', () => {
+      const stage = StageFactory.green();
+      const result = nextStage(stage);
+
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('done');
+    });
+
+    it('should return null for done stage (terminal state)', () => {
+      const stage = StageFactory.done();
+      const result = nextStage(stage);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('parameterized tests', () => {
+    const testCases = [
+      { stage: StageFactory.options(), expected: 'red-active' },
+      { stage: StageFactory.redActive(), expected: 'red-finished' },
+      { stage: StageFactory.redFinished(), expected: 'blue-active' },
+      { stage: StageFactory.blueActive(), expected: 'blue-finished' },
+      { stage: StageFactory.blueFinished(), expected: 'green' },
+      { stage: StageFactory.green(), expected: 'done' },
+    ];
+
+    it.each(testCases)(
+      'should transition from $stage.type to $expected',
+      ({ stage, expected }) => {
+        const result = nextStage(stage);
+        expect(result?.type).toBe(expected);
+      }
+    );
+
+    it('should return null for done stage', () => {
+      const result = nextStage(StageFactory.done());
+      expect(result).toBeNull();
     });
   });
 });
