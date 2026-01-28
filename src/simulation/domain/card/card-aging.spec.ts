@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { CardAgingService } from './card-aging';
-import type { Card } from './card';
+import { Card } from './card';
+import type { Card as CardType } from './card';
 import { CardId } from './card-id';
 import type { WorkItems } from './work-items';
 
 function buildCard(
-  stage: Card['stage'],
+  stage: CardType['stage'],
   age: number = 0,
   id: string = 'TEST'
-): Card {
+): CardType {
   const cardId = CardId.create(id);
   if (!cardId) throw new Error(`Invalid test card ID: ${id}`);
 
@@ -18,7 +19,7 @@ function buildCard(
     green: { total: 3, completed: 0 },
   };
 
-  return {
+  return Card.create({
     id: cardId,
     content: 'Test Card',
     stage,
@@ -28,7 +29,7 @@ function buildCard(
     startDay: 1,
     completionDay: null,
     assignedWorkers: [],
-  };
+  });
 }
 
 describe('CardAgingService', () => {
@@ -97,12 +98,26 @@ describe('CardAgingService', () => {
     });
 
     it('should preserve all other card properties', () => {
-      const originalCard = buildCard('red-active', 3, 'PRESERVE');
-      originalCard.content = 'Important content';
-      originalCard.isBlocked = true;
-      originalCard.startDay = 42;
-      originalCard.completionDay = 100;
-      originalCard.assignedWorkers = [{ type: 'red', name: 'Worker 1', id: 'w1' }];
+      const cardId = CardId.create('PRESERVE');
+      if (!cardId) throw new Error('Invalid test card ID: PRESERVE');
+
+      const workItems: WorkItems = {
+        red: { total: 3, completed: 0 },
+        blue: { total: 3, completed: 0 },
+        green: { total: 3, completed: 0 },
+      };
+
+      const originalCard = Card.create({
+        id: cardId,
+        content: 'Important content',
+        stage: 'red-active',
+        age: 3,
+        workItems,
+        isBlocked: true,
+        startDay: 42,
+        completionDay: 100,
+        assignedWorkers: [{ type: 'red', id: 'w1' }],
+      });
 
       const result = CardAgingService.ageCard(originalCard);
 
