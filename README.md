@@ -56,7 +56,7 @@ The project is currently undergoing a comprehensive Clean Architecture refactori
 | **M2** | **Stage Transitions** | ✅ **Complete** | |
 | M2-D2.1 | StageTransitionService.canTransition() | ✅ Complete | [#53](https://github.com/npelloux/kanban-vibe/pull/53) |
 | M2-D2.2 | StageTransitionService.nextStage() | ✅ Complete | [#55](https://github.com/npelloux/kanban-vibe/pull/55) |
-| M2-D2.3 | CardAgingService | 🔄 **In Progress** | |
+| M2-D2.3 | CardAgingService | ✅ Complete | |
 
 ### In Progress
 
