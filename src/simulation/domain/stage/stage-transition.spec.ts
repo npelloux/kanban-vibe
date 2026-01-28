@@ -4,8 +4,10 @@ import type { Card, Stage, WorkItems } from '../card/card';
 import { CardId } from '../card/card-id';
 
 function buildCard(stage: Stage, workItems: WorkItems, isBlocked = false): Card {
+  const id = CardId.create('TEST');
+  if (!id) throw new Error('Invalid test card ID');
   return {
-    id: CardId.create('TEST'),
+    id,
     content: 'Test Card',
     stage,
     age: 0,
