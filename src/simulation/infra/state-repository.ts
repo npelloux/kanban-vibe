@@ -116,26 +116,26 @@ function serializeBoard(board: Board): BoardState {
 }
 
 function deserializeBoard(state: BoardState): Board {
-  const cards = state.cards.map((cardData) => {
-    const cardId = CardId.create(cardData.id);
+  const cards = state.cards.map((cardState) => {
+    const cardId = CardId.create(cardState.id);
     if (cardId === null) {
-      throw new Error(`Invalid card id: ${cardData.id}`);
+      throw new Error(`Invalid card id: ${cardState.id}`);
     }
     return Card.create({
       id: cardId,
-      content: cardData.content,
-      stage: cardData.stage,
-      age: cardData.age,
-      workItems: cardData.workItems,
-      isBlocked: cardData.isBlocked,
-      startDay: cardData.startDay,
-      completionDay: cardData.completionDay,
-      assignedWorkers: cardData.assignedWorkers,
+      content: cardState.content,
+      stage: cardState.stage,
+      age: cardState.age,
+      workItems: cardState.workItems,
+      isBlocked: cardState.isBlocked,
+      startDay: cardState.startDay,
+      completionDay: cardState.completionDay,
+      assignedWorkers: cardState.assignedWorkers,
     });
   });
 
-  const workers = state.workers.map((workerData) =>
-    Worker.create(workerData.id, workerData.type)
+  const workers = state.workers.map((workerState) =>
+    Worker.create(workerState.id, workerState.type)
   );
 
   const wipLimits = WipLimits.create(state.wipLimits);
@@ -152,7 +152,16 @@ export const StateRepository = {
   saveBoard(board: Board): void {
     const state = serializeBoard(board);
     const json = JSON.stringify(state);
-    localStorage.setItem(STORAGE_KEY, json);
+    try {
+      localStorage.setItem(STORAGE_KEY, json);
+    } catch (error) {
+      const name = error instanceof DOMException ? error.name : '';
+      if (name === 'QuotaExceededError') {
+        console.warn('LocalStorage quota exceeded while saving board.', error);
+        return;
+      }
+      throw error;
+    }
   },
 
   loadBoard(): Board | null {

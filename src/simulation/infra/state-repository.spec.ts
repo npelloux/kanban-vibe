@@ -193,6 +193,35 @@ describe('StateRepository', () => {
       const saved = JSON.parse(mockStorage[STORAGE_KEY]);
       expect(saved.cards[0].completionDay).toBe(10);
     });
+
+    it('handles QuotaExceededError gracefully', () => {
+      const quotaError = new DOMException('Quota exceeded', 'QuotaExceededError');
+      vi.mocked(localStorage.setItem).mockImplementation(() => {
+        throw quotaError;
+      });
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const board = createTestBoard();
+
+      expect(() => StateRepository.saveBoard(board)).not.toThrow();
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'LocalStorage quota exceeded while saving board.',
+        quotaError
+      );
+
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('rethrows non-quota errors from localStorage', () => {
+      const otherError = new Error('Some other error');
+      vi.mocked(localStorage.setItem).mockImplementation(() => {
+        throw otherError;
+      });
+
+      const board = createTestBoard();
+
+      expect(() => StateRepository.saveBoard(board)).toThrow('Some other error');
+    });
   });
 
   describe('loadBoard', () => {
