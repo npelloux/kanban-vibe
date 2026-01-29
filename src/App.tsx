@@ -1338,9 +1338,9 @@ function App() {
         onCancelPolicy={handleCancelPolicy}
       />
       
-      <WorkerPool 
-        workers={workers} 
-        selectedWorkerId={selectedWorkerId} 
+      <WorkerPool
+        workers={workers}
+        selectedWorkerId={selectedWorkerId}
         onWorkerSelect={handleWorkerSelect}
         onAddWorker={handleAddWorker}
         onDeleteWorker={handleDeleteWorker}
