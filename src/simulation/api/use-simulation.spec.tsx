@@ -390,4 +390,109 @@ describe('useSimulationControls', () => {
       expect(StateRepository.saveBoard).toHaveBeenCalledTimes(3);
     });
   });
+
+  describe('days validation', () => {
+    it('throws error for zero days', async () => {
+      const board = createTestBoard();
+      const { getHookResult } = renderHook(board);
+
+      await expect(
+        act(async () => {
+          await getHookResult().runPolicy(0);
+        })
+      ).rejects.toThrow('Invalid days parameter: 0');
+    });
+
+    it('throws error for negative days', async () => {
+      const board = createTestBoard();
+      const { getHookResult } = renderHook(board);
+
+      await expect(
+        act(async () => {
+          await getHookResult().runPolicy(-5);
+        })
+      ).rejects.toThrow('Invalid days parameter: -5');
+    });
+
+    it('throws error for non-integer days', async () => {
+      const board = createTestBoard();
+      const { getHookResult } = renderHook(board);
+
+      await expect(
+        act(async () => {
+          await getHookResult().runPolicy(2.5);
+        })
+      ).rejects.toThrow('Invalid days parameter: 2.5');
+    });
+
+    it('throws error for Infinity', async () => {
+      const board = createTestBoard();
+      const { getHookResult } = renderHook(board);
+
+      await expect(
+        act(async () => {
+          await getHookResult().runPolicy(Infinity);
+        })
+      ).rejects.toThrow('Invalid days parameter: Infinity');
+    });
+
+    it('throws error for NaN', async () => {
+      const board = createTestBoard();
+      const { getHookResult } = renderHook(board);
+
+      await expect(
+        act(async () => {
+          await getHookResult().runPolicy(NaN);
+        })
+      ).rejects.toThrow('Invalid days parameter: NaN');
+    });
+  });
+
+  describe('error recovery', () => {
+    it('resets isRunning after cancel mid-run', async () => {
+      const board = createTestBoard();
+      let callCount = 0;
+      vi.spyOn(runPolicyModule, 'runPolicyDay').mockImplementation(() => {
+        callCount++;
+        if (callCount >= 2) {
+          getHookResult().cancelPolicy();
+        }
+        return { cards: [], newDay: callCount };
+      });
+      const { getHookResult } = renderHook(board);
+
+      await act(async () => {
+        await getHookResult().runPolicy(10);
+      });
+
+      expect(getHookResult().isRunning).toBe(false);
+      expect(callCount).toBeLessThan(10);
+    });
+
+    it('allows subsequent runs after cancellation', async () => {
+      const board = createTestBoard();
+      let totalCalls = 0;
+      vi.spyOn(runPolicyModule, 'runPolicyDay').mockImplementation(() => {
+        totalCalls++;
+        if (totalCalls === 1) {
+          getHookResult().cancelPolicy();
+        }
+        return { cards: [], newDay: totalCalls };
+      });
+      const { getHookResult } = renderHook(board);
+
+      await act(async () => {
+        await getHookResult().runPolicy(5);
+      });
+
+      const callsAfterFirst = totalCalls;
+
+      await act(async () => {
+        await getHookResult().runPolicy(3);
+      });
+
+      expect(callsAfterFirst).toBe(1);
+      expect(totalCalls).toBeGreaterThan(callsAfterFirst);
+    });
+  });
 });

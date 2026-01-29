@@ -4,12 +4,29 @@ import { Board } from '../domain/board/board';
 import { advanceDay as advanceDayUseCase } from '../application/advance-day';
 import { runPolicyDay } from '../application/run-policy';
 
-export function useSimulationControls() {
+type PolicyRunState = { status: 'idle' } | { status: 'running'; progress: number };
+
+function validateDays(days: number): void {
+  if (!Number.isFinite(days) || !Number.isInteger(days) || days <= 0) {
+    throw new Error(`Invalid days parameter: ${days}. Must be a positive integer.`);
+  }
+}
+
+export interface UseSimulationControlsOptions {
+  createAbortController?: () => AbortController;
+}
+
+export function useSimulationControls(
+  options: UseSimulationControlsOptions = {}
+) {
+  const { createAbortController = () => new AbortController() } = options;
   const { board, updateBoard } = useBoardContext();
-  const [isRunning, setIsRunning] = useState(false);
-  const [policyProgress, setPolicyProgress] = useState<number | null>(null);
+  const [policyRunState, setPolicyRunState] = useState<PolicyRunState>({ status: 'idle' });
   const abortControllerRef = useRef<AbortController | null>(null);
   const isRunningRef = useRef(false);
+
+  const isRunning = policyRunState.status === 'running';
+  const policyProgress = policyRunState.status === 'running' ? policyRunState.progress : null;
 
   const advanceDay = useCallback(() => {
     if (isRunningRef.current) return;
@@ -29,58 +46,53 @@ export function useSimulationControls() {
     async (days: number) => {
       if (isRunningRef.current) return;
 
-      isRunningRef.current = true;
-      setIsRunning(true);
-      abortControllerRef.current = new AbortController();
+      validateDays(days);
 
+      isRunningRef.current = true;
+      abortControllerRef.current = createAbortController();
       const abortController = abortControllerRef.current;
 
-      for (let i = 1; i <= days; i++) {
-        if (abortController.signal.aborted) {
-          break;
-        }
+      try {
+        for (let i = 1; i <= days; i++) {
+          if (abortController.signal.aborted) break;
 
-        await Promise.resolve();
+          await Promise.resolve();
 
-        if (abortController.signal.aborted) {
-          break;
-        }
+          if (abortController.signal.aborted) break;
 
-        setPolicyProgress(i);
+          setPolicyRunState({ status: 'running', progress: i });
 
-        let shouldBreak = false;
-        updateBoard((current) => {
-          if (abortController.signal.aborted) {
-            shouldBreak = true;
-            return current;
-          }
+          let shouldBreak = false;
+          updateBoard((current) => {
+            if (abortController.signal.aborted) {
+              shouldBreak = true;
+              return current;
+            }
 
-          const result = runPolicyDay({
-            policyType: 'siloted-expert',
-            cards: current.cards,
-            workers: current.workers,
-            currentDay: current.currentDay,
-            wipLimits: current.wipLimits,
+            const result = runPolicyDay({
+              policyType: 'siloted-expert',
+              cards: current.cards,
+              workers: current.workers,
+              currentDay: current.currentDay,
+              wipLimits: current.wipLimits,
+            });
+
+            if (abortController.signal.aborted) {
+              shouldBreak = true;
+              return current;
+            }
+
+            return Board.withCurrentDay(Board.withCards(current, result.cards), result.newDay);
           });
 
-          if (abortController.signal.aborted) {
-            shouldBreak = true;
-            return current;
-          }
-
-          return Board.withCurrentDay(Board.withCards(current, result.cards), result.newDay);
-        });
-
-        if (shouldBreak || abortController.signal.aborted) {
-          break;
+          if (shouldBreak || abortController.signal.aborted) break;
         }
+      } finally {
+        isRunningRef.current = false;
+        setPolicyRunState({ status: 'idle' });
       }
-
-      isRunningRef.current = false;
-      setIsRunning(false);
-      setPolicyProgress(null);
     },
-    [updateBoard]
+    [updateBoard, createAbortController]
   );
 
   const cancelPolicy = useCallback(() => {
