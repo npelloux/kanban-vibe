@@ -51,6 +51,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
       <div className="worker-pool-header">
         <h3>Workers</h3>
         <button
+          type="button"
           className="add-worker-button"
           onClick={handleAddClick}
           title="Add a new worker"
@@ -93,7 +94,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
               Green
             </label>
           </div>
-          <button className="confirm-add-worker" onClick={handleAddWorker}>
+          <button type="button" className="confirm-add-worker" onClick={handleAddWorker}>
             Confirm
           </button>
         </div>
@@ -110,6 +111,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
             />
             {onDeleteWorker && (
               <button
+                type="button"
                 className="delete-worker-button"
                 onClick={() => handleDeleteWorker(worker.id)}
                 title="Delete worker"

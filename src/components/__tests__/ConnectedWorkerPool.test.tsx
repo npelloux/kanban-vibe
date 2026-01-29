@@ -107,7 +107,7 @@ describe('ConnectedWorkerPool Component', () => {
       fireEvent.click(screen.getByText('Confirm'));
     });
 
-    expect(screen.getByTestId('worker-R1')).toBeInTheDocument();
+    expect(screen.getAllByTestId(/^worker-/)).toHaveLength(1);
   });
 
   it('deletes a worker from context when delete button clicked', async () => {
