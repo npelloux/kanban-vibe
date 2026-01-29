@@ -38,7 +38,6 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<TabType>('kanban');
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
 
-  // Track historical data when day changes
   useEffect(() => {
     const newEntry: HistoricalData = {
       day: currentDay,
