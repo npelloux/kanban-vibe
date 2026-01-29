@@ -1,15 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { CardId } from '../domain/card/card-id';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { moveCard } from './move-card';
-import { createTestCard } from './test-fixtures';
+import { createTestCard, createValidCardId } from './test-fixtures';
 
 describe('MoveCardUseCase', () => {
   describe('Movement from Options to Red-Active', () => {
     it('moves card from options to red-active when WIP allows', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -20,9 +19,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('sets startDay to currentDay when moving to red-active', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options', startDay: 0 })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options', startDay: 0 })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 10,
         wipLimits: WipLimits.empty(),
@@ -33,11 +32,11 @@ describe('MoveCardUseCase', () => {
 
     it('preserves startDay on other cards when moving one card', () => {
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options', startDay: 0 }),
-        createTestCard({ id: CardId.create('B')!, stage: 'red-active', startDay: 3 }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options', startDay: 0 }),
+        createTestCard({ id: createValidCardId('B'), stage: 'red-active', startDay: 3 }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 10,
         wipLimits: WipLimits.empty(),
@@ -49,12 +48,12 @@ describe('MoveCardUseCase', () => {
     it('blocks movement when red-active max WIP would be exceeded', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redActive', { min: 0, max: 2 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'red-active' }),
-        createTestCard({ id: CardId.create('C')!, stage: 'red-active' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'red-active' }),
+        createTestCard({ id: createValidCardId('C'), stage: 'red-active' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -66,9 +65,9 @@ describe('MoveCardUseCase', () => {
 
     it('blocks movement when options min WIP would be violated', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'options', { min: 1, max: 0 });
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -82,11 +81,11 @@ describe('MoveCardUseCase', () => {
       let wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'options', { min: 1, max: 0 });
       wipLimits = WipLimits.withColumnLimit(wipLimits, 'redActive', { min: 0, max: 1 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'red-active' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'red-active' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -98,9 +97,9 @@ describe('MoveCardUseCase', () => {
 
   describe('Movement from Red-Finished to Blue-Active', () => {
     it('moves card from red-finished to blue-active when WIP allows', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'red-finished' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'red-finished' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -111,9 +110,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('does not change startDay when moving from red-finished to blue-active', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'red-finished', startDay: 3 })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'red-finished', startDay: 3 })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 10,
         wipLimits: WipLimits.empty(),
@@ -125,11 +124,11 @@ describe('MoveCardUseCase', () => {
     it('blocks movement when blue-active max WIP would be exceeded', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'blueActive', { min: 0, max: 1 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'red-finished' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'blue-active' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'red-finished' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'blue-active' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -141,9 +140,9 @@ describe('MoveCardUseCase', () => {
 
     it('blocks movement when red-finished min WIP would be violated', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redFinished', { min: 1, max: 0 });
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'red-finished' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'red-finished' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -156,9 +155,9 @@ describe('MoveCardUseCase', () => {
 
   describe('Movement from Blue-Finished to Green', () => {
     it('moves card from blue-finished to green when WIP allows', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'blue-finished' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'blue-finished' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -169,9 +168,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('does not change startDay when moving from blue-finished to green', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'blue-finished', startDay: 2 })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'blue-finished', startDay: 2 })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 15,
         wipLimits: WipLimits.empty(),
@@ -183,12 +182,12 @@ describe('MoveCardUseCase', () => {
     it('blocks movement when green max WIP would be exceeded', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'green', { min: 0, max: 2 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'blue-finished' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'green' }),
-        createTestCard({ id: CardId.create('C')!, stage: 'green' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'blue-finished' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'green' }),
+        createTestCard({ id: createValidCardId('C'), stage: 'green' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -200,9 +199,9 @@ describe('MoveCardUseCase', () => {
 
     it('blocks movement when blue-finished min WIP would be violated', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'blueFinished', { min: 1, max: 0 });
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'blue-finished' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'blue-finished' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -215,9 +214,9 @@ describe('MoveCardUseCase', () => {
 
   describe('Non-Clickable Stages', () => {
     it('does not move cards in red-active', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'red-active' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'red-active' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -228,9 +227,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('does not move cards in blue-active', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'blue-active' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'blue-active' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -241,9 +240,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('does not move cards in green', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'green' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'green' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -254,9 +253,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('does not move cards in done', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'done' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'done' })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -269,9 +268,9 @@ describe('MoveCardUseCase', () => {
 
   describe('Edge Cases', () => {
     it('returns unchanged cards when card id not found', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options' })];
       const result = moveCard({
-        cardId: CardId.create('B')!,
+        cardId: createValidCardId('B'),
         cards,
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -283,7 +282,7 @@ describe('MoveCardUseCase', () => {
 
     it('handles empty cards array', () => {
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards: [],
         currentDay: 5,
         wipLimits: WipLimits.empty(),
@@ -295,7 +294,7 @@ describe('MoveCardUseCase', () => {
 
     it('preserves other card properties when moving', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'options',
         content: 'Important card',
         age: 5,
@@ -308,7 +307,7 @@ describe('MoveCardUseCase', () => {
         assignedWorkers: [{ id: 'w1', type: 'red' }],
       })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 15,
         wipLimits: WipLimits.empty(),
@@ -324,11 +323,11 @@ describe('MoveCardUseCase', () => {
     it('allows movement when WIP is at limit minus one', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redActive', { min: 0, max: 2 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'red-active' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'red-active' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -341,11 +340,11 @@ describe('MoveCardUseCase', () => {
     it('blocks movement when WIP is exactly at limit', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redActive', { min: 0, max: 1 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'red-active' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'red-active' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -358,11 +357,11 @@ describe('MoveCardUseCase', () => {
     it('allows movement when min WIP count is above minimum', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'options', { min: 1, max: 0 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'options' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -375,11 +374,11 @@ describe('MoveCardUseCase', () => {
     it('blocks movement when count equals min WIP (would go below)', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'options', { min: 2, max: 0 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'options' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options' }),
       ];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 5,
         wipLimits,
@@ -390,9 +389,9 @@ describe('MoveCardUseCase', () => {
     });
 
     it('overwrites startDay when card with existing startDay enters red-active', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options', startDay: 3 })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options', startDay: 3 })];
       const result = moveCard({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         cards,
         currentDay: 10,
         wipLimits: WipLimits.empty(),

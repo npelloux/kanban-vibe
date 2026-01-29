@@ -1,15 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { CardId } from '../domain/card/card-id';
 import { assignWorker } from './assign-worker';
-import { createTestCard, createTestWorker } from './test-fixtures';
+import { createTestCard, createTestWorker, createValidCardId } from './test-fixtures';
 
 describe('AssignWorkerUseCase', () => {
   describe('Basic Assignment', () => {
     it('assigns a worker to a card', () => {
-      const cards = [createTestCard({ id: CardId.create('A')! })];
+      const cards = [createTestCard({ id: createValidCardId('A') })];
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w1',
         cards,
         workers,
@@ -22,7 +21,7 @@ describe('AssignWorkerUseCase', () => {
 
     it('preserves other card properties when assigning', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         content: 'Important card',
         stage: 'blue-active',
         age: 5,
@@ -30,7 +29,7 @@ describe('AssignWorkerUseCase', () => {
       })];
       const workers = [createTestWorker('w1', 'blue')];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w1',
         cards,
         workers,
@@ -44,12 +43,12 @@ describe('AssignWorkerUseCase', () => {
 
     it('does not modify other cards when assigning', () => {
       const cards = [
-        createTestCard({ id: CardId.create('A')! }),
-        createTestCard({ id: CardId.create('B')!, stage: 'green' }),
+        createTestCard({ id: createValidCardId('A') }),
+        createTestCard({ id: createValidCardId('B'), stage: 'green' }),
       ];
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w1',
         cards,
         workers,
@@ -64,14 +63,14 @@ describe('AssignWorkerUseCase', () => {
     it('removes worker from previous card when reassigning', () => {
       const cards = [
         createTestCard({
-          id: CardId.create('A')!,
+          id: createValidCardId('A'),
           assignedWorkers: [{ id: 'w1', type: 'red' }],
         }),
-        createTestCard({ id: CardId.create('B')! }),
+        createTestCard({ id: createValidCardId('B') }),
       ];
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('B')!,
+        cardId: createValidCardId('B'),
         workerId: 'w1',
         cards,
         workers,
@@ -85,13 +84,13 @@ describe('AssignWorkerUseCase', () => {
     it('handles worker already assigned to target card', () => {
       const cards = [
         createTestCard({
-          id: CardId.create('A')!,
+          id: createValidCardId('A'),
           assignedWorkers: [{ id: 'w1', type: 'red' }],
         }),
       ];
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w1',
         cards,
         workers,
@@ -106,7 +105,7 @@ describe('AssignWorkerUseCase', () => {
     it('does not assign more than 3 workers to a card', () => {
       const cards = [
         createTestCard({
-          id: CardId.create('A')!,
+          id: createValidCardId('A'),
           assignedWorkers: [
             { id: 'w1', type: 'red' },
             { id: 'w2', type: 'blue' },
@@ -121,7 +120,7 @@ describe('AssignWorkerUseCase', () => {
         createTestWorker('w4', 'red'),
       ];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w4',
         cards,
         workers,
@@ -134,7 +133,7 @@ describe('AssignWorkerUseCase', () => {
     it('allows assignment when card has fewer than 3 workers', () => {
       const cards = [
         createTestCard({
-          id: CardId.create('A')!,
+          id: createValidCardId('A'),
           assignedWorkers: [
             { id: 'w1', type: 'red' },
             { id: 'w2', type: 'blue' },
@@ -147,7 +146,7 @@ describe('AssignWorkerUseCase', () => {
         createTestWorker('w3', 'green'),
       ];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w3',
         cards,
         workers,
@@ -160,10 +159,10 @@ describe('AssignWorkerUseCase', () => {
 
   describe('Edge Cases', () => {
     it('returns unchanged cards when worker not found', () => {
-      const cards = [createTestCard({ id: CardId.create('A')! })];
+      const cards = [createTestCard({ id: createValidCardId('A') })];
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'nonexistent',
         cards,
         workers,
@@ -173,10 +172,10 @@ describe('AssignWorkerUseCase', () => {
     });
 
     it('returns unchanged cards when card not found', () => {
-      const cards = [createTestCard({ id: CardId.create('A')! })];
+      const cards = [createTestCard({ id: createValidCardId('A') })];
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('B')!,
+        cardId: createValidCardId('B'),
         workerId: 'w1',
         cards,
         workers,
@@ -188,7 +187,7 @@ describe('AssignWorkerUseCase', () => {
     it('handles empty cards array', () => {
       const workers = [createTestWorker('w1', 'red')];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w1',
         cards: [],
         workers,
@@ -198,9 +197,9 @@ describe('AssignWorkerUseCase', () => {
     });
 
     it('handles empty workers array', () => {
-      const cards = [createTestCard({ id: CardId.create('A')! })];
+      const cards = [createTestCard({ id: createValidCardId('A') })];
       const result = assignWorker({
-        cardId: CardId.create('A')!,
+        cardId: createValidCardId('A'),
         workerId: 'w1',
         cards,
         workers: [],
@@ -214,21 +213,21 @@ describe('AssignWorkerUseCase', () => {
     it('only removes worker from the card it was assigned to', () => {
       const cards = [
         createTestCard({
-          id: CardId.create('A')!,
+          id: createValidCardId('A'),
           assignedWorkers: [{ id: 'w1', type: 'red' }],
         }),
         createTestCard({
-          id: CardId.create('B')!,
+          id: createValidCardId('B'),
           assignedWorkers: [{ id: 'w2', type: 'blue' }],
         }),
-        createTestCard({ id: CardId.create('C')! }),
+        createTestCard({ id: createValidCardId('C') }),
       ];
       const workers = [
         createTestWorker('w1', 'red'),
         createTestWorker('w2', 'blue'),
       ];
       const result = assignWorker({
-        cardId: CardId.create('C')!,
+        cardId: createValidCardId('C'),
         workerId: 'w1',
         cards,
         workers,

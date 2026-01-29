@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CardId } from '../domain/card/card-id';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { runPolicyDay } from './run-policy';
-import { createTestCard, createTestWorker } from './test-fixtures';
+import { createTestCard, createTestWorker, createValidCardId } from './test-fixtures';
 
 describe('RunPolicyUseCase', () => {
   let mockRandomValues: number[];
@@ -51,8 +50,8 @@ describe('RunPolicyUseCase', () => {
   describe('Step 1: Move Cards from Options to Red-Active', () => {
     it('moves cards from options to red-active', () => {
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'options' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options' }),
       ];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
@@ -68,7 +67,7 @@ describe('RunPolicyUseCase', () => {
     });
 
     it('sets startDay when moving to red-active', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options', startDay: 0 })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options', startDay: 0 })];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
         cards,
@@ -84,9 +83,9 @@ describe('RunPolicyUseCase', () => {
     it('sorts cards by ID before moving (A before B)', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redActive', { min: 0, max: 1 });
       const cards = [
-        createTestCard({ id: CardId.create('C')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'options' }),
+        createTestCard({ id: createValidCardId('C'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options' }),
       ];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
@@ -104,9 +103,9 @@ describe('RunPolicyUseCase', () => {
     it('respects max WIP limit on red-active', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redActive', { min: 0, max: 2 });
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('B')!, stage: 'options' }),
-        createTestCard({ id: CardId.create('C')!, stage: 'options' }),
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('C'), stage: 'options' }),
       ];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
@@ -123,7 +122,7 @@ describe('RunPolicyUseCase', () => {
 
     it('respects min WIP limit on options', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'options', { min: 1, max: 0 });
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'options' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'options' })];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
         cards,
@@ -140,7 +139,7 @@ describe('RunPolicyUseCase', () => {
   describe('Step 2: Move Finished Cards to Next Activity', () => {
     it('moves red-finished cards to blue-active', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'red-finished',
         workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
       })];
@@ -158,7 +157,7 @@ describe('RunPolicyUseCase', () => {
 
     it('moves blue-finished cards to green', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'blue-finished',
         workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 5 }, green: { total: 5, completed: 0 } }
       })];
@@ -178,13 +177,13 @@ describe('RunPolicyUseCase', () => {
       const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'blueActive', { min: 0, max: 1 });
       const cards = [
         createTestCard({
-          id: CardId.create('A')!,
+          id: createValidCardId('A'),
           stage: 'red-finished',
           age: 3,
           workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
         }),
         createTestCard({
-          id: CardId.create('B')!,
+          id: createValidCardId('B'),
           stage: 'red-finished',
           age: 5,
           workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
@@ -205,7 +204,7 @@ describe('RunPolicyUseCase', () => {
 
     it('does not move cards that are not done', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'red-finished',
         workItems: { red: { total: 5, completed: 3 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
       })];
@@ -224,7 +223,7 @@ describe('RunPolicyUseCase', () => {
 
   describe('Step 3: Worker Assignment', () => {
     it('assigns red workers to red-active cards', () => {
-      const cards = [createTestCard({ id: CardId.create('A')!, stage: 'red-active' })];
+      const cards = [createTestCard({ id: createValidCardId('A'), stage: 'red-active' })];
       const workers = [createTestWorker('w1', 'red')];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
@@ -240,7 +239,7 @@ describe('RunPolicyUseCase', () => {
 
     it('applies worker output and clears assignments at end of day', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'red-active',
         workItems: { red: { total: 10, completed: 0 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
       })];
@@ -262,9 +261,9 @@ describe('RunPolicyUseCase', () => {
   describe('Card Aging', () => {
     it('ages cards that are in active stages after policy moves', () => {
       const cards = [
-        createTestCard({ id: CardId.create('A')!, stage: 'red-active', age: 2 }),
-        createTestCard({ id: CardId.create('B')!, stage: 'options', age: 0 }),
-        createTestCard({ id: CardId.create('C')!, stage: 'done', age: 5 }),
+        createTestCard({ id: createValidCardId('A'), stage: 'red-active', age: 2 }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options', age: 0 }),
+        createTestCard({ id: createValidCardId('C'), stage: 'done', age: 5 }),
       ];
       const result = runPolicyDay({
         policyType: 'siloted-expert',
@@ -285,7 +284,7 @@ describe('RunPolicyUseCase', () => {
     it('transitions cards when work is complete', () => {
       mockRandomValues = [0];
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'red-active',
         workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
       })];
@@ -303,7 +302,7 @@ describe('RunPolicyUseCase', () => {
 
     it('sets completionDay when moving to done', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'green',
         workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 5 }, green: { total: 5, completed: 5 } }
       })];
@@ -324,7 +323,7 @@ describe('RunPolicyUseCase', () => {
   describe('Blocked Cards', () => {
     it('does not move blocked cards even when work is complete', () => {
       const cards = [createTestCard({
-        id: CardId.create('A')!,
+        id: createValidCardId('A'),
         stage: 'red-active',
         isBlocked: true,
         workItems: { red: { total: 5, completed: 5 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } }
