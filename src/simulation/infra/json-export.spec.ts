@@ -61,7 +61,13 @@ function createTestBoard(
 function readBlobAsText(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('FileReader did not produce string result'));
+      }
+    };
     reader.onerror = () => reject(reader.error);
     reader.readAsText(blob);
   });
