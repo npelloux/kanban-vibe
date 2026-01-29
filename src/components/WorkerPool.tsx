@@ -15,12 +15,12 @@ interface WorkerPoolProps {
   onDeleteWorker?: (workerId: string) => void;
 }
 
-export const WorkerPool: React.FC<WorkerPoolProps> = ({ 
-  workers, 
-  selectedWorkerId, 
+export const WorkerPool: React.FC<WorkerPoolProps> = ({
+  workers,
+  selectedWorkerId,
   onWorkerSelect,
   onAddWorker,
-  onDeleteWorker
+  onDeleteWorker,
 }) => {
   const [showAddWorkerOptions, setShowAddWorkerOptions] = useState(false);
   const [selectedType, setSelectedType] = useState<WorkerType>('red');
@@ -50,7 +50,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
     <div className="worker-pool">
       <div className="worker-pool-header">
         <h3>Workers</h3>
-        <button 
+        <button
           className="add-worker-button"
           onClick={handleAddClick}
           title="Add a new worker"
@@ -58,50 +58,47 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
           + Add Worker
         </button>
       </div>
-      
+
       {showAddWorkerOptions && (
         <div className="add-worker-options">
           <div className="worker-type-selector">
             <label>
-              <input 
-                type="radio" 
-                name="worker-type" 
-                value="red" 
-                checked={selectedType === 'red'} 
-                onChange={() => handleTypeSelect('red')} 
+              <input
+                type="radio"
+                name="worker-type"
+                value="red"
+                checked={selectedType === 'red'}
+                onChange={() => handleTypeSelect('red')}
               />
               Red
             </label>
             <label>
-              <input 
-                type="radio" 
-                name="worker-type" 
-                value="blue" 
-                checked={selectedType === 'blue'} 
-                onChange={() => handleTypeSelect('blue')} 
+              <input
+                type="radio"
+                name="worker-type"
+                value="blue"
+                checked={selectedType === 'blue'}
+                onChange={() => handleTypeSelect('blue')}
               />
               Blue
             </label>
             <label>
-              <input 
-                type="radio" 
-                name="worker-type" 
-                value="green" 
-                checked={selectedType === 'green'} 
-                onChange={() => handleTypeSelect('green')} 
+              <input
+                type="radio"
+                name="worker-type"
+                value="green"
+                checked={selectedType === 'green'}
+                onChange={() => handleTypeSelect('green')}
               />
               Green
             </label>
           </div>
-          <button 
-            className="confirm-add-worker"
-            onClick={handleAddWorker}
-          >
+          <button className="confirm-add-worker" onClick={handleAddWorker}>
             Confirm
           </button>
         </div>
       )}
-      
+
       <div className="worker-pool-content">
         {workers.map((worker) => (
           <div key={worker.id} className="worker-container">
@@ -112,7 +109,7 @@ export const WorkerPool: React.FC<WorkerPoolProps> = ({
               onClick={() => onWorkerSelect(worker.id)}
             />
             {onDeleteWorker && (
-              <button 
+              <button
                 className="delete-worker-button"
                 onClick={() => handleDeleteWorker(worker.id)}
                 title="Delete worker"
