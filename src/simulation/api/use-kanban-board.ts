@@ -50,21 +50,22 @@ export function useKanbanBoard() {
   );
 
   const addCard = useCallback(() => {
-    const nextId = CardFactory.nextId(board.cards);
-    const newCard = CardFactory.create({
-      id: nextId,
-      currentDay: board.currentDay,
+    updateBoard((current) => {
+      const nextId = CardFactory.nextId(current.cards);
+      const newCard = CardFactory.create({
+        id: nextId,
+        currentDay: current.currentDay,
+      });
+      return Board.addCard(current, newCard);
     });
-
-    updateBoard((current) => Board.addCard(current, newCard));
-  }, [board, updateBoard]);
+  }, [updateBoard]);
 
   const toggleBlock = useCallback(
     (cardId: CardId) => {
       updateBoard((current) => {
         const card = Board.findCard(current, cardId);
         if (!card) {
-          return current;
+          throw new Error(`Card '${cardId}' not found`);
         }
         return Board.updateCard(current, cardId, (c) =>
           Card.withBlocked(c, !c.isBlocked)

@@ -316,7 +316,6 @@ describe('useKanbanBoard', () => {
         getHookResult().assignWorker(createValidCardId('NONEXISTENT'), 'w1');
       });
 
-      // No error should be thrown
       expect(getHookResult().cards).toHaveLength(0);
     });
   });
@@ -355,7 +354,6 @@ describe('useKanbanBoard', () => {
         getHookResult().addCard();
       });
 
-      // CardFactory.nextId should return the next ID after ABC which is ABD
       expect(getHookResult().cards).toHaveLength(2);
       const newCard = getHookResult().cards.find(c => c.id !== 'ABC');
       expect(newCard).toBeDefined();
@@ -402,17 +400,16 @@ describe('useKanbanBoard', () => {
       expect(getHookResult().cards[0].isBlocked).toBe(false);
     });
 
-    it('does nothing when card not found', () => {
+    it('throws error when card not found', () => {
       const card = createTestCard('ABC');
       const board = createTestBoard({ cards: [card] });
       const { getHookResult } = renderHook(board);
 
-      act(() => {
-        getHookResult().toggleBlock(createValidCardId('NONEXISTENT'));
-      });
-
-      // No error should be thrown, original card unchanged
-      expect(getHookResult().cards[0].isBlocked).toBe(false);
+      expect(() => {
+        act(() => {
+          getHookResult().toggleBlock(createValidCardId('NONEXISTENT'));
+        });
+      }).toThrow("Card 'NONEXISTENT' not found");
     });
   });
 
