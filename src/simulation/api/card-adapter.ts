@@ -2,14 +2,20 @@ import { Card as CardFactory, type Card, type Stage } from '../domain/card/card'
 import { CardId } from '../domain/card/card-id';
 import type { WorkProgress } from '../domain/card/work-items';
 
+type WorkerColor = 'red' | 'blue' | 'green';
+
+function isWorkerColor(type: string): type is WorkerColor {
+  return type === 'red' || type === 'blue' || type === 'green';
+}
+
 export interface CardInput {
   id: string;
   content: string;
-  stage?: string;
-  age?: number;
-  startDay?: number;
-  isBlocked?: boolean;
-  workItems?: {
+  stage: string;
+  age: number;
+  startDay: number;
+  isBlocked: boolean;
+  workItems: {
     red: WorkProgress;
     blue: WorkProgress;
     green: WorkProgress;
@@ -41,16 +47,8 @@ export function toDomainCard(input: CardInput): Card {
     throw new Error(`Invalid card ID '${input.id}'`);
   }
 
-  if (input.stage === undefined) {
-    throw new Error(`Missing stage for card '${input.id}'`);
-  }
-
   if (!isValidStage(input.stage)) {
     throw new Error(`Invalid stage '${input.stage}'`);
-  }
-
-  if (input.workItems === undefined) {
-    throw new Error(`Missing workItems for card '${input.id}'`);
   }
 
   const workItems = input.workItems;
@@ -60,29 +58,17 @@ export function toDomainCard(input: CardInput): Card {
     workItems.blue.total < 0 ||
     workItems.blue.completed < 0 ||
     workItems.green.total < 0 ||
-    workItems.green.completed < 0
+    workItems.green.completed < 0 ||
+    workItems.red.completed > workItems.red.total ||
+    workItems.blue.completed > workItems.blue.total ||
+    workItems.green.completed > workItems.green.total
   ) {
     throw new Error(`Invalid workItems for card '${input.id}'`);
   }
 
-  if (input.startDay === undefined) {
-    throw new Error(`Missing startDay for card '${input.id}'`);
-  }
-
-  if (input.age === undefined) {
-    throw new Error(`Missing age for card '${input.id}'`);
-  }
-
-  if (input.isBlocked === undefined) {
-    throw new Error(`Missing isBlocked for card '${input.id}'`);
-  }
-
   const assignedWorkers = (input.assignedWorkers ?? [])
-    .filter((w) => w.type !== 'options')
-    .map((w) => ({
-      id: w.id,
-      type: w.type as 'red' | 'blue' | 'green',
-    }));
+    .filter((w): w is { id: string; type: WorkerColor } => isWorkerColor(w.type))
+    .map((w) => ({ id: w.id, type: w.type }));
 
   return CardFactory.create({
     id: cardId,

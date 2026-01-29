@@ -63,6 +63,13 @@ export const Card: React.FC<CardProps> = ({
 
   const cardRef = useRef<HTMLDivElement>(null);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (onCardClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onCardClick(card.id);
+    }
+  };
+
   useEffect(() => {
     const cardElement = cardRef.current;
 
@@ -93,7 +100,10 @@ export const Card: React.FC<CardProps> = ({
       data-testid="card"
       data-card-id={card.id}
       data-stage={card.stage}
+      role="button"
+      tabIndex={onCardClick ? 0 : undefined}
       onClick={onCardClick ? () => onCardClick(card.id) : undefined}
+      onKeyDown={onCardClick ? handleKeyDown : undefined}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}

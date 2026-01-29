@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card as CardComponent } from './Card';
 import type { WorkItemsType } from './Card';
 import type { CardId } from '../simulation/domain/card/card-id';
@@ -29,9 +29,9 @@ export const Column: React.FC<ColumnProps> = ({
   onAddCard,
   onToggleBlock
 }) => {
-  const stageValue = type === 'options' ? 'options' : `${type}${status === 'active' ? '-active' : ''}`;
+  const stageValue = type === 'options' ? 'options' : `${type}-${status}`;
 
-  const domainCards = cards.map(toDomainCard);
+  const domainCards = useMemo(() => cards.map(toDomainCard), [cards]);
 
   const handleCardClick = onCardClick
     ? (cardId: CardId) => onCardClick(cardId)

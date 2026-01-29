@@ -95,14 +95,23 @@ describe('Column Component', () => {
 
   it('calls onWorkerDrop when a worker is dropped on a card', () => {
     const mockOnWorkerDrop = vi.fn();
-    const cards = [createCardInput({ id: 'A', content: 'Card A' })];
+    const cards = [createCardInput({ id: 'A', content: 'Card A', stage: 'red-active' })];
 
     render(
       <Column title="Options" cards={cards} onWorkerDrop={mockOnWorkerDrop} />
     );
 
     const card = screen.getByTestId('card');
-
     expect(card).toBeInTheDocument();
+
+    const dropData = JSON.stringify({ id: 'worker-1', type: 'red' });
+    fireEvent.drop(card, {
+      dataTransfer: {
+        getData: () => dropData,
+      },
+    });
+
+    expect(mockOnWorkerDrop).toHaveBeenCalledTimes(1);
+    expect(mockOnWorkerDrop).toHaveBeenCalledWith('A', 'worker-1');
   });
 });
