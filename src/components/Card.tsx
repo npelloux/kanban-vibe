@@ -1,56 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { WorkerType } from './Worker';
+import type { Card as DomainCard, WorkerType } from '../simulation/domain/card/card';
+import type { CardId } from '../simulation/domain/card/card-id';
+import { WorkItems, type WorkItems as WorkItemsInterface } from '../simulation/domain/card/work-items';
 
-export interface WorkItemsType {
-  [key: string]: {
-    total: number;
-    completed: number;
-  };
-}
+export type WorkItemsType = WorkItemsInterface;
 
 interface CardProps {
-  id: string;
-  content: string;
-  age?: number;
-  startDay?: number;
-  isBlocked?: boolean;
-  workItems?: WorkItemsType;
-  assignedWorkers?: {
-    id: string;
-    type: WorkerType;
-  }[];
-  onClick?: () => void;
-  onWorkerDrop?: (workerId: string, workerType: WorkerType) => void;
-  onToggleBlock?: (cardId: string) => void;
-  stage?: string;
-  completionDay?: number;
+  card: DomainCard;
+  onCardClick?: (cardId: CardId) => void;
+  onWorkerDrop?: (cardId: CardId, workerId: string, workerType: WorkerType) => void;
+  onToggleBlock?: (cardId: CardId) => void;
+}
+
+function isDropAllowedStage(stage: DomainCard['stage']): boolean {
+  return stage === 'red-active' || stage === 'blue-active' || stage === 'green';
 }
 
 export const Card: React.FC<CardProps> = ({
-  id,
-  content,
-  age = 0,
-  startDay = 1,
-  isBlocked = false,
-  workItems = {
-    red: { total: 6, completed: 0 },
-    blue: { total: 0, completed: 0 },
-    green: { total: 0, completed: 0 }
-  },
-  assignedWorkers = [],
-  onClick,
+  card,
+  onCardClick,
   onWorkerDrop,
-  onToggleBlock,
-  stage = '',
-  completionDay
+  onToggleBlock
 }) => {
-  // State to track if a worker is being dragged over this card
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Handle drag over event
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    // Only allow if the card is in an active stage
-    if (stage && (stage.includes('active') || stage === 'green')) {
+    if (isDropAllowedStage(card.stage)) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       if (!isDragOver) {
@@ -59,169 +34,153 @@ export const Card: React.FC<CardProps> = ({
     }
   };
 
-  // Handle drag leave event
   const handleDragLeave = () => {
     setIsDragOver(false);
   };
 
-  // Handle drop event
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       if (data && data.id && data.type && onWorkerDrop) {
-        onWorkerDrop(data.id, data.type);
+        onWorkerDrop(card.id, data.id, data.type);
       }
     } catch (error) {
       console.error('Error parsing dropped worker data:', error);
     }
   };
-  // Calculate total work items for all colors
-  const totalWorkItems = Object.values(workItems).reduce(
-    (sum, items) => sum + items.total, 
-    0
-  );
-  
-  // Calculate completed work items for all colors
-  const completedWorkItems = Object.values(workItems).reduce(
-    (sum, items) => sum + items.completed, 
-    0
-  );
-  
-  // Check if all work is completed
-  const isCompleted = totalWorkItems > 0 && completedWorkItems >= totalWorkItems;
 
-  // Handle block toggle click
+  const isCompleted = WorkItems.isAllComplete(card.workItems);
+
   const handleToggleBlockClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onToggleBlock) {
-      onToggleBlock(id);
+      onToggleBlock(card.id);
     }
   };
 
-  // Reference to the card element
   const cardRef = useRef<HTMLDivElement>(null);
-  
-  // Effect to add event listener for custom workerdrop event (for mobile)
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (onCardClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onCardClick(card.id);
+    }
+  };
+
   useEffect(() => {
     const cardElement = cardRef.current;
-    
-    // Handler for the custom workerdrop event
+
     const handleWorkerDrop = (e: Event) => {
       const customEvent = e as CustomEvent;
       const { workerId, workerType } = customEvent.detail;
-      
+
       if (onWorkerDrop && workerId && workerType) {
-        onWorkerDrop(workerId, workerType);
+        onWorkerDrop(card.id, workerId, workerType);
       }
     };
-    
-    // Add event listener
+
     if (cardElement) {
       cardElement.addEventListener('workerdrop', handleWorkerDrop);
     }
-    
-    // Clean up
+
     return () => {
       if (cardElement) {
         cardElement.removeEventListener('workerdrop', handleWorkerDrop);
       }
     };
-  }, [onWorkerDrop]);
+  }, [onWorkerDrop, card.id]);
 
   return (
-    <div 
+    <div
       ref={cardRef}
-      className={`card ${isBlocked ? 'card-blocked' : ''} ${isCompleted ? 'card-completed' : ''} ${isDragOver ? 'card-drag-over' : ''}`} 
-      data-testid="card" 
-      data-card-id={id}
-      data-stage={stage}
-      onClick={onClick}
+      className={`card ${card.isBlocked ? 'card-blocked' : ''} ${isCompleted ? 'card-completed' : ''} ${isDragOver ? 'card-drag-over' : ''}`}
+      data-testid="card"
+      data-card-id={card.id}
+      data-stage={card.stage}
+      role="button"
+      tabIndex={onCardClick ? 0 : undefined}
+      onClick={onCardClick ? () => onCardClick(card.id) : undefined}
+      onKeyDown={onCardClick ? handleKeyDown : undefined}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       <div className="card-header">
-        <span className="card-id">{id}</span>
-        {age > 0 && stage !== 'done' && <span className="card-age">Age: {age} days</span>}
-        {stage === 'done' && completionDay && <span className="card-age">Completion day: {completionDay}</span>}
+        <span className="card-id">{card.id}</span>
+        {card.age > 0 && card.stage !== 'done' && <span className="card-age">Age: {card.age} days</span>}
+        {card.stage === 'done' && card.completionDay && <span className="card-age">Completion day: {card.completionDay}</span>}
         {onToggleBlock && (
           <button
             className="card-block-toggle"
             onClick={handleToggleBlockClick}
             aria-label="Toggle block"
-            aria-pressed={isBlocked}
+            aria-pressed={card.isBlocked}
             type="button"
           >
-            {isBlocked ? '🔒' : '🔓'}
+            {card.isBlocked ? '🔒' : '🔓'}
           </button>
         )}
       </div>
-      <div className="card-content" style={stage === 'done' ? { fontWeight: 'bold' } : {}}>{content}</div>
-      
-      {isBlocked && <div className="card-blocked-label">BLOCKED!</div>}
-      
-      {assignedWorkers.length > 0 && (
+      <div className="card-content" style={card.stage === 'done' ? { fontWeight: 'bold' } : {}}>{card.content}</div>
+
+      {card.isBlocked && <div className="card-blocked-label">BLOCKED!</div>}
+
+      {card.assignedWorkers.length > 0 && (
         <div className="card-assigned-workers">
-          {assignedWorkers.map(worker => (
+          {card.assignedWorkers.map(worker => (
             <div key={worker.id} className={`card-assigned-worker worker-${worker.type}`}>
               Worker: {worker.id}
             </div>
           ))}
         </div>
       )}
-      
+
       <div className="card-work-items-container">
-        {/* Red work items */}
-        {workItems.red && workItems.red.total > 0 && (
+        {card.workItems.red.total > 0 && (
           <div className="card-work-items-section">
             <div className="card-work-items">
-              {Array.from({ length: workItems.red.total }, (_, index) => (
-                <div 
-                  key={`red-${index}`} 
-                  className={`work-item ${index < workItems.red.completed ? 'completed' : ''}`}
-                  style={{ backgroundColor: index < workItems.red.completed ? 'red' : 'transparent' }}
+              {Array.from({ length: card.workItems.red.total }, (_, index) => (
+                <div
+                  key={`red-${index}`}
+                  className={`work-item ${index < card.workItems.red.completed ? 'completed work-item-red' : ''}`}
                 />
               ))}
             </div>
           </div>
         )}
-        
-        {/* Blue work items */}
-        {workItems.blue && workItems.blue.total > 0 && (
+
+        {card.workItems.blue.total > 0 && (
           <div className="card-work-items-section">
             <div className="card-work-items">
-              {Array.from({ length: workItems.blue.total }, (_, index) => (
-                <div 
-                  key={`blue-${index}`} 
-                  className={`work-item ${index < workItems.blue.completed ? 'completed' : ''}`}
-                  style={{ backgroundColor: index < workItems.blue.completed ? 'blue' : 'transparent' }}
+              {Array.from({ length: card.workItems.blue.total }, (_, index) => (
+                <div
+                  key={`blue-${index}`}
+                  className={`work-item ${index < card.workItems.blue.completed ? 'completed work-item-blue' : ''}`}
                 />
               ))}
             </div>
           </div>
         )}
-        
-        {/* Green work items */}
-        {workItems.green && workItems.green.total > 0 && (
+
+        {card.workItems.green.total > 0 && (
           <div className="card-work-items-section">
             <div className="card-work-items">
-              {Array.from({ length: workItems.green.total }, (_, index) => (
-                <div 
-                  key={`green-${index}`} 
-                  className={`work-item ${index < workItems.green.completed ? 'completed' : ''}`}
-                  style={{ backgroundColor: index < workItems.green.completed ? 'green' : 'transparent' }}
+              {Array.from({ length: card.workItems.green.total }, (_, index) => (
+                <div
+                  key={`green-${index}`}
+                  className={`work-item ${index < card.workItems.green.completed ? 'completed work-item-green' : ''}`}
                 />
               ))}
             </div>
           </div>
         )}
       </div>
-      
+
       <div className="card-footer">
-        <span className="card-start-day">Start: Day {startDay}</span>
+        <span className="card-start-day">Start: Day {card.startDay}</span>
       </div>
     </div>
   );

@@ -879,6 +879,18 @@
   border: none;
 }
 
+.work-item.completed.work-item-red {
+  background-color: var(--fiery-red);
+}
+
+.work-item.completed.work-item-blue {
+  background-color: var(--classic-blue);
+}
+
+.work-item.completed.work-item-green {
+  background-color: var(--greenery);
+}
+
 .card-footer {
   font-size: 0.8rem;
   color: #666;
