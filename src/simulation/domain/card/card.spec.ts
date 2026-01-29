@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { Card, type CardCreateProps, type WorkerType } from './card';
-import { CardId } from './card-id';
+import { createValidCardId } from './card-test-fixtures';
 
 describe('Card', () => {
-  const validCardId = CardId.create('A')!;
+  const validCardId = createValidCardId('A');
   const defaultWorkItems = {
     red: { total: 5, completed: 0 },
     blue: { total: 3, completed: 0 },
