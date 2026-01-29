@@ -25,12 +25,14 @@ function TestConsumer() {
     <div>
       <span data-testid="current-day">{board.currentDay}</span>
       <button
+        type="button"
         data-testid="set-board"
         onClick={() => setBoard(createTestBoard(42))}
       >
         Set Board
       </button>
       <button
+        type="button"
         data-testid="update-board"
         onClick={() => updateBoard((b) => Board.withCurrentDay(b, b.currentDay + 1))}
       >
