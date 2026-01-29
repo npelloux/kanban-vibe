@@ -404,5 +404,49 @@ describe('useWorkerManagement', () => {
       expect(getHookResult().workers).toHaveLength(1);
       expect(getHookResult().workers[0].id).toBe('R2');
     });
+
+    it('generates unique ID after deletion (avoids duplicate)', () => {
+      const board = createTestBoard();
+      const { getHookResult } = renderHook(board);
+
+      act(() => {
+        getHookResult().addWorker('red');
+      });
+
+      act(() => {
+        getHookResult().addWorker('red');
+      });
+
+      act(() => {
+        getHookResult().deleteWorker('R1');
+      });
+
+      act(() => {
+        getHookResult().addWorker('red');
+      });
+
+      expect(getHookResult().workers).toHaveLength(2);
+      expect(getHookResult().workers.find(w => w.id === 'R2')).toBeDefined();
+      expect(getHookResult().workers.find(w => w.id === 'R3')).toBeDefined();
+      expect(getHookResult().workers.find(w => w.id === 'R1')).toBeUndefined();
+    });
+
+    it('does not clear selection when deleting non-existent worker', () => {
+      const worker = Worker.create('R1', 'red');
+      const board = createTestBoard({ workers: [worker] });
+      const { getHookResult } = renderHook(board);
+
+      act(() => {
+        getHookResult().selectWorker('R1');
+      });
+
+      expect(getHookResult().selectedWorkerId).toBe('R1');
+
+      act(() => {
+        getHookResult().deleteWorker('NONEXISTENT');
+      });
+
+      expect(getHookResult().selectedWorkerId).toBe('R1');
+    });
   });
 });

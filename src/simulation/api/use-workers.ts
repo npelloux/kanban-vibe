@@ -9,8 +9,12 @@ function generateNextWorkerId(
   type: WorkerType
 ): string {
   const prefix = type[0].toUpperCase();
-  const existing = workers.filter((w) => w.type === type);
-  return `${prefix}${existing.length + 1}`;
+  const maxSequence = workers.reduce((max, worker) => {
+    if (worker.type !== type) return max;
+    const match = new RegExp(`^${prefix}(\\d+)$`).exec(worker.id);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+  return `${prefix}${maxSequence + 1}`;
 }
 
 export function useWorkerManagement() {
@@ -30,12 +34,15 @@ export function useWorkerManagement() {
 
   const deleteWorker = useCallback(
     (workerId: string) => {
+      const exists = board.workers.some((worker) => worker.id === workerId);
       updateBoard((current) => Board.removeWorker(current, workerId));
-      setSelectedWorkerId((current) =>
-        current === workerId ? null : current
-      );
+      if (exists) {
+        setSelectedWorkerId((current) =>
+          current === workerId ? null : current
+        );
+      }
     },
-    [updateBoard]
+    [board.workers, updateBoard]
   );
 
   const selectWorker = useCallback((workerId: string | null) => {
