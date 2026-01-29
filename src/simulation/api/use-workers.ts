@@ -9,9 +9,10 @@ function generateNextWorkerId(
   type: WorkerType
 ): string {
   const prefix = type[0].toUpperCase();
+  const pattern = new RegExp(`^${prefix}(\\d+)$`);
   const maxSequence = workers.reduce((max, worker) => {
     if (worker.type !== type) return max;
-    const match = new RegExp(`^${prefix}(\\d+)$`).exec(worker.id);
+    const match = pattern.exec(worker.id);
     return match ? Math.max(max, Number(match[1])) : max;
   }, 0);
   return `${prefix}${maxSequence + 1}`;
