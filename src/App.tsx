@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import './App.css'
 import { Column } from './components/Column'
+import { toDomainCard } from './simulation/api/card-adapter'
 import { NextDayButton } from './components/NextDayButton'
 import { WorkerPool } from './components/WorkerPool'
 import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram'
@@ -312,14 +313,34 @@ function App() {
   // State to track all cards
   const [cards, setCards] = useState<Card[]>(initialCards);
 
-  // Filter cards by stage
-  const optionsCards = cards.filter(card => card.stage === 'options');
-  const redActiveCards = cards.filter(card => card.stage === 'red-active');
-  const redFinishedCards = cards.filter(card => card.stage === 'red-finished');
-  const blueActiveCards = cards.filter(card => card.stage === 'blue-active');
-  const blueFinishedCards = cards.filter(card => card.stage === 'blue-finished');
-  const greenCards = cards.filter(card => card.stage === 'green');
-  const doneCards = cards.filter(card => card.stage === 'done');
+  const optionsCards = useMemo(
+    () => cards.filter(card => card.stage === 'options').map(toDomainCard),
+    [cards]
+  );
+  const redActiveCards = useMemo(
+    () => cards.filter(card => card.stage === 'red-active').map(toDomainCard),
+    [cards]
+  );
+  const redFinishedCards = useMemo(
+    () => cards.filter(card => card.stage === 'red-finished').map(toDomainCard),
+    [cards]
+  );
+  const blueActiveCards = useMemo(
+    () => cards.filter(card => card.stage === 'blue-active').map(toDomainCard),
+    [cards]
+  );
+  const blueFinishedCards = useMemo(
+    () => cards.filter(card => card.stage === 'blue-finished').map(toDomainCard),
+    [cards]
+  );
+  const greenCards = useMemo(
+    () => cards.filter(card => card.stage === 'green').map(toDomainCard),
+    [cards]
+  );
+  const doneCards = useMemo(
+    () => cards.filter(card => card.stage === 'done').map(toDomainCard),
+    [cards]
+  );
 
   // Handle Next Day button click
   const handleNextDay = () => {

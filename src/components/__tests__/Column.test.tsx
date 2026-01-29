@@ -2,24 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Column } from '../Column';
-import type { CardInput } from '../../simulation/api/card-adapter';
-
-function createCardInput(overrides: Partial<CardInput> & { id: string }): CardInput {
-  return {
-    content: 'Test Card',
-    stage: 'options',
-    age: 0,
-    startDay: 0,
-    isBlocked: false,
-    workItems: {
-      red: { total: 5, completed: 0 },
-      blue: { total: 5, completed: 0 },
-      green: { total: 5, completed: 0 },
-    },
-    assignedWorkers: [],
-    ...overrides,
-  };
-}
+import { createTestCardWithId } from '../../simulation/domain/card/card-test-fixtures';
 
 describe('Column Component', () => {
   it('renders an empty column', () => {
@@ -31,8 +14,8 @@ describe('Column Component', () => {
 
   it('renders a column with cards', () => {
     const cards = [
-      createCardInput({ id: 'A', content: 'Card A' }),
-      createCardInput({ id: 'B', content: 'Card B' }),
+      createTestCardWithId('A', { content: 'Card A' }),
+      createTestCardWithId('B', { content: 'Card B' }),
     ];
 
     render(<Column title="Options" cards={cards} />);
@@ -81,7 +64,7 @@ describe('Column Component', () => {
 
   it('calls onCardClick when a card is clicked', () => {
     const mockOnCardClick = vi.fn();
-    const cards = [createCardInput({ id: 'A', content: 'Card A' })];
+    const cards = [createTestCardWithId('A', { content: 'Card A' })];
 
     render(
       <Column title="Options" cards={cards} onCardClick={mockOnCardClick} />
@@ -95,7 +78,7 @@ describe('Column Component', () => {
 
   it('calls onWorkerDrop when a worker is dropped on a card', () => {
     const mockOnWorkerDrop = vi.fn();
-    const cards = [createCardInput({ id: 'A', content: 'Card A', stage: 'red-active' })];
+    const cards = [createTestCardWithId('A', { content: 'Card A', stage: 'red-active' })];
 
     render(
       <Column title="Options" cards={cards} onWorkerDrop={mockOnWorkerDrop} />
@@ -113,5 +96,19 @@ describe('Column Component', () => {
 
     expect(mockOnWorkerDrop).toHaveBeenCalledTimes(1);
     expect(mockOnWorkerDrop).toHaveBeenCalledWith('A', 'worker-1');
+  });
+
+  it('accepts wipLimit prop without error', () => {
+    render(
+      <Column
+        title="Red Active"
+        cards={[]}
+        type="red"
+        status="active"
+        wipLimit={{ min: 1, max: 5 }}
+      />
+    );
+
+    expect(screen.getByText('Red Active')).toBeInTheDocument();
   });
 });
