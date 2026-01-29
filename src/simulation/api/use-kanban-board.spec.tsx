@@ -107,14 +107,14 @@ describe('useKanbanBoard', () => {
   });
 
   describe('hook return value', () => {
-    it('returns board from context', () => {
+    it('exposes board currentDay when context has board', () => {
       const board = createTestBoard({ currentDay: 5 });
       const { getHookResult } = renderHook(board);
 
       expect(getHookResult().board.currentDay).toBe(5);
     });
 
-    it('returns cards from board', () => {
+    it('exposes cards array when board has cards', () => {
       const card = createTestCard('ABC');
       const board = createTestBoard({ cards: [card] });
       const { getHookResult } = renderHook(board);
@@ -123,7 +123,7 @@ describe('useKanbanBoard', () => {
       expect(getHookResult().cards[0].id).toBe('ABC');
     });
 
-    it('returns all expected functions', () => {
+    it('exposes all action functions when hook is called', () => {
       const board = createTestBoard();
       const { getHookResult } = renderHook(board);
 
@@ -345,7 +345,7 @@ describe('useKanbanBoard', () => {
       expect(getHookResult().cards[0].stage).toBe('options');
     });
 
-    it('generates sequential card IDs', () => {
+    it('generates sequential card ID ABD when ABC exists', () => {
       const existingCard = createTestCard('ABC');
       const board = createTestBoard({ cards: [existingCard] });
       const { getHookResult } = renderHook(board);
@@ -357,6 +357,7 @@ describe('useKanbanBoard', () => {
       expect(getHookResult().cards).toHaveLength(2);
       const newCard = getHookResult().cards.find(c => c.id !== 'ABC');
       expect(newCard).toBeDefined();
+      expect(newCard?.id).toBe('ABD');
     });
 
     it('sets startDay to currentDay', () => {
