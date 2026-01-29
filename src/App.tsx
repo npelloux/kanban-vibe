@@ -313,7 +313,6 @@ function App() {
   // State to track all cards
   const [cards, setCards] = useState<Card[]>(initialCards);
 
-  // Filter cards by stage and convert to domain cards
   const optionsCards = useMemo(
     () => cards.filter(card => card.stage === 'options').map(toDomainCard),
     [cards]

@@ -4,7 +4,7 @@ import type { WorkItemsType } from './Card';
 import type { Card } from '../simulation/domain/card/card';
 import type { CardId } from '../simulation/domain/card/card-id';
 
-interface WipLimit {
+export interface WipLimit {
   readonly min: number;
   readonly max: number;
 }

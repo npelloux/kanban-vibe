@@ -99,7 +99,6 @@ describe('Column Component', () => {
   });
 
   it('accepts wipLimit prop without error', () => {
-    // wipLimit is accepted for future use but not displayed
     render(
       <Column
         title="Red Active"
