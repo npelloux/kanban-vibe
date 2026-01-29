@@ -1,15 +1,21 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Card as CardComponent } from './Card';
 import type { WorkItemsType } from './Card';
+import type { Card } from '../simulation/domain/card/card';
 import type { CardId } from '../simulation/domain/card/card-id';
-import { toDomainCard, type CardInput } from '../simulation/api/card-adapter';
+
+interface WipLimit {
+  readonly min: number;
+  readonly max: number;
+}
 
 interface ColumnProps {
   title: string;
-  cards: CardInput[];
+  cards: readonly Card[];
   type?: 'options' | 'red' | 'blue' | 'green';
   status?: 'active' | 'finished';
   showAddCardButton?: boolean;
+  wipLimit?: WipLimit;
   onCardClick?: (cardId: string) => void;
   onWorkerDrop?: (cardId: string, workerId: string) => void;
   onAddCard?: () => void;
@@ -30,8 +36,6 @@ export const Column: React.FC<ColumnProps> = ({
   onToggleBlock
 }) => {
   const stageValue = type === 'options' ? 'options' : `${type}-${status}`;
-
-  const domainCards = useMemo(() => cards.map(toDomainCard), [cards]);
 
   const handleCardClick = onCardClick
     ? (cardId: CardId) => onCardClick(cardId)
@@ -62,7 +66,7 @@ export const Column: React.FC<ColumnProps> = ({
         </div>
       </div>
       <div className="cards-container">
-        {domainCards.map((card) => (
+        {cards.map((card) => (
           <CardComponent
             key={card.id}
             card={card}
