@@ -14,10 +14,7 @@ window.alert = mockAlert;
 const originalConsoleLog = console.log;
 const mockConsoleLog = vi.fn();
 
-// TODO: These tests rely on inline WIP limit editors (.kanban-subheader-row)
-// which were removed in the App.tsx refactoring (D8.4).
-// WIP limits are now managed through the board context.
-describe.skip('WIP Limits', () => {
+describe.skip('WIP Limits [requires inline WIP editors removed in D8.4]', () => {
   beforeEach(() => {
     // Reset mocks before each test
     Math.random = originalRandom;

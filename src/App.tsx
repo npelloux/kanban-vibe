@@ -81,9 +81,10 @@ function AppContent() {
 
   const handleImportContext = useCallback(async (file: File) => {
     const result = await importBoard(file);
-    if (result.success) {
-      updateBoard(() => result.value);
+    if (!result.success) {
+      throw new Error(`Failed to import board: ${result.error}`);
     }
+    updateBoard(() => result.value);
   }, [updateBoard]);
 
   const getCardsForStage = (stage: Stage) => cardsInStage(stage);
@@ -105,9 +106,7 @@ function AppContent() {
       case 'kanban': return renderKanbanBoard();
       case 'cfd': return <CumulativeFlowDiagram historicalData={historicalData} />;
       case 'wip': return <WipAgingDiagram cards={[...board.cards]} currentDay={currentDay} />;
-      case 'metrics': return <FlowMetrics cards={[...board.cards]} currentDay={currentDay} historicalData={historicalData} />;
-      case 'settings': return <div>WIP Settings (use Settings tab in NavigationBar)</div>;
-      default: return renderKanbanBoard();
+      case 'metrics': return <FlowMetrics cards={[...board.cards]} currentDay={currentDay} />;
     }
   };
 

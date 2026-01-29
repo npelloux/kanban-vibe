@@ -2,29 +2,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../../App';
-import { Board } from '../../simulation/domain/board/board';
-import { Worker } from '../../simulation/domain/worker/worker';
-import { WipLimits } from '../../simulation/domain/wip/wip-limits';
 import { StateRepository } from '../../simulation/infra/state-repository';
+import { createBoardWithDefaultWorkers } from '../../simulation/application/test-fixtures';
 
-// Mock the file download functionality
 const mockCreateObjectURL = vi.fn();
 const mockRevokeObjectURL = vi.fn();
 URL.createObjectURL = mockCreateObjectURL;
 URL.revokeObjectURL = mockRevokeObjectURL;
 
-// Mock the file input functionality
 const mockFileReader = {
   readAsText: vi.fn(),
   onload: null,
   result: null as string | null
 };
 
-// Mock the click event on the download link
 const mockClick = vi.fn();
 HTMLAnchorElement.prototype.click = mockClick;
 
-// Mock StateRepository to provide initial state
 vi.mock('../../simulation/infra/state-repository', () => ({
   StateRepository: {
     loadBoard: vi.fn(),
@@ -33,32 +27,19 @@ vi.mock('../../simulation/infra/state-repository', () => ({
   },
 }));
 
-function createInitialBoard() {
-  let board = Board.empty(WipLimits.empty());
-  board = Board.addWorker(board, Worker.create('bob', 'red'));
-  board = Board.addWorker(board, Worker.create('zoe', 'blue'));
-  board = Board.addWorker(board, Worker.create('lea', 'blue'));
-  board = Board.addWorker(board, Worker.create('taz', 'green'));
-  return board;
-}
-
 describe('Context Actions', () => {
   beforeEach(() => {
-    // Reset mocks before each test
     mockCreateObjectURL.mockReset();
     mockRevokeObjectURL.mockReset();
     mockClick.mockReset();
 
-    // Reset FileReader mock
     mockFileReader.readAsText.mockReset();
     mockFileReader.onload = null;
     mockFileReader.result = null;
 
-    // Mock FileReader constructor
     (window as unknown as { FileReader: new () => typeof mockFileReader }).FileReader = vi.fn(() => mockFileReader);
 
-    // Provide initial board with workers
-    vi.mocked(StateRepository.loadBoard).mockReturnValue(createInitialBoard());
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(createBoardWithDefaultWorkers());
     vi.mocked(StateRepository.saveBoard).mockImplementation(() => {});
   });
 
@@ -90,9 +71,7 @@ describe('Context Actions', () => {
     expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:fake-url');
   });
 
-  // TODO: This test relies on inline WIP limit editors (.kanban-subheader-row)
-  // which were removed in the App.tsx refactoring (D8.4).
-  it.skip('saves the current state including day, cards, workers, and WIP limits', () => {
+  it.skip('saves state with WIP limits [requires inline WIP editors removed in D8.4]', () => {
     // Arrange
     render(<App />);
     

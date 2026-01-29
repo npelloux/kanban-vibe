@@ -2,15 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../../App';
-import { Board } from '../../simulation/domain/board/board';
-import { Worker } from '../../simulation/domain/worker/worker';
-import { WipLimits } from '../../simulation/domain/wip/wip-limits';
 import { StateRepository } from '../../simulation/infra/state-repository';
+import { createBoardWithDefaultWorkers } from '../../simulation/application/test-fixtures';
 
-// Mock Math.random to return predictable values for testing
 const originalRandom = Math.random;
 
-// Mock StateRepository to provide initial state with expected workers
 vi.mock('../../simulation/infra/state-repository', () => ({
   StateRepository: {
     loadBoard: vi.fn(),
@@ -19,21 +15,10 @@ vi.mock('../../simulation/infra/state-repository', () => ({
   },
 }));
 
-function createInitialBoard() {
-  let board = Board.empty(WipLimits.empty());
-  board = Board.addWorker(board, Worker.create('bob', 'red'));
-  board = Board.addWorker(board, Worker.create('zoe', 'blue'));
-  board = Board.addWorker(board, Worker.create('lea', 'blue'));
-  board = Board.addWorker(board, Worker.create('taz', 'green'));
-  return board;
-}
-
 describe('Worker Management', () => {
   beforeEach(() => {
-    // Reset Math.random mock before each test
     Math.random = originalRandom;
-    // Provide initial board with workers
-    vi.mocked(StateRepository.loadBoard).mockReturnValue(createInitialBoard());
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(createBoardWithDefaultWorkers());
     vi.mocked(StateRepository.saveBoard).mockImplementation(() => {});
   });
 
