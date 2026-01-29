@@ -1,17 +1,25 @@
-
-
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../../App';
+import { StateRepository } from '../../simulation/infra/state-repository';
+import { createBoardWithDefaultWorkers } from '../../simulation/application/test-fixtures';
 
-// Mock Math.random to return predictable values for testing
 const originalRandom = Math.random;
+
+vi.mock('../../simulation/infra/state-repository', () => ({
+  StateRepository: {
+    loadBoard: vi.fn(),
+    saveBoard: vi.fn(),
+    clearBoard: vi.fn(),
+  },
+}));
 
 describe('Worker Management', () => {
   beforeEach(() => {
-    // Reset Math.random mock before each test
     Math.random = originalRandom;
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(createBoardWithDefaultWorkers());
+    vi.mocked(StateRepository.saveBoard).mockImplementation(() => {});
   });
 
   it('displays the Add Worker button', () => {

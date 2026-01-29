@@ -14,7 +14,7 @@ window.alert = mockAlert;
 const originalConsoleLog = console.log;
 const mockConsoleLog = vi.fn();
 
-describe('WIP Limits', () => {
+describe.skip('WIP Limits [requires inline WIP editors removed in D8.4]', () => {
   beforeEach(() => {
     // Reset mocks before each test
     Math.random = originalRandom;

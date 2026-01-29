@@ -2,21 +2,30 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from './App';
+import { StateRepository } from './simulation/infra/state-repository';
+import { createBoardWithDefaultWorkers } from './simulation/application/test-fixtures';
 
-// Mock Math.random to return predictable values for testing
 const originalRandom = Math.random;
 
-// Mock the Chart.js component to avoid canvas errors in tests
 vi.mock('react-chartjs-2', () => ({
   Line: () => <div data-testid="mock-line-chart">Mock Line Chart</div>,
   Bar: () => <div data-testid="mock-bar-chart">Mock Bar Chart</div>,
   Scatter: () => <div data-testid="mock-scatter-chart">Mock Scatter Chart</div>
 }));
 
+vi.mock('./simulation/infra/state-repository', () => ({
+  StateRepository: {
+    loadBoard: vi.fn(),
+    saveBoard: vi.fn(),
+    clearBoard: vi.fn(),
+  },
+}));
+
 describe('App Component', () => {
   beforeEach(() => {
-    // Reset Math.random mock before each test
     Math.random = originalRandom;
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(createBoardWithDefaultWorkers());
+    vi.mocked(StateRepository.saveBoard).mockImplementation(() => {});
   });
 
   it('renders the kanban board with all required columns', () => {
