@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import './App.css';
 import { Column } from './components/Column';
 import { NextDayButton } from './components/NextDayButton';
@@ -9,55 +9,21 @@ import { FlowMetrics } from './components/FlowMetrics';
 import { NavigationBar } from './components/NavigationBar';
 import type { TabType } from './components/TabNavigation';
 import { BoardProvider, useBoardContext } from './simulation/api/board-context';
+import { useHistoricalTracking } from './simulation/api/use-historical-tracking';
 import { useKanbanBoard } from './simulation/api/use-kanban-board';
 import { useSimulationControls } from './simulation/api/use-simulation';
 import { useWorkerManagement } from './simulation/api/use-workers';
-import { Board } from './simulation/domain/board/board';
 import type { Stage } from './simulation/domain/card/card';
 import { exportBoard, importBoard } from './simulation/infra/json-export';
-
-interface HistoricalData {
-  day: number;
-  columnData: {
-    options: number;
-    redActive: number;
-    redFinished: number;
-    blueActive: number;
-    blueFinished: number;
-    green: number;
-    done: number;
-  };
-}
 
 function AppContent() {
   const { board, updateBoard } = useBoardContext();
   const { cardsInStage, moveCard, addCard, toggleBlock, assignWorker } = useKanbanBoard();
   const { currentDay, advanceDay, runPolicy, cancelPolicy, isRunning, policyProgress } = useSimulationControls();
   const { selectedWorkerId, selectWorker } = useWorkerManagement();
+  const historicalData = useHistoricalTracking(board, currentDay);
 
   const [activeTab, setActiveTab] = useState<TabType>('kanban');
-  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
-
-  useEffect(() => {
-    const newEntry: HistoricalData = {
-      day: currentDay,
-      columnData: {
-        options: Board.getCardCountByStage(board, 'options'),
-        redActive: Board.getCardCountByStage(board, 'red-active'),
-        redFinished: Board.getCardCountByStage(board, 'red-finished'),
-        blueActive: Board.getCardCountByStage(board, 'blue-active'),
-        blueFinished: Board.getCardCountByStage(board, 'blue-finished'),
-        green: Board.getCardCountByStage(board, 'green'),
-        done: Board.getCardCountByStage(board, 'done'),
-      },
-    };
-    setHistoricalData((prev) => {
-      if (prev.length === 0 || prev[prev.length - 1].day !== currentDay) {
-        return [...prev, newEntry];
-      }
-      return prev;
-    });
-  }, [currentDay, board]);
 
   const handleCardClick = (cardId: string) => {
     if (selectedWorkerId) {
