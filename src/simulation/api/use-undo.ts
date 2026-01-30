@@ -36,7 +36,7 @@ export function useUndo({ canUndo, undo }: UseUndoOptions): UseUndoResult {
       const isUndo =
         event.key === 'z' && (event.ctrlKey || event.metaKey) && !event.shiftKey;
 
-      if (isUndo) {
+      if (isUndo && canUndo) {
         event.preventDefault();
         undo();
       }
@@ -46,7 +46,7 @@ export function useUndo({ canUndo, undo }: UseUndoOptions): UseUndoResult {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [undo]);
+  }, [canUndo, undo]);
 
   return { canUndo, undo };
 }

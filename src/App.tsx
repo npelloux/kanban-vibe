@@ -90,7 +90,19 @@ function AppContent() {
 
   return (
     <div className="app">
-      <NavigationBar activeTab={activeTab} onTabChange={setActiveTab} currentDay={currentDay} onSaveContext={handleSaveContext} onImportContext={handleImportContext} onRunPolicy={(_, days) => runPolicy(days)} isPolicyRunning={isRunning} policyProgress={policyProgress ? { currentDay: policyProgress, totalDays: 0 } : undefined} onCancelPolicy={cancelPolicy} onUndo={undo} canUndo={canUndo} />
+      <NavigationBar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        currentDay={currentDay}
+        onSaveContext={handleSaveContext}
+        onImportContext={handleImportContext}
+        onRunPolicy={(_, days) => runPolicy(days)}
+        isPolicyRunning={isRunning}
+        policyProgress={policyProgress ? { currentDay: policyProgress, totalDays: 0 } : undefined}
+        onCancelPolicy={cancelPolicy}
+        onUndo={undo}
+        canUndo={canUndo}
+      />
       <ConnectedWorkerPool />
       {renderContent()}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
