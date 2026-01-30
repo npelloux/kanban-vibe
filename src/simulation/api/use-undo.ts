@@ -6,17 +6,11 @@ export interface UseUndoProps {
 }
 
 function isTextInputFocused(): boolean {
-  const activeElement = document.activeElement;
-  if (!activeElement) return false;
+  const element = document.activeElement;
+  if (!(element instanceof HTMLElement)) return false;
 
-  const tagName = activeElement.tagName.toLowerCase();
-  if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
-    return true;
-  }
-
-  if (activeElement.getAttribute('contenteditable') === 'true') {
-    return true;
-  }
+  if (element.matches('input, textarea, select')) return true;
+  if (element.isContentEditable || element.matches('[contenteditable="true"], [contenteditable=""]')) return true;
 
   return false;
 }
@@ -29,7 +23,7 @@ export function useUndo({ canUndo, undo }: UseUndoProps): UseUndoProps {
       }
 
       const isUndo =
-        event.key === 'z' && (event.ctrlKey || event.metaKey) && !event.shiftKey;
+        event.key?.toLowerCase() === 'z' && (event.ctrlKey || event.metaKey) && !event.shiftKey;
 
       if (isUndo && canUndo) {
         event.preventDefault();

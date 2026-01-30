@@ -76,6 +76,22 @@ describe('useUndo', () => {
       expect(mockUndo).toHaveBeenCalledTimes(1);
     });
 
+    it('triggers undo on Ctrl+Z with uppercase Z (caps lock)', () => {
+      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
+
+      act(() => {
+        const event = new KeyboardEvent('keydown', {
+          key: 'Z',
+          ctrlKey: true,
+          shiftKey: false,
+          bubbles: true,
+        });
+        document.dispatchEvent(event);
+      });
+
+      expect(mockUndo).toHaveBeenCalledTimes(1);
+    });
+
     it('does not trigger on Ctrl+Shift+Z (redo shortcut)', () => {
       renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
 
@@ -175,6 +191,29 @@ describe('useUndo', () => {
     it('does not trigger when contenteditable is focused', () => {
       const div = document.createElement('div');
       div.setAttribute('contenteditable', 'true');
+      document.body.appendChild(div);
+      div.focus();
+
+      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
+
+      act(() => {
+        const event = new KeyboardEvent('keydown', {
+          key: 'z',
+          ctrlKey: true,
+          shiftKey: false,
+          bubbles: true,
+        });
+        document.dispatchEvent(event);
+      });
+
+      expect(mockUndo).not.toHaveBeenCalled();
+
+      document.body.removeChild(div);
+    });
+
+    it('does not trigger when contenteditable with empty string value is focused', () => {
+      const div = document.createElement('div');
+      div.setAttribute('contenteditable', '');
       document.body.appendChild(div);
       div.focus();
 
