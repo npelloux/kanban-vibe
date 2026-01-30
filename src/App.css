@@ -67,6 +67,19 @@
   align-items: center;
 }
 
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-version {
+  font-size: 0.7rem;
+  color: var(--dark-gray);
+  opacity: 0.6;
+  font-weight: 400;
+}
+
 .nav-center {
   flex-grow: 1;
   display: flex;

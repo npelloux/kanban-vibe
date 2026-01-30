@@ -48,6 +48,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       <div className="nav-left">
         <div className="nav-logo">
           <Logo size="medium" />
+          <span className="nav-version">v1.0.0</span>
         </div>
       </div>
       
