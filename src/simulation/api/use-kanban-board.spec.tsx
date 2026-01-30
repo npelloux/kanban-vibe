@@ -222,7 +222,7 @@ describe('useKanbanBoard', () => {
       });
 
       expect(screen.getByRole('alert')).toHaveTextContent('Max WIP limit');
-      expect(screen.getByRole('alert').closest('.toast-warning')).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveAttribute('data-toast-type', 'warning');
       expect(getHookResult().cards.find(c => c.id === 'ABC')?.stage).toBe('options');
     });
 
@@ -241,7 +241,7 @@ describe('useKanbanBoard', () => {
       });
 
       expect(screen.getByRole('alert')).toHaveTextContent('Min WIP limit');
-      expect(screen.getByRole('alert').closest('.toast-warning')).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveAttribute('data-toast-type', 'warning');
       expect(getHookResult().cards[0].stage).toBe('options');
     });
 

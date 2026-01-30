@@ -35,6 +35,7 @@ export const Toast: React.FC<ToastProps> = ({
       aria-live="polite"
       className={`toast toast-${type}`}
       data-testid="toast"
+      data-toast-type={type}
     >
       <span className="toast-message">{message}</span>
       <button
