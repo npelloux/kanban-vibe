@@ -277,4 +277,80 @@ describe('Card Component', () => {
       expect(onToggleBlock).toHaveBeenCalledTimes(stages.length);
     });
   });
+
+  describe('Block Reason', () => {
+    it('shows block reason input when card is blocked', () => {
+      const card = createTestCardWithId('A', {
+        content: 'Test Card',
+        isBlocked: true,
+      });
+
+      render(<Card card={card} onBlockReasonChange={vi.fn()} />);
+
+      expect(screen.getByPlaceholderText(/block reason/i)).toBeInTheDocument();
+    });
+
+    it('does not show block reason input when card is not blocked', () => {
+      const card = createTestCardWithId('A', {
+        content: 'Test Card',
+        isBlocked: false,
+      });
+
+      render(<Card card={card} onBlockReasonChange={vi.fn()} />);
+
+      expect(screen.queryByPlaceholderText(/block reason/i)).not.toBeInTheDocument();
+    });
+
+    it('displays existing block reason in input', () => {
+      const card = createTestCardWithId('A', {
+        content: 'Test Card',
+        isBlocked: true,
+        blockReason: 'Waiting for approval',
+      });
+
+      render(<Card card={card} onBlockReasonChange={vi.fn()} />);
+
+      const input = screen.getByPlaceholderText(/block reason/i);
+      expect(input).toHaveValue('Waiting for approval');
+    });
+
+    it('calls onBlockReasonChange when input changes', () => {
+      const onBlockReasonChange = vi.fn();
+      const card = createTestCardWithId('A', {
+        content: 'Test Card',
+        isBlocked: true,
+      });
+
+      render(<Card card={card} onBlockReasonChange={onBlockReasonChange} />);
+
+      const input = screen.getByPlaceholderText(/block reason/i);
+      fireEvent.change(input, { target: { value: 'New reason' } });
+
+      expect(onBlockReasonChange).toHaveBeenCalledWith('A', 'New reason');
+    });
+
+    it('does not show block reason input when onBlockReasonChange is not provided', () => {
+      const card = createTestCardWithId('A', {
+        content: 'Test Card',
+        isBlocked: true,
+      });
+
+      render(<Card card={card} />);
+
+      expect(screen.queryByPlaceholderText(/block reason/i)).not.toBeInTheDocument();
+    });
+
+    it('handles special characters and emoji in block reason', () => {
+      const card = createTestCardWithId('A', {
+        content: 'Test Card',
+        isBlocked: true,
+        blockReason: '🔒 Waiting for <review> & "sign-off"',
+      });
+
+      render(<Card card={card} onBlockReasonChange={vi.fn()} />);
+
+      const input = screen.getByPlaceholderText(/block reason/i);
+      expect(input).toHaveValue('🔒 Waiting for <review> & "sign-off"');
+    });
+  });
 });

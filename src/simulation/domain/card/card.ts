@@ -28,6 +28,7 @@ export interface Card {
   readonly age: number;
   readonly workItems: WorkItems;
   readonly isBlocked: boolean;
+  readonly blockReason?: string;
   readonly startDay: number;
   readonly completionDay: number | null;
   readonly assignedWorkers: readonly AssignedWorker[];
@@ -41,6 +42,7 @@ export interface CardCreateProps {
   readonly startDay: number;
   readonly age?: number;
   readonly isBlocked?: boolean;
+  readonly blockReason?: string;
   readonly completionDay?: number | null;
   readonly assignedWorkers?: readonly AssignedWorker[];
 }
@@ -69,6 +71,7 @@ export const Card = {
       age,
       workItems: props.workItems,
       isBlocked: props.isBlocked ?? false,
+      blockReason: props.blockReason,
       startDay: props.startDay,
       completionDay: props.completionDay ?? null,
       assignedWorkers: [...assignedWorkers],
@@ -87,7 +90,31 @@ export const Card = {
   },
 
   withBlocked(card: Card, isBlocked: boolean): Card {
-    return { ...card, isBlocked };
+    if (isBlocked) {
+      return { ...card, isBlocked };
+    }
+    const { blockReason: _blockReason, ...rest } = card;
+    void _blockReason;
+    return { ...rest, isBlocked: false };
+  },
+
+  withBlockReason(card: Card, blockReason: string | undefined): Card {
+    if (blockReason === undefined) {
+      const { blockReason: _removed, ...rest } = card;
+      void _removed;
+      return {
+        id: rest.id,
+        content: rest.content,
+        stage: rest.stage,
+        age: rest.age,
+        workItems: rest.workItems,
+        isBlocked: rest.isBlocked,
+        startDay: rest.startDay,
+        completionDay: rest.completionDay,
+        assignedWorkers: rest.assignedWorkers,
+      };
+    }
+    return { ...card, blockReason };
   },
 
   withCompletionDay(card: Card, completionDay: number | null): Card {

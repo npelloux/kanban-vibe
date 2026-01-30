@@ -15,6 +15,7 @@ export interface CardOverrides {
   age?: number;
   workItems?: WorkItems;
   isBlocked?: boolean;
+  blockReason?: string;
   startDay?: number;
   completionDay?: number | null;
   assignedWorkers?: CardType['assignedWorkers'];
@@ -41,6 +42,7 @@ export function createTestCard(overrides: CardOverrides = {}): CardType {
     startDay: overrides.startDay ?? 0,
     age: overrides.age ?? 0,
     isBlocked: overrides.isBlocked ?? false,
+    blockReason: overrides.blockReason,
     assignedWorkers: overrides.assignedWorkers ?? [],
     completionDay: overrides.completionDay ?? null,
   });
