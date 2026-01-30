@@ -329,4 +329,137 @@ describe('Card', () => {
       expect(original.assignedWorkers).toHaveLength(2);
     });
   });
+
+  describe('withBlockReason', () => {
+    it('should return a new card with block reason set', () => {
+      const original = Card.create({
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active',
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: true,
+      });
+
+      const updated = Card.withBlockReason(original, 'Waiting for approval');
+
+      expect(updated.blockReason).toBe('Waiting for approval');
+      expect(updated).not.toBe(original);
+      expect(original.blockReason).toBeUndefined();
+    });
+
+    it('should allow empty string as block reason', () => {
+      const original = Card.create({
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active',
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: true,
+      });
+
+      const updated = Card.withBlockReason(original, '');
+
+      expect(updated.blockReason).toBe('');
+    });
+
+    it('should preserve special characters and emoji', () => {
+      const original = Card.create({
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active',
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: true,
+      });
+
+      const updated = Card.withBlockReason(original, '🔒 Waiting for <review> & "sign-off"');
+
+      expect(updated.blockReason).toBe('🔒 Waiting for <review> & "sign-off"');
+    });
+
+    it('should allow undefined to clear block reason', () => {
+      const original = Card.create({
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active',
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: true,
+        blockReason: 'Some reason',
+      });
+
+      const updated = Card.withBlockReason(original, undefined);
+
+      expect(updated.blockReason).toBeUndefined();
+    });
+  });
+
+  describe('withBlocked clears blockReason', () => {
+    it('should clear blockReason when unblocking', () => {
+      const original = Card.create({
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active',
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: true,
+        blockReason: 'Waiting for review',
+      });
+
+      const updated = Card.withBlocked(original, false);
+
+      expect(updated.isBlocked).toBe(false);
+      expect(updated.blockReason).toBeUndefined();
+    });
+
+    it('should not clear blockReason when blocking', () => {
+      const original = Card.create({
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active',
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: false,
+      });
+
+      const blocked = Card.withBlocked(original, true);
+      const withReason = Card.withBlockReason(blocked, 'New block');
+      const stillBlocked = Card.withBlocked(withReason, true);
+
+      expect(stillBlocked.blockReason).toBe('New block');
+    });
+  });
+
+  describe('create with blockReason', () => {
+    it('should create a card with optional blockReason', () => {
+      const props = {
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active' as const,
+        workItems: defaultWorkItems,
+        startDay: 1,
+        isBlocked: true,
+        blockReason: 'Initial block reason',
+      };
+
+      const card = Card.create(props);
+
+      expect(card.blockReason).toBe('Initial block reason');
+    });
+
+    it('should default blockReason to undefined', () => {
+      const props = {
+        id: validCardId,
+        content: 'Test',
+        stage: 'red-active' as const,
+        workItems: defaultWorkItems,
+        startDay: 1,
+      };
+
+      const card = Card.create(props);
+
+      expect(card.blockReason).toBeUndefined();
+    });
+  });
 });

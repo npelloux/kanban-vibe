@@ -10,6 +10,7 @@ interface CardProps {
   onCardClick?: (cardId: CardId) => void;
   onWorkerDrop?: (cardId: CardId, workerId: string, workerType: WorkerType) => void;
   onToggleBlock?: (cardId: CardId) => void;
+  onBlockReasonChange?: (cardId: CardId, reason: string) => void;
 }
 
 function isDropAllowedStage(stage: DomainCard['stage']): boolean {
@@ -20,7 +21,8 @@ export const Card: React.FC<CardProps> = ({
   card,
   onCardClick,
   onWorkerDrop,
-  onToggleBlock
+  onToggleBlock,
+  onBlockReasonChange
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -127,6 +129,16 @@ export const Card: React.FC<CardProps> = ({
       <div className="card-content" style={card.stage === 'done' ? { fontWeight: 'bold' } : {}}>{card.content}</div>
 
       {card.isBlocked && <div className="card-blocked-label">BLOCKED!</div>}
+
+      {card.isBlocked && onBlockReasonChange && (
+        <input
+          type="text"
+          className="card-block-reason-input"
+          placeholder="Block reason..."
+          value={card.blockReason ?? ''}
+          onChange={(e) => onBlockReasonChange(card.id, e.target.value)}
+        />
+      )}
 
       {card.assignedWorkers.length > 0 && (
         <div className="card-assigned-workers">
