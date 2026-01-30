@@ -1,18 +1,9 @@
 import { useEffect } from 'react';
+import { isTextInputFocused } from './keyboard-utils';
 
 export interface UseUndoProps {
   canUndo: boolean;
   undo: () => void;
-}
-
-function isTextInputFocused(): boolean {
-  const element = document.activeElement;
-  if (!(element instanceof HTMLElement)) return false;
-
-  if (element.matches('input, textarea, select')) return true;
-  if (element.isContentEditable || element.matches('[contenteditable="true"], [contenteditable=""]')) return true;
-
-  return false;
 }
 
 export function useUndo({ canUndo, undo }: UseUndoProps): UseUndoProps {

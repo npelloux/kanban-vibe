@@ -16,6 +16,8 @@ interface NavigationBarProps {
   onCancelPolicy?: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
+  onRedo?: () => void;
+  canRedo?: boolean;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -30,6 +32,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   onCancelPolicy,
   onUndo,
   canUndo = false,
+  onRedo,
+  canRedo = false,
 }) => {
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
@@ -99,6 +103,21 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 <title>Undo</title>
                 <path d="M3 7v6h6"></path>
                 <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+              </svg>
+            </button>
+          )}
+          {onRedo && (
+            <button
+              className="nav-action-button"
+              onClick={onRedo}
+              disabled={!canRedo}
+              aria-label="Redo"
+              type="button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <title>Redo</title>
+                <path d="M21 7v6h-6"></path>
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
               </svg>
             </button>
           )}
