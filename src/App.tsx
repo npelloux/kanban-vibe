@@ -14,6 +14,7 @@ import { useKanbanBoard } from './simulation/api/use-kanban-board';
 import { useSimulationControls } from './simulation/api/use-simulation';
 import { useWorkerManagement } from './simulation/api/use-workers';
 import type { Stage } from './simulation/domain/card/card';
+import type { CardId } from './simulation/domain/card/card-id';
 import { exportBoard, importBoard } from './simulation/infra/json-export';
 
 function AppContent() {
@@ -25,7 +26,7 @@ function AppContent() {
 
   const [activeTab, setActiveTab] = useState<TabType>('kanban');
 
-  const handleCardClick = (cardId: string) => {
+  const handleCardClick = (cardId: CardId) => {
     if (selectedWorkerId) {
       assignWorker(cardId, selectedWorkerId);
       selectWorker(null);
@@ -66,12 +67,21 @@ function AppContent() {
     </div>
   );
 
+  const cardsForDiagrams = board.cards.map(card => ({
+    id: card.id,
+    content: card.content,
+    stage: card.stage,
+    age: card.age,
+    startDay: card.startDay,
+    completionDay: card.completionDay ?? undefined,
+  }));
+
   const renderContent = () => {
     switch (activeTab) {
       case 'kanban': return renderKanbanBoard();
       case 'cfd': return <CumulativeFlowDiagram historicalData={historicalData} />;
-      case 'wip': return <WipAgingDiagram cards={[...board.cards]} currentDay={currentDay} />;
-      case 'metrics': return <FlowMetrics cards={[...board.cards]} currentDay={currentDay} />;
+      case 'wip': return <WipAgingDiagram cards={cardsForDiagrams} currentDay={currentDay} />;
+      case 'metrics': return <FlowMetrics cards={cardsForDiagrams} currentDay={currentDay} />;
     }
   };
 

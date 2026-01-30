@@ -95,7 +95,7 @@ describe('Column Component', () => {
     });
 
     expect(mockOnWorkerDrop).toHaveBeenCalledTimes(1);
-    expect(mockOnWorkerDrop).toHaveBeenCalledWith('A', 'worker-1');
+    expect(mockOnWorkerDrop).toHaveBeenCalledWith('A', 'worker-1', 'red');
   });
 
   it('accepts wipLimit prop without error', () => {

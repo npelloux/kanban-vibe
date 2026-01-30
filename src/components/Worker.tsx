@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-export type WorkerType = 'red' | 'blue' | 'green' | 'options';
+export type WorkerType = 'red' | 'blue' | 'green';
 
 interface WorkerProps {
   type: WorkerType;
