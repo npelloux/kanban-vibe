@@ -199,4 +199,98 @@ describe('NavigationBar Component', () => {
       expect(undoButton).not.toBeDisabled();
     });
   });
+
+  describe('Redo Button', () => {
+    const mockOnUndo = vi.fn();
+    const mockOnRedo = vi.fn();
+
+    it('renders redo button when onRedo prop is provided', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          onUndo={mockOnUndo}
+          canUndo={false}
+          onRedo={mockOnRedo}
+          canRedo={true}
+        />
+      );
+
+      expect(screen.getByLabelText('Redo')).toBeInTheDocument();
+    });
+
+    it('does not render redo button when onRedo prop is not provided', () => {
+      render(<NavigationBar {...defaultProps} />);
+
+      expect(screen.queryByLabelText('Redo')).not.toBeInTheDocument();
+    });
+
+    it('calls onRedo when redo button is clicked', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          onUndo={mockOnUndo}
+          canUndo={false}
+          onRedo={mockOnRedo}
+          canRedo={true}
+        />
+      );
+
+      fireEvent.click(screen.getByLabelText('Redo'));
+
+      expect(mockOnRedo).toHaveBeenCalled();
+    });
+
+    it('disables redo button when canRedo is false', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          onUndo={mockOnUndo}
+          canUndo={false}
+          onRedo={mockOnRedo}
+          canRedo={false}
+        />
+      );
+
+      const redoButton = screen.getByLabelText('Redo');
+      expect(redoButton).toBeDisabled();
+    });
+
+    it('enables redo button when canRedo is true', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          onUndo={mockOnUndo}
+          canUndo={false}
+          onRedo={mockOnRedo}
+          canRedo={true}
+        />
+      );
+
+      const redoButton = screen.getByLabelText('Redo');
+      expect(redoButton).not.toBeDisabled();
+    });
+
+    it('renders redo button next to undo button', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          onUndo={mockOnUndo}
+          canUndo={true}
+          onRedo={mockOnRedo}
+          canRedo={true}
+        />
+      );
+
+      const undoButton = screen.getByLabelText('Undo');
+      const redoButton = screen.getByLabelText('Redo');
+
+      expect(undoButton).toBeInTheDocument();
+      expect(redoButton).toBeInTheDocument();
+
+      const buttons = screen.getAllByRole('button');
+      const undoIndex = buttons.findIndex(b => b.getAttribute('aria-label') === 'Undo');
+      const redoIndex = buttons.findIndex(b => b.getAttribute('aria-label') === 'Redo');
+      expect(redoIndex).toBeGreaterThan(undoIndex);
+    });
+  });
 });
