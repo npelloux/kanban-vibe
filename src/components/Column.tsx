@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card as CardComponent } from './Card';
 import type { WorkItemsType } from './Card';
-import type { Card } from '../simulation/domain/card/card';
+import type { Card, WorkerType } from '../simulation/domain/card/card';
 import type { CardId } from '../simulation/domain/card/card-id';
 
 export interface WipLimit {
@@ -16,10 +16,10 @@ interface ColumnProps {
   status?: 'active' | 'finished';
   showAddCardButton?: boolean;
   wipLimit?: WipLimit;
-  onCardClick?: (cardId: string) => void;
-  onWorkerDrop?: (cardId: string, workerId: string) => void;
+  onCardClick?: (cardId: CardId) => void;
+  onWorkerDrop?: (cardId: CardId, workerId: string, workerType: WorkerType) => void;
   onAddCard?: () => void;
-  onToggleBlock?: (cardId: string) => void;
+  onToggleBlock?: (cardId: CardId) => void;
 }
 
 export type { WorkItemsType };
@@ -37,17 +37,9 @@ export const Column: React.FC<ColumnProps> = ({
 }) => {
   const stageValue = type === 'options' ? 'options' : `${type}-${status}`;
 
-  const handleCardClick = onCardClick
-    ? (cardId: CardId) => onCardClick(cardId)
-    : undefined;
-
-  const handleWorkerDrop = onWorkerDrop
-    ? (cardId: CardId, workerId: string) => onWorkerDrop(cardId, workerId)
-    : undefined;
-
-  const handleToggleBlock = onToggleBlock
-    ? (cardId: CardId) => onToggleBlock(cardId)
-    : undefined;
+  const handleCardClick = onCardClick;
+  const handleWorkerDrop = onWorkerDrop;
+  const handleToggleBlock = onToggleBlock;
 
   return (
     <div className={`column column-${type} column-${status}`} data-stage={stageValue}>

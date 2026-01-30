@@ -3,12 +3,12 @@ import { Worker } from './Worker';
 import type { WorkerType } from './Worker';
 
 interface WorkerData {
-  id: string;
-  type: WorkerType;
+  readonly id: string;
+  readonly type: WorkerType;
 }
 
 interface WorkerPoolProps {
-  workers: WorkerData[];
+  workers: readonly WorkerData[];
   selectedWorkerId: string | null;
   onWorkerSelect: (workerId: string) => void;
   onAddWorker?: (type: WorkerType) => void;
