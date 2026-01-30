@@ -101,6 +101,21 @@ describe('useToast hook', () => {
       expect(result.current.toasts).toHaveLength(1);
       expect(result.current.toasts[0].message).toBe('Second');
     });
+
+    it('handles dismissing non-existent toast gracefully', () => {
+      const { result } = renderHook(() => useToast(), { wrapper });
+
+      act(() => {
+        result.current.showToast({ message: 'Test', type: 'info' });
+      });
+
+      act(() => {
+        result.current.dismissToast('non-existent-id');
+      });
+
+      expect(result.current.toasts).toHaveLength(1);
+      expect(result.current.toasts[0].message).toBe('Test');
+    });
   });
 
   describe('clearAllToasts', () => {
