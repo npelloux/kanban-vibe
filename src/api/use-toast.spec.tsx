@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -10,14 +10,6 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 describe('useToast hook', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   describe('showToast', () => {
     it('adds a toast to the queue', () => {
       const { result } = renderHook(() => useToast(), { wrapper });
