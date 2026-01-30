@@ -1,11 +1,6 @@
 import { useEffect } from 'react';
 
-export interface UseUndoOptions {
-  canUndo: boolean;
-  undo: () => void;
-}
-
-export interface UseUndoResult {
+export interface UseUndoProps {
   canUndo: boolean;
   undo: () => void;
 }
@@ -15,7 +10,7 @@ function isTextInputFocused(): boolean {
   if (!activeElement) return false;
 
   const tagName = activeElement.tagName.toLowerCase();
-  if (tagName === 'input' || tagName === 'textarea') {
+  if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
     return true;
   }
 
@@ -26,7 +21,7 @@ function isTextInputFocused(): boolean {
   return false;
 }
 
-export function useUndo({ canUndo, undo }: UseUndoOptions): UseUndoResult {
+export function useUndo({ canUndo, undo }: UseUndoProps): UseUndoProps {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isTextInputFocused()) {

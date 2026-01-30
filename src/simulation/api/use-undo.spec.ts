@@ -195,6 +195,28 @@ describe('useUndo', () => {
       document.body.removeChild(div);
     });
 
+    it('does not trigger when select is focused', () => {
+      const select = document.createElement('select');
+      document.body.appendChild(select);
+      select.focus();
+
+      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
+
+      act(() => {
+        const event = new KeyboardEvent('keydown', {
+          key: 'z',
+          ctrlKey: true,
+          shiftKey: false,
+          bubbles: true,
+        });
+        document.dispatchEvent(event);
+      });
+
+      expect(mockUndo).not.toHaveBeenCalled();
+
+      document.body.removeChild(select);
+    });
+
     it('cleans up event listener on unmount', () => {
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
 
