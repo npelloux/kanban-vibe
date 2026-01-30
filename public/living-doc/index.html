@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanban Vibe - Living Documentation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Kanban Vibe</h1>
+    <p class="subtitle">Living Documentation</p>
+    <nav>
+      <a href="/">Back to App</a>
+      <a href="#glossary">Glossary</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#reports">Reports</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="glossary">
+      <h2>Domain Glossary</h2>
+      <p>Core concepts of the Kanban simulation domain.</p>
+
+      <div class="terms">
+        <article class="term">
+          <h3>Card</h3>
+          <p>A work item that flows through the Kanban board stages from Options to Done. Each card has work items that must be completed by workers before it can transition to the next stage.</p>
+          <div class="aliases">Aliases: WorkItem, Ticket</div>
+        </article>
+
+        <article class="term">
+          <h3>CardId</h3>
+          <p>A unique identifier for a card, represented as uppercase letters (A, B, C... Z, AA, AB...). CardIds are branded types ensuring type safety at compile time.</p>
+        </article>
+
+        <article class="term">
+          <h3>Worker</h3>
+          <p>A resource that can be assigned to cards to complete work items. Each worker has a type (red, blue, or green) that determines their specialization and output efficiency.</p>
+        </article>
+
+        <article class="term">
+          <h3>WorkerType</h3>
+          <p>The specialization of a worker: 'red', 'blue', or 'green'. Workers produce more output (3-6 units) when working on their specialized color, and less output (0-3 units) on non-matching colors.</p>
+          <div class="aliases">Aliases: WorkerColor, Specialization</div>
+        </article>
+
+        <article class="term">
+          <h3>Stage</h3>
+          <p>A column on the Kanban board representing a phase in the workflow. Cards progress through stages in order: options, red-active, red-finished, blue-active, blue-finished, green, done.</p>
+          <div class="aliases">Aliases: Column, Phase</div>
+        </article>
+
+        <article class="term">
+          <h3>WorkItems</h3>
+          <p>A composite value object tracking the work required and completed for each color (red, blue, green). Each color has a total amount of work and a completed amount.</p>
+        </article>
+
+        <article class="term">
+          <h3>WorkProgress</h3>
+          <p>Tracks the total and completed work units for a single color. Contains two values: total (work required) and completed (work done).</p>
+        </article>
+
+        <article class="term">
+          <h3>WipLimits</h3>
+          <p>Work-in-Progress limits that constrain how many cards can be in each column. Each column has a min and max constraint. Min prevents cards from leaving, max prevents cards from entering.</p>
+          <div class="aliases">Aliases: WIPLimits, WipConstraints</div>
+        </article>
+
+        <article class="term">
+          <h3>Board</h3>
+          <p>The aggregate root containing all simulation state: cards, workers, the current day, and WIP limits. All domain operations are performed through the board to maintain consistency.</p>
+          <div class="aliases">Aliases: KanbanBoard, SimulationState</div>
+        </article>
+
+        <article class="term">
+          <h3>Day</h3>
+          <p>A discrete time unit in the simulation. Each day, workers produce output, cards age, and eligible cards transition to the next stage.</p>
+        </article>
+
+        <article class="term">
+          <h3>Policy</h3>
+          <p>An automated strategy for running the simulation without manual intervention. Policies define how cards move and how workers are assigned during each simulated day.</p>
+          <div class="aliases">Aliases: SimulationPolicy, AutomationPolicy</div>
+        </article>
+
+        <article class="term">
+          <h3>Blocked</h3>
+          <p>A state flag on a card indicating it cannot transition to the next stage, regardless of work completion. Blocked cards still age and can receive worker output.</p>
+          <div class="aliases">Aliases: IsBlocked, BlockedState</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+
+      <h3>Project Structure</h3>
+      <pre><code>kanban-vibe/
+├── src/
+│   ├── simulation/               # Business logic feature module
+│   │   ├── domain/               # Pure TypeScript domain logic
+│   │   │   ├── card/             # Card aggregate
+│   │   │   ├── worker/           # Worker value object
+│   │   │   ├── board/            # Board aggregate root
+│   │   │   ├── stage/            # Stage value object
+│   │   │   └── wip/              # WIP limits
+│   │   ├── application/          # Use cases
+│   │   ├── infra/                # Infrastructure adapters
+│   │   └── api/                  # React hooks
+│   ├── components/               # Presentational React components
+│   ├── App.tsx                   # Composition root
+│   └── main.tsx                  # Application entry point
+├── docs/                         # Documentation
+└── package.json</code></pre>
+
+      <h3>Layer Responsibilities</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Contains</th>
+            <th>Depends On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>domain</td>
+            <td>Entities, value objects, domain services</td>
+            <td>Nothing (pure TypeScript)</td>
+          </tr>
+          <tr>
+            <td>application</td>
+            <td>Use cases, orchestration</td>
+            <td>domain</td>
+          </tr>
+          <tr>
+            <td>infra</td>
+            <td>Storage adapters, serialization</td>
+            <td>domain, application</td>
+          </tr>
+          <tr>
+            <td>api</td>
+            <td>React hooks, context providers</td>
+            <td>domain, application, infra</td>
+          </tr>
+          <tr>
+            <td>components</td>
+            <td>Presentational React components</td>
+            <td>api (via hooks and context)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Key Design Decisions</h3>
+      <ul>
+        <li><strong>Pure Domain Layer</strong> - No React dependencies in domain/. All types are immutable, functions are pure.</li>
+        <li><strong>Branded Types</strong> - CardId is a branded type for compile-time type safety.</li>
+        <li><strong>Composition Root</strong> - App.tsx composes all hooks and passes data to presentational components.</li>
+        <li><strong>Context for State</strong> - BoardProvider provides board state via React context.</li>
+        <li><strong>Infrastructure Isolation</strong> - Persistence logic is isolated with schema-validated load/save.</li>
+      </ul>
+
+      <h3>Technology Stack</h3>
+      <ul>
+        <li><strong>Runtime:</strong> React 19 with TypeScript</li>
+        <li><strong>Build:</strong> Vite</li>
+        <li><strong>Testing:</strong> Vitest with Testing Library</li>
+        <li><strong>State:</strong> React Context + custom hooks</li>
+        <li><strong>CI/CD:</strong> GitHub Actions, Vercel, SonarCloud</li>
+      </ul>
+    </section>
+
+    <section id="reports">
+      <h2>Reports</h2>
+      <p>Generated test and coverage reports.</p>
+
+      <div class="report-links">
+        <a href="/allure-report/" class="report-link">
+          <h3>Allure Test Report</h3>
+          <p>Detailed test results with history, trends, and categories.</p>
+          <small>Run <code>npm run test:report</code> to generate</small>
+        </a>
+
+        <a href="/coverage/" class="report-link">
+          <h3>Code Coverage</h3>
+          <p>Line-by-line coverage analysis of the codebase.</p>
+          <small>Run <code>npm test -- --coverage</code> to generate</small>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Kanban Vibe - A Kanban simulation for learning flow principles</p>
+  </footer>
+</body>
+</html>
