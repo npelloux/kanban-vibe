@@ -2,6 +2,24 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useUndo } from './use-undo';
 
+function withFocusedElement<K extends keyof HTMLElementTagNameMap>(
+  tagName: K,
+  attrs: Record<string, string>,
+  callback: () => void
+): void {
+  const element = document.createElement(tagName);
+  for (const [key, value] of Object.entries(attrs)) {
+    element.setAttribute(key, value);
+  }
+  document.body.appendChild(element);
+  element.focus();
+  try {
+    callback();
+  } finally {
+    document.body.removeChild(element);
+  }
+}
+
 describe('useUndo', () => {
   const mockUndo = vi.fn();
 
@@ -145,115 +163,93 @@ describe('useUndo', () => {
     });
 
     it('does not trigger when input is focused', () => {
-      const input = document.createElement('input');
-      document.body.appendChild(input);
-      input.focus();
+      withFocusedElement('input', {}, () => {
+        renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
 
-      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
-
-      act(() => {
-        const event = new KeyboardEvent('keydown', {
-          key: 'z',
-          ctrlKey: true,
-          shiftKey: false,
-          bubbles: true,
+        act(() => {
+          const event = new KeyboardEvent('keydown', {
+            key: 'z',
+            ctrlKey: true,
+            shiftKey: false,
+            bubbles: true,
+          });
+          document.dispatchEvent(event);
         });
-        document.dispatchEvent(event);
+
+        expect(mockUndo).not.toHaveBeenCalled();
       });
-
-      expect(mockUndo).not.toHaveBeenCalled();
-
-      document.body.removeChild(input);
     });
 
     it('does not trigger when textarea is focused', () => {
-      const textarea = document.createElement('textarea');
-      document.body.appendChild(textarea);
-      textarea.focus();
+      withFocusedElement('textarea', {}, () => {
+        renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
 
-      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
-
-      act(() => {
-        const event = new KeyboardEvent('keydown', {
-          key: 'z',
-          ctrlKey: true,
-          shiftKey: false,
-          bubbles: true,
+        act(() => {
+          const event = new KeyboardEvent('keydown', {
+            key: 'z',
+            ctrlKey: true,
+            shiftKey: false,
+            bubbles: true,
+          });
+          document.dispatchEvent(event);
         });
-        document.dispatchEvent(event);
+
+        expect(mockUndo).not.toHaveBeenCalled();
       });
-
-      expect(mockUndo).not.toHaveBeenCalled();
-
-      document.body.removeChild(textarea);
     });
 
     it('does not trigger when contenteditable is focused', () => {
-      const div = document.createElement('div');
-      div.setAttribute('contenteditable', 'true');
-      document.body.appendChild(div);
-      div.focus();
+      withFocusedElement('div', { contenteditable: 'true' }, () => {
+        renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
 
-      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
-
-      act(() => {
-        const event = new KeyboardEvent('keydown', {
-          key: 'z',
-          ctrlKey: true,
-          shiftKey: false,
-          bubbles: true,
+        act(() => {
+          const event = new KeyboardEvent('keydown', {
+            key: 'z',
+            ctrlKey: true,
+            shiftKey: false,
+            bubbles: true,
+          });
+          document.dispatchEvent(event);
         });
-        document.dispatchEvent(event);
+
+        expect(mockUndo).not.toHaveBeenCalled();
       });
-
-      expect(mockUndo).not.toHaveBeenCalled();
-
-      document.body.removeChild(div);
     });
 
     it('does not trigger when contenteditable with empty string value is focused', () => {
-      const div = document.createElement('div');
-      div.setAttribute('contenteditable', '');
-      document.body.appendChild(div);
-      div.focus();
+      withFocusedElement('div', { contenteditable: '' }, () => {
+        renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
 
-      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
-
-      act(() => {
-        const event = new KeyboardEvent('keydown', {
-          key: 'z',
-          ctrlKey: true,
-          shiftKey: false,
-          bubbles: true,
+        act(() => {
+          const event = new KeyboardEvent('keydown', {
+            key: 'z',
+            ctrlKey: true,
+            shiftKey: false,
+            bubbles: true,
+          });
+          document.dispatchEvent(event);
         });
-        document.dispatchEvent(event);
+
+        expect(mockUndo).not.toHaveBeenCalled();
       });
-
-      expect(mockUndo).not.toHaveBeenCalled();
-
-      document.body.removeChild(div);
     });
 
     it('does not trigger when select is focused', () => {
-      const select = document.createElement('select');
-      document.body.appendChild(select);
-      select.focus();
+      withFocusedElement('select', {}, () => {
+        renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
 
-      renderHook(() => useUndo({ canUndo: true, undo: mockUndo }));
-
-      act(() => {
-        const event = new KeyboardEvent('keydown', {
-          key: 'z',
-          ctrlKey: true,
-          shiftKey: false,
-          bubbles: true,
+        act(() => {
+          const event = new KeyboardEvent('keydown', {
+            key: 'z',
+            ctrlKey: true,
+            shiftKey: false,
+            bubbles: true,
+          });
+          document.dispatchEvent(event);
         });
-        document.dispatchEvent(event);
+
+        expect(mockUndo).not.toHaveBeenCalled();
       });
-
-      expect(mockUndo).not.toHaveBeenCalled();
-
-      document.body.removeChild(select);
     });
 
     it('cleans up event listener on unmount', () => {
