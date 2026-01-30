@@ -102,7 +102,17 @@ export const Card = {
     if (blockReason === undefined) {
       const { blockReason: _removed, ...rest } = card;
       void _removed;
-      return rest as Card;
+      return {
+        id: rest.id,
+        content: rest.content,
+        stage: rest.stage,
+        age: rest.age,
+        workItems: rest.workItems,
+        isBlocked: rest.isBlocked,
+        startDay: rest.startDay,
+        completionDay: rest.completionDay,
+        assignedWorkers: rest.assignedWorkers,
+      };
     }
     return { ...card, blockReason };
   },

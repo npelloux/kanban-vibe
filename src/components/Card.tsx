@@ -135,6 +135,7 @@ export const Card: React.FC<CardProps> = ({
           type="text"
           className="card-block-reason-input"
           placeholder="Block reason..."
+          aria-label="Block reason"
           value={card.blockReason ?? ''}
           onChange={(e) => onBlockReasonChange(card.id, e.target.value)}
         />
