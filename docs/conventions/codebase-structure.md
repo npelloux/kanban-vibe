@@ -1,27 +1,25 @@
 # Codebase Structure
 
-## Monorepo Layout
+## Project Layout
 
 ```text
-<$project-title>/
-├── apps/                   # Deployable applications
-│   └── <app-name>/
-│       ├── src/			# Java source folder
-│       │   ├── <feature>/
-│       │   │   ├── domain/       # Domain model only
-│       │   │   ├── application/  # Use cases
-│       │   │   ├── infra/        # Database, external services
-│       │   │   └── api/          # Controllers, endpoints
-│       │   └── main.java         # Application entry point
-│       ├── test/			# Tests source folder
-│       │   ├── <feature>/
-│       │   │   ├── domain/       # Domain model only
-│       │   │   ├── application/  # Use cases
-│       │   │   ├── infra/        # Database, external services
-│       │   │   └── api/          # Controllers, endpoints
-│       │   └── main-test.java    # Tests entry point
-├── docs/                    	# Documentation
-└── ___      					# Workspace definition
+kanban-vibe/
+├── src/
+│   ├── simulation/           # Feature module
+│   │   ├── domain/           # Pure TypeScript domain logic
+│   │   │   ├── card/         # Card aggregate
+│   │   │   ├── worker/       # Worker value object
+│   │   │   ├── board/        # Board aggregate root
+│   │   │   ├── stage/        # Stage value object
+│   │   │   └── wip/          # WIP limits
+│   │   ├── application/      # Use cases
+│   │   ├── infra/            # Infrastructure adapters
+│   │   └── api/              # React hooks
+│   ├── components/           # Presentational React components
+│   ├── App.tsx               # Composition root
+│   └── main.tsx              # Application entry point
+├── docs/                     # Documentation
+└── package.json              # Project definition
 ```
 
 ## Principles
@@ -40,34 +38,32 @@
 ```text
 feature/
 ├── types/
-│   ├── user.java
-│   └── order.java
+│   ├── user.ts
+│   └── order.ts
 ├── validators/
-│   ├── user-validator.java
-│   └── order-validator.java
+│   ├── user-validator.ts
+│   └── order-validator.ts
 └── services/
-    ├── user-service.java
-    └── order-service.java
+    ├── user-service.ts
+    └── order-service.ts
 ```
 
 ✅ **Prefer:**
 ```text
 feature/
 ├── user/
-│   ├── user.java           # type + validator + service together
-│   └── user.test.java
+│   ├── user.ts           # type + validator + service together
+│   └── user.spec.ts
 └── order/
-    ├── order.java
-    └── order.test.java
+    ├── order.ts
+    └── order.spec.ts
 ```
 
 **Priority:** Feature boundaries → Individual units → Type grouping (last resort)
 
-**Exception:** Shared test fixtures used across multiple test files may be grouped (e.g., `test-fixtures.java`).
+**Exception:** Shared test fixtures used across multiple test files may be grouped (e.g., `test-fixtures.ts`).
 
-**Cross-project imports use package names.** Import from `@living-architecture/[pkg-name]`, not relative paths like `../../packages/[pkg-name]`.
-
-**Add workspace dependencies explicitly.** When importing from another project, add `"@living-architecture/[pkg-name]": "workspace:*"` to package.json.
+**Use absolute imports from src/.** Configure path aliases in tsconfig.json for cleaner imports (e.g., `import { Card } from '@/simulation/domain/card'`).
 
 ## Layer Responsibilities
 
