@@ -14,18 +14,22 @@ interface NavigationBarProps {
   isPolicyRunning?: boolean;
   policyProgress?: { currentDay: number; totalDays: number };
   onCancelPolicy?: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
 }
 
-export const NavigationBar: React.FC<NavigationBarProps> = ({ 
-  activeTab, 
-  onTabChange, 
+export const NavigationBar: React.FC<NavigationBarProps> = ({
+  activeTab,
+  onTabChange,
   currentDay,
   onSaveContext,
   onImportContext,
   onRunPolicy,
   isPolicyRunning = false,
   policyProgress,
-  onCancelPolicy
+  onCancelPolicy,
+  onUndo,
+  canUndo = false,
 }) => {
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
@@ -83,9 +87,22 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       
       <div className="nav-right">
         <div className="nav-actions">
+          {onUndo && (
+            <button
+              className="nav-action-button"
+              onClick={onUndo}
+              disabled={!canUndo}
+              aria-label="Undo"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 7v6h6"></path>
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+              </svg>
+            </button>
+          )}
           <div className="dropdown-container">
-            <button 
-              className="nav-action-button" 
+            <button
+              className="nav-action-button"
               onClick={() => {
                 setShowSaveDropdown(!showSaveDropdown);
                 setShowImportDropdown(false);

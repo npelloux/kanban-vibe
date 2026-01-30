@@ -8,7 +8,8 @@ import { WipAgingDiagram } from './components/WipAgingDiagram';
 import { FlowMetrics } from './components/FlowMetrics';
 import { NavigationBar } from './components/NavigationBar';
 import type { TabType } from './components/TabNavigation';
-import { BoardProvider, useBoardContext } from './simulation/api/board-context';
+import { BoardProvider, useBoardContext, useHistoryContext } from './simulation/api/board-context';
+import { useUndo } from './simulation/api/use-undo';
 import { useHistoricalTracking } from './simulation/api/use-historical-tracking';
 import { useKanbanBoard } from './simulation/api/use-kanban-board';
 import { useSimulationControls } from './simulation/api/use-simulation';
@@ -19,6 +20,8 @@ import { exportBoard, importBoard } from './simulation/infra/json-export';
 
 function AppContent() {
   const { board, updateBoard } = useBoardContext();
+  const { canUndo: contextCanUndo, undo: contextUndo } = useHistoryContext();
+  const { canUndo, undo } = useUndo({ canUndo: contextCanUndo, undo: contextUndo });
   const { cardsInStage, moveCard, addCard, toggleBlock, assignWorker } = useKanbanBoard();
   const { currentDay, advanceDay, runPolicy, cancelPolicy, isRunning, policyProgress } = useSimulationControls();
   const { selectedWorkerId, selectWorker } = useWorkerManagement();
@@ -87,7 +90,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      <NavigationBar activeTab={activeTab} onTabChange={setActiveTab} currentDay={currentDay} onSaveContext={handleSaveContext} onImportContext={handleImportContext} onRunPolicy={(_, days) => runPolicy(days)} isPolicyRunning={isRunning} policyProgress={policyProgress ? { currentDay: policyProgress, totalDays: 0 } : undefined} onCancelPolicy={cancelPolicy} />
+      <NavigationBar activeTab={activeTab} onTabChange={setActiveTab} currentDay={currentDay} onSaveContext={handleSaveContext} onImportContext={handleImportContext} onRunPolicy={(_, days) => runPolicy(days)} isPolicyRunning={isRunning} policyProgress={policyProgress ? { currentDay: policyProgress, totalDays: 0 } : undefined} onCancelPolicy={cancelPolicy} onUndo={undo} canUndo={canUndo} />
       <ConnectedWorkerPool />
       {renderContent()}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
