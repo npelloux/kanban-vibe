@@ -17,6 +17,7 @@ import { useWorkerManagement } from './simulation/api/use-workers';
 import type { Stage } from './simulation/domain/card/card';
 import type { CardId } from './simulation/domain/card/card-id';
 import { exportBoard, importBoard } from './simulation/infra/json-export';
+import { ToastProvider } from './api/use-toast';
 
 function AppContent() {
   const { board, updateBoard } = useBoardContext();
@@ -116,9 +117,11 @@ function AppContent() {
 
 function App() {
   return (
-    <BoardProvider>
-      <AppContent />
-    </BoardProvider>
+    <ToastProvider>
+      <BoardProvider>
+        <AppContent />
+      </BoardProvider>
+    </ToastProvider>
   );
 }
 

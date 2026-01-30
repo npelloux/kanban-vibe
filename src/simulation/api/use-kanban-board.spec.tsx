@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, act } from '@testing-library/react';
+import { render, act, screen } from '@testing-library/react';
 import { useKanbanBoard } from './use-kanban-board';
 import { BoardProvider } from './board-context';
 import { Board } from '../domain/board/board';
@@ -9,6 +9,8 @@ import { WipLimits } from '../domain/wip/wip-limits';
 import { Worker } from '../domain/worker/worker';
 import { WorkItems } from '../domain/card/work-items';
 import { StateRepository } from '../infra/state-repository';
+import { ToastProvider } from '../../api/use-toast';
+import '@testing-library/jest-dom';
 
 vi.mock('../infra/state-repository', () => ({
   StateRepository: {
@@ -92,9 +94,11 @@ function renderHook(board: Board) {
   vi.mocked(StateRepository.loadBoard).mockReturnValue(board);
 
   const result = render(
-    <BoardProvider>
-      <TestConsumer onResult={(r) => { hookResult = r; }} />
-    </BoardProvider>
+    <ToastProvider>
+      <BoardProvider>
+        <TestConsumer onResult={(r) => { hookResult = r; }} />
+      </BoardProvider>
+    </ToastProvider>
   );
 
   return { ...result, getHookResult: () => hookResult! };
@@ -103,7 +107,6 @@ function renderHook(board: Board) {
 describe('useKanbanBoard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(window, 'alert').mockImplementation(() => {});
   });
 
   describe('hook return value', () => {
@@ -200,7 +203,7 @@ describe('useKanbanBoard', () => {
       expect(getHookResult().cards[0].stage).toBe('green');
     });
 
-    it('shows alert when max WIP limit would be exceeded', () => {
+    it('shows warning toast when max WIP limit would be exceeded', () => {
       const card = createTestCard('ABC', { stage: 'options' });
       const existingCard = createTestCard('DEF', { stage: 'red-active' });
       const wipLimits = WipLimits.withColumnLimit(
@@ -218,13 +221,12 @@ describe('useKanbanBoard', () => {
         getHookResult().moveCard(createValidCardId('ABC'));
       });
 
-      expect(window.alert).toHaveBeenCalledWith(
-        expect.stringContaining('Max WIP limit')
-      );
+      expect(screen.getByRole('alert')).toHaveTextContent('Max WIP limit');
+      expect(screen.getByRole('alert')).toHaveAttribute('data-toast-type', 'warning');
       expect(getHookResult().cards.find(c => c.id === 'ABC')?.stage).toBe('options');
     });
 
-    it('shows alert when min WIP limit would be violated', () => {
+    it('shows warning toast when min WIP limit would be violated', () => {
       const card = createTestCard('ABC', { stage: 'options' });
       const wipLimits = WipLimits.withColumnLimit(
         WipLimits.empty(),
@@ -238,13 +240,12 @@ describe('useKanbanBoard', () => {
         getHookResult().moveCard(createValidCardId('ABC'));
       });
 
-      expect(window.alert).toHaveBeenCalledWith(
-        expect.stringContaining('Min WIP limit')
-      );
+      expect(screen.getByRole('alert')).toHaveTextContent('Min WIP limit');
+      expect(screen.getByRole('alert')).toHaveAttribute('data-toast-type', 'warning');
       expect(getHookResult().cards[0].stage).toBe('options');
     });
 
-    it('does nothing when card is not in clickable stage', () => {
+    it('does not show toast when card is not in clickable stage', () => {
       const card = createTestCard('ABC', { stage: 'red-active' });
       const board = createTestBoard({ cards: [card] });
       const { getHookResult } = renderHook(board);
@@ -254,7 +255,7 @@ describe('useKanbanBoard', () => {
       });
 
       expect(getHookResult().cards[0].stage).toBe('red-active');
-      expect(window.alert).not.toHaveBeenCalled();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
   });
 

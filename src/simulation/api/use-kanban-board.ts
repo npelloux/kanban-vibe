@@ -6,9 +6,11 @@ import type { CardId } from '../domain/card/card-id';
 import { CardFactory } from '../domain/card/card-factory';
 import { moveCard as moveCardUseCase } from '../application/move-card';
 import { assignWorker as assignWorkerUseCase } from '../application/assign-worker';
+import { useToast } from '../../api/use-toast';
 
 export function useKanbanBoard() {
   const { board, updateBoard } = useBoardContext();
+  const { warning } = useToast();
 
   const cardsInStage = useCallback(
     (stage: Stage): readonly Card[] => {
@@ -27,12 +29,12 @@ export function useKanbanBoard() {
       });
 
       if (result.alertMessage) {
-        alert(result.alertMessage);
+        warning(result.alertMessage);
       } else {
         updateBoard((current) => Board.withCards(current, result.cards));
       }
     },
-    [board, updateBoard]
+    [board, updateBoard, warning]
   );
 
   const assignWorker = useCallback(

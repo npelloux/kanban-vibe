@@ -64,7 +64,7 @@ Run this pipeline directly (do NOT spawn a subagent to orchestrate - subagents c
    - If missing:
      - Fetch issue details: `gh issue view <issue-number> --json title,body --jq '{title: .title, body: .body}'`
      - Build work summary: list changed files via `git diff --name-only main`
-     - Use Task tool with subagent_type: "task-check:task-check", prompt:
+     - Use Task tool with subagent_type: "task-check", prompt:
        ```text
        Task ID: <issue-number>
        Task location: Inline (see task definition below)
