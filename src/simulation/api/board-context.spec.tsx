@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
-import { BoardProvider, useBoardContext } from './board-context';
+import { render, screen, act, renderHook } from '@testing-library/react';
+import { BoardProvider, useBoardContext, useHistoryContext } from './board-context';
 import { Board } from '../domain/board/board';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { StateRepository } from '../infra/state-repository';
+import type { ReactNode } from 'react';
 
 vi.mock('../infra/state-repository', () => ({
   StateRepository: {
@@ -42,15 +43,18 @@ function TestConsumer() {
   );
 }
 
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <BoardProvider>{children}</BoardProvider>
+);
+
 describe('BoardContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
   });
 
   describe('BoardProvider', () => {
     it('renders children', () => {
-      vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
-
       render(
         <BoardProvider>
           <div data-testid="child">Child content</div>
@@ -61,8 +65,6 @@ describe('BoardContext', () => {
     });
 
     it('initializes with empty board when no saved state exists', () => {
-      vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
-
       render(
         <BoardProvider>
           <TestConsumer />
@@ -86,8 +88,6 @@ describe('BoardContext', () => {
     });
 
     it('calls StateRepository.loadBoard on mount', () => {
-      vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
-
       render(
         <BoardProvider>
           <TestConsumer />
@@ -123,8 +123,6 @@ describe('BoardContext', () => {
 
     describe('setBoard', () => {
       it('updates the board state', () => {
-        vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
-
         render(
           <BoardProvider>
             <TestConsumer />
@@ -141,8 +139,6 @@ describe('BoardContext', () => {
       });
 
       it('persists board changes to localStorage', () => {
-        vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
-
         render(
           <BoardProvider>
             <TestConsumer />
@@ -197,8 +193,6 @@ describe('BoardContext', () => {
       });
 
       it('allows multiple consecutive updates', () => {
-        vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(0));
-
         render(
           <BoardProvider>
             <TestConsumer />
@@ -240,7 +234,6 @@ describe('BoardContext', () => {
 
   describe('context value stability', () => {
     it('setBoard maintains referential identity across renders', () => {
-      vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
       const capturedSetBoards: Array<(board: Board) => void> = [];
 
       function SetBoardCapture() {
@@ -265,7 +258,6 @@ describe('BoardContext', () => {
     });
 
     it('updateBoard maintains referential identity across renders', () => {
-      vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
       const capturedUpdateBoards: Array<(updater: (board: Board) => Board) => void> = [];
 
       function UpdateBoardCapture() {
@@ -287,6 +279,220 @@ describe('BoardContext', () => {
       );
 
       expect(capturedUpdateBoards[0]).toBe(capturedUpdateBoards[1]);
+    });
+  });
+});
+
+describe('BoardProvider with History', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+  });
+
+  describe('useHistoryContext', () => {
+    it('provides history manager state', () => {
+      const { result } = renderHook(() => useHistoryContext(), { wrapper });
+
+      expect(result.current.historyManager).toBeDefined();
+      expect(result.current.historyManager.entries).toEqual([]);
+      expect(result.current.historyManager.currentIndex).toBe(-1);
+    });
+
+    it('provides canUndo that reflects history state', () => {
+      const { result } = renderHook(() => useHistoryContext(), { wrapper });
+
+      expect(result.current.canUndo).toBe(false);
+    });
+
+    it('provides canRedo that reflects history state', () => {
+      const { result } = renderHook(() => useHistoryContext(), { wrapper });
+
+      expect(result.current.canRedo).toBe(false);
+    });
+
+    it('throws error when used outside BoardProvider', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      expect(() => renderHook(() => useHistoryContext())).toThrow(
+        'useHistoryContext must be used within BoardProvider'
+      );
+
+      consoleError.mockRestore();
+    });
+  });
+
+  describe('pushHistory', () => {
+    it('adds entry to history when board is updated', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          history: useHistoryContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.history.pushHistory('test-action', result.current.board.board);
+      });
+
+      expect(result.current.history.historyManager.entries).toHaveLength(1);
+      expect(result.current.history.historyManager.entries[0].action).toBe('test-action');
+    });
+  });
+
+  describe('undo', () => {
+    it('restores previous board state', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          history: useHistoryContext(),
+        }),
+        { wrapper }
+      );
+
+      const initialBoard = result.current.board.board;
+
+      act(() => {
+        result.current.history.pushHistory('initial', initialBoard);
+      });
+
+      const newBoard = Board.withCurrentDay(initialBoard, 5);
+      act(() => {
+        result.current.board.setBoard(newBoard);
+        result.current.history.pushHistory('day-5', newBoard);
+      });
+
+      expect(result.current.board.board.currentDay).toBe(5);
+      expect(result.current.history.canUndo).toBe(true);
+
+      act(() => {
+        result.current.history.undo();
+      });
+
+      expect(result.current.board.board.currentDay).toBe(0);
+    });
+
+    it('does nothing when canUndo is false', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          history: useHistoryContext(),
+        }),
+        { wrapper }
+      );
+
+      const initialBoard = result.current.board.board;
+
+      act(() => {
+        result.current.history.undo();
+      });
+
+      expect(result.current.board.board).toEqual(initialBoard);
+    });
+
+    it('persists undone state to localStorage', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          history: useHistoryContext(),
+        }),
+        { wrapper }
+      );
+
+      const initialBoard = result.current.board.board;
+
+      act(() => {
+        result.current.history.pushHistory('initial', initialBoard);
+      });
+
+      const newBoard = Board.withCurrentDay(initialBoard, 5);
+      act(() => {
+        result.current.board.setBoard(newBoard);
+        result.current.history.pushHistory('day-5', newBoard);
+      });
+
+      vi.mocked(StateRepository.saveBoard).mockClear();
+
+      act(() => {
+        result.current.history.undo();
+      });
+
+      expect(StateRepository.saveBoard).toHaveBeenCalledWith(
+        expect.objectContaining({ currentDay: 0 })
+      );
+    });
+  });
+
+  describe('redo', () => {
+    it('restores undone board state', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          history: useHistoryContext(),
+        }),
+        { wrapper }
+      );
+
+      const initialBoard = result.current.board.board;
+
+      act(() => {
+        result.current.history.pushHistory('initial', initialBoard);
+      });
+
+      const newBoard = Board.withCurrentDay(initialBoard, 5);
+      act(() => {
+        result.current.board.setBoard(newBoard);
+        result.current.history.pushHistory('day-5', newBoard);
+      });
+
+      act(() => {
+        result.current.history.undo();
+      });
+
+      expect(result.current.board.board.currentDay).toBe(0);
+      expect(result.current.history.canRedo).toBe(true);
+
+      act(() => {
+        result.current.history.redo();
+      });
+
+      expect(result.current.board.board.currentDay).toBe(5);
+    });
+
+    it('persists redone state to localStorage', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          history: useHistoryContext(),
+        }),
+        { wrapper }
+      );
+
+      const initialBoard = result.current.board.board;
+
+      act(() => {
+        result.current.history.pushHistory('initial', initialBoard);
+      });
+
+      const newBoard = Board.withCurrentDay(initialBoard, 5);
+      act(() => {
+        result.current.board.setBoard(newBoard);
+        result.current.history.pushHistory('day-5', newBoard);
+      });
+
+      act(() => {
+        result.current.history.undo();
+      });
+
+      vi.mocked(StateRepository.saveBoard).mockClear();
+
+      act(() => {
+        result.current.history.redo();
+      });
+
+      expect(StateRepository.saveBoard).toHaveBeenCalledWith(
+        expect.objectContaining({ currentDay: 5 })
+      );
     });
   });
 });

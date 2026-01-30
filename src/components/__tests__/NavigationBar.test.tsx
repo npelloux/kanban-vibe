@@ -151,14 +151,52 @@ describe('NavigationBar Component', () => {
   it('passes policy props to PolicyRunner component', () => {
     // Render with policy running
     render(
-      <NavigationBar 
-        {...propsWithPolicy} 
+      <NavigationBar
+        {...propsWithPolicy}
         isPolicyRunning={true}
         policyProgress={{ currentDay: 3, totalDays: 10 }}
       />
     );
-    
+
     // Policy progress should be visible
     expect(screen.getByText('Day 3 of 10')).toBeInTheDocument();
+  });
+
+  describe('Undo Button', () => {
+    const mockOnUndo = vi.fn();
+
+    it('renders undo button when onUndo prop is provided', () => {
+      render(<NavigationBar {...defaultProps} onUndo={mockOnUndo} canUndo={true} />);
+
+      expect(screen.getByLabelText('Undo')).toBeInTheDocument();
+    });
+
+    it('does not render undo button when onUndo prop is not provided', () => {
+      render(<NavigationBar {...defaultProps} />);
+
+      expect(screen.queryByLabelText('Undo')).not.toBeInTheDocument();
+    });
+
+    it('calls onUndo when undo button is clicked', () => {
+      render(<NavigationBar {...defaultProps} onUndo={mockOnUndo} canUndo={true} />);
+
+      fireEvent.click(screen.getByLabelText('Undo'));
+
+      expect(mockOnUndo).toHaveBeenCalled();
+    });
+
+    it('disables undo button when canUndo is false', () => {
+      render(<NavigationBar {...defaultProps} onUndo={mockOnUndo} canUndo={false} />);
+
+      const undoButton = screen.getByLabelText('Undo');
+      expect(undoButton).toBeDisabled();
+    });
+
+    it('enables undo button when canUndo is true', () => {
+      render(<NavigationBar {...defaultProps} onUndo={mockOnUndo} canUndo={true} />);
+
+      const undoButton = screen.getByLabelText('Undo');
+      expect(undoButton).not.toBeDisabled();
+    });
   });
 });
