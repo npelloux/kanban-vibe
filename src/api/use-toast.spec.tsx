@@ -192,7 +192,7 @@ describe('useToast hook', () => {
       const TestComponent = () => {
         const { showToast } = useToast();
         return (
-          <button onClick={() => showToast({ message: 'Test', type: 'info' })}>
+          <button type="button" onClick={() => showToast({ message: 'Test', type: 'info' })}>
             Show Toast
           </button>
         );
