@@ -5,6 +5,8 @@ model: sonnet
 color: blue
 ---
 
+# Task Check Agent
+
 Verify that the implementation work matches the task requirements.
 
 ## Instructions
