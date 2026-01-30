@@ -10,7 +10,7 @@ Work through the entire lifecycle autonomously until you have a mergeable PR or 
 
 ## Git Worktrees
 
-By default, `start-task.sh` creates a git worktree in a sibling directory (e.g., `../living-architecture-issue-40-desc/`). This allows working on multiple tasks in parallel without stashing or switching branches.
+By default, `start-task.sh` creates a git worktree in a sibling directory (e.g., `../kanban-vibe-issue-40-desc/`). This allows working on multiple tasks in parallel without stashing or switching branches.
 
 - Use `--no-worktree` to create a branch in the current repo instead
 - Use `--no-issue=<name>` for ad-hoc tasks without a GitHub issue
