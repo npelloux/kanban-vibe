@@ -18,10 +18,8 @@ export function useHistory({ canUndo, canRedo, undo, redo }: UseHistoryProps): U
       const key = event.key?.toLowerCase();
       const hasModifier = event.ctrlKey || event.metaKey;
 
-      // Undo: Ctrl+Z or Cmd+Z (without Shift)
       const isUndo = key === 'z' && hasModifier && !event.shiftKey;
 
-      // Redo: Ctrl+Shift+Z, Cmd+Shift+Z, or Ctrl+Y
       const isRedo = (key === 'z' && hasModifier && event.shiftKey) ||
                      (key === 'y' && event.ctrlKey && !event.shiftKey);
 

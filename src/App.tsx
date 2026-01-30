@@ -20,13 +20,8 @@ import { exportBoard, importBoard } from './simulation/infra/json-export';
 
 function AppContent() {
   const { board, updateBoard } = useBoardContext();
-  const { canUndo: contextCanUndo, canRedo: contextCanRedo, undo: contextUndo, redo: contextRedo } = useHistoryContext();
-  const { canUndo, canRedo, undo, redo } = useHistory({
-    canUndo: contextCanUndo,
-    canRedo: contextCanRedo,
-    undo: contextUndo,
-    redo: contextRedo,
-  });
+  const historyContext = useHistoryContext();
+  const { canUndo, canRedo, undo, redo } = useHistory(historyContext);
   const { cardsInStage, moveCard, addCard, toggleBlock, assignWorker } = useKanbanBoard();
   const { currentDay, advanceDay, runPolicy, cancelPolicy, isRunning, policyProgress } = useSimulationControls();
   const { selectedWorkerId, selectWorker } = useWorkerManagement();
