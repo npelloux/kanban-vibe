@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Logo } from './Logo';
 import { PolicyRunner } from './PolicyRunner';
 import { SaveIndicator, type SaveStatus } from './SaveIndicator';
+import { ConfirmDialog } from './ConfirmDialog';
 import type { TabType } from './TabNavigation';
 import type { PolicyType } from './PolicyRunner';
 
@@ -21,6 +22,7 @@ interface NavigationBarProps {
   canRedo?: boolean;
   saveStatus?: SaveStatus;
   lastSavedAt?: Date;
+  onResetBoard?: () => void;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -39,9 +41,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   canRedo = false,
   saveStatus,
   lastSavedAt,
+  onResetBoard,
 }) => {
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
+  const [showResetConfirmDialog, setShowResetConfirmDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +59,21 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       setShowImportDropdown(false);
     }
   };
-  
+
+  const handleResetClick = () => {
+    setShowSaveDropdown(false);
+    setShowResetConfirmDialog(true);
+  };
+
+  const handleResetConfirm = () => {
+    setShowResetConfirmDialog(false);
+    onResetBoard?.();
+  };
+
+  const handleResetCancel = () => {
+    setShowResetConfirmDialog(false);
+  };
+
   return (
     <nav className="navigation-bar">
       <div className="nav-left">
@@ -143,7 +161,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             </button>
             {showSaveDropdown && (
               <div className="dropdown-menu">
-                <button 
+                <button
+                  type="button"
                   className="dropdown-item"
                   onClick={() => {
                     onSaveContext();
@@ -152,6 +171,15 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 >
                   Save Context
                 </button>
+                {onResetBoard && (
+                  <button
+                    type="button"
+                    className="dropdown-item dropdown-item--destructive"
+                    onClick={handleResetClick}
+                  >
+                    Reset Board
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -206,6 +234,17 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
           <span className="day-number" data-testid="day-counter">{currentDay}</span>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showResetConfirmDialog}
+        title="Reset Board?"
+        message="This will clear all cards and reset the board to its initial state. This action cannot be undone."
+        confirmText="Reset"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={handleResetConfirm}
+        onCancel={handleResetCancel}
+      />
     </nav>
   );
 };
