@@ -1,4 +1,5 @@
 import type { SaveStatus } from '../simulation/api/board-context';
+import { formatRelativeTime } from './time-formatting/format-relative-time';
 
 export type { SaveStatus };
 
@@ -6,35 +7,6 @@ interface SaveIndicatorProps {
   status: SaveStatus;
   lastSavedAt?: Date;
   onRetry?: () => void;
-}
-
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  if (diffMs < 0) {
-    return 'just now';
-  }
-  const diffSeconds = Math.floor(diffMs / 1000);
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  const diffHours = Math.floor(diffMinutes / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffSeconds < 60) {
-    return 'just now';
-  }
-  if (diffMinutes < 60) {
-    return `${diffMinutes} min ago`;
-  }
-  if (diffHours < 24) {
-    if (diffHours === 1) {
-      return '1 hour ago';
-    }
-    return `${diffHours} hours ago`;
-  }
-  if (diffDays === 1) {
-    return '1 day ago';
-  }
-  return `${diffDays} days ago`;
 }
 
 function CheckmarkIcon() {

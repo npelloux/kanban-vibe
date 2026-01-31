@@ -3,8 +3,10 @@ import { Logo } from './Logo';
 import { PolicyRunner } from './PolicyRunner';
 import { SaveIndicator, type SaveStatus } from './SaveIndicator';
 import { ConfirmDialog } from './ConfirmDialog';
+import { SlotManager } from './SlotManager';
 import type { TabType } from './TabNavigation';
 import type { PolicyType } from './PolicyRunner';
+import type { SlotInfo, SlotNumber } from '../simulation/infra/state-repository';
 
 interface NavigationBarProps {
   activeTab: TabType;
@@ -23,6 +25,11 @@ interface NavigationBarProps {
   saveStatus?: SaveStatus;
   lastSavedAt?: Date;
   onResetBoard?: () => void;
+  slots?: [SlotInfo | null, SlotInfo | null, SlotInfo | null];
+  onSaveToSlot?: (slot: SlotNumber, name: string) => void;
+  onLoadFromSlot?: (slot: SlotNumber) => void;
+  onDeleteSlot?: (slot: SlotNumber) => void;
+  onRenameSlot?: (slot: SlotNumber, newName: string) => void;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -42,11 +49,28 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   saveStatus,
   lastSavedAt,
   onResetBoard,
+  slots,
+  onSaveToSlot,
+  onLoadFromSlot,
+  onDeleteSlot,
+  onRenameSlot,
 }) => {
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
   const [showResetConfirmDialog, setShowResetConfirmDialog] = useState(false);
+  const [showSlotManager, setShowSlotManager] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const hasSlotSupport = slots !== undefined && onSaveToSlot && onLoadFromSlot && onDeleteSlot && onRenameSlot;
+
+  const handleManageSlotsClick = () => {
+    setShowSaveDropdown(false);
+    setShowSlotManager(true);
+  };
+
+  const handleSlotManagerClose = () => {
+    setShowSlotManager(false);
+  };
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -171,6 +195,15 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 >
                   Save Context
                 </button>
+                {hasSlotSupport && (
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={handleManageSlotsClick}
+                  >
+                    Manage Slots
+                  </button>
+                )}
                 {onResetBoard && (
                   <button
                     type="button"
@@ -245,6 +278,18 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         onConfirm={handleResetConfirm}
         onCancel={handleResetCancel}
       />
+
+      {hasSlotSupport && (
+        <SlotManager
+          isOpen={showSlotManager}
+          slots={slots}
+          onSave={onSaveToSlot}
+          onLoad={onLoadFromSlot}
+          onDelete={onDeleteSlot}
+          onRename={onRenameSlot}
+          onClose={handleSlotManagerClose}
+        />
+      )}
     </nav>
   );
 };
