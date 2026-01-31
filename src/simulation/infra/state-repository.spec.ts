@@ -608,4 +608,269 @@ describe('StateRepository', () => {
       });
     });
   });
+
+  describe('save slots', () => {
+    const SLOT_1_KEY = 'kanban-vibe-slot-1';
+    const SLOT_2_KEY = 'kanban-vibe-slot-2';
+    const SLOT_3_KEY = 'kanban-vibe-slot-3';
+
+    describe('saveToSlot', () => {
+      it('saves board to slot 1 with name and timestamp', () => {
+        const board = createTestBoard({ currentDay: 10 });
+
+        StateRepository.saveToSlot(1, board, 'My Save');
+
+        const saved = JSON.parse(mockStorage[SLOT_1_KEY]);
+        expect(saved.name).toBe('My Save');
+        expect(saved.savedAt).toBeGreaterThan(0);
+        expect(saved.state.currentDay).toBe(10);
+      });
+
+      it('saves board to slot 2', () => {
+        const board = createTestBoard({ currentDay: 5 });
+
+        StateRepository.saveToSlot(2, board, 'Slot Two');
+
+        expect(localStorage.setItem).toHaveBeenCalledWith(
+          SLOT_2_KEY,
+          expect.any(String)
+        );
+        const saved = JSON.parse(mockStorage[SLOT_2_KEY]);
+        expect(saved.name).toBe('Slot Two');
+      });
+
+      it('saves board to slot 3', () => {
+        const board = createTestBoard({ currentDay: 15 });
+
+        StateRepository.saveToSlot(3, board, 'Slot Three');
+
+        expect(localStorage.setItem).toHaveBeenCalledWith(
+          SLOT_3_KEY,
+          expect.any(String)
+        );
+        const saved = JSON.parse(mockStorage[SLOT_3_KEY]);
+        expect(saved.name).toBe('Slot Three');
+      });
+
+      it('throws error for invalid slot number', () => {
+        const board = createTestBoard();
+
+        expect(() => StateRepository.saveToSlot(0, board, 'Invalid')).toThrow(
+          'Invalid slot number'
+        );
+        expect(() => StateRepository.saveToSlot(4, board, 'Invalid')).toThrow(
+          'Invalid slot number'
+        );
+      });
+
+      it('overwrites existing slot data', () => {
+        const board1 = createTestBoard({ currentDay: 5 });
+        const board2 = createTestBoard({ currentDay: 10 });
+
+        StateRepository.saveToSlot(1, board1, 'First Save');
+        StateRepository.saveToSlot(1, board2, 'Second Save');
+
+        const saved = JSON.parse(mockStorage[SLOT_1_KEY]);
+        expect(saved.name).toBe('Second Save');
+        expect(saved.state.currentDay).toBe(10);
+      });
+
+      it('handles QuotaExceededError gracefully', () => {
+        const board = createTestBoard();
+        vi.mocked(localStorage.setItem).mockImplementation(() => {
+          const error = new DOMException('Quota exceeded', 'QuotaExceededError');
+          throw error;
+        });
+
+        expect(() => StateRepository.saveToSlot(1, board, 'Test')).not.toThrow();
+      });
+    });
+
+    describe('loadFromSlot', () => {
+      it('returns null when slot is empty', () => {
+        const result = StateRepository.loadFromSlot(1);
+
+        expect(result).toBeNull();
+      });
+
+      it('loads slot data with name and savedAt', () => {
+        const board = createTestBoard({ currentDay: 7 });
+        StateRepository.saveToSlot(1, board, 'Loaded Slot');
+
+        const result = StateRepository.loadFromSlot(1);
+
+        expect(result).not.toBeNull();
+        expect(result!.name).toBe('Loaded Slot');
+        expect(result!.savedAt).toBeGreaterThan(0);
+        expect(result!.board.currentDay).toBe(7);
+      });
+
+      it('loads from different slots independently', () => {
+        const board1 = createTestBoard({ currentDay: 1 });
+        const board2 = createTestBoard({ currentDay: 2 });
+        StateRepository.saveToSlot(1, board1, 'Slot 1');
+        StateRepository.saveToSlot(2, board2, 'Slot 2');
+
+        const slot1 = StateRepository.loadFromSlot(1);
+        const slot2 = StateRepository.loadFromSlot(2);
+
+        expect(slot1!.board.currentDay).toBe(1);
+        expect(slot2!.board.currentDay).toBe(2);
+      });
+
+      it('throws error for invalid slot number', () => {
+        expect(() => StateRepository.loadFromSlot(0)).toThrow(
+          'Invalid slot number'
+        );
+        expect(() => StateRepository.loadFromSlot(4)).toThrow(
+          'Invalid slot number'
+        );
+      });
+
+      it('returns null for corrupted slot data', () => {
+        mockStorage[SLOT_1_KEY] = 'not valid json {{{';
+
+        const result = StateRepository.loadFromSlot(1);
+
+        expect(result).toBeNull();
+      });
+
+      it('returns null for invalid slot schema', () => {
+        mockStorage[SLOT_1_KEY] = JSON.stringify({
+          notValidSlot: true,
+        });
+
+        const result = StateRepository.loadFromSlot(1);
+
+        expect(result).toBeNull();
+      });
+    });
+
+    describe('clearSlot', () => {
+      it('removes slot data from localStorage', () => {
+        const board = createTestBoard();
+        StateRepository.saveToSlot(1, board, 'Test');
+
+        StateRepository.clearSlot(1);
+
+        expect(localStorage.removeItem).toHaveBeenCalledWith(SLOT_1_KEY);
+        expect(mockStorage[SLOT_1_KEY]).toBeUndefined();
+      });
+
+      it('can clear each slot independently', () => {
+        const board = createTestBoard();
+        StateRepository.saveToSlot(1, board, 'Slot 1');
+        StateRepository.saveToSlot(2, board, 'Slot 2');
+
+        StateRepository.clearSlot(1);
+
+        expect(mockStorage[SLOT_1_KEY]).toBeUndefined();
+        expect(mockStorage[SLOT_2_KEY]).toBeDefined();
+      });
+
+      it('throws error for invalid slot number', () => {
+        expect(() => StateRepository.clearSlot(0)).toThrow('Invalid slot number');
+        expect(() => StateRepository.clearSlot(4)).toThrow('Invalid slot number');
+      });
+
+      it('does not throw when clearing empty slot', () => {
+        expect(() => StateRepository.clearSlot(1)).not.toThrow();
+      });
+    });
+
+    describe('renameSlot', () => {
+      it('updates slot name without changing board state', () => {
+        const board = createTestBoard({ currentDay: 5 });
+        StateRepository.saveToSlot(1, board, 'Original Name');
+
+        StateRepository.renameSlot(1, 'New Name');
+
+        const result = StateRepository.loadFromSlot(1);
+        expect(result!.name).toBe('New Name');
+        expect(result!.board.currentDay).toBe(5);
+      });
+
+      it('preserves savedAt timestamp when renaming', () => {
+        const board = createTestBoard();
+        StateRepository.saveToSlot(1, board, 'Original');
+        const originalData = StateRepository.loadFromSlot(1);
+
+        StateRepository.renameSlot(1, 'Renamed');
+
+        const result = StateRepository.loadFromSlot(1);
+        expect(result!.savedAt).toBe(originalData!.savedAt);
+      });
+
+      it('throws error for invalid slot number', () => {
+        expect(() => StateRepository.renameSlot(0, 'Test')).toThrow(
+          'Invalid slot number'
+        );
+        expect(() => StateRepository.renameSlot(4, 'Test')).toThrow(
+          'Invalid slot number'
+        );
+      });
+
+      it('throws error when slot is empty', () => {
+        expect(() => StateRepository.renameSlot(1, 'Test')).toThrow(
+          'Slot is empty'
+        );
+      });
+    });
+
+    describe('getSlotInfo', () => {
+      it('returns null for empty slot', () => {
+        const result = StateRepository.getSlotInfo(1);
+
+        expect(result).toBeNull();
+      });
+
+      it('returns slot metadata without loading full board', () => {
+        const board = createTestBoard({ currentDay: 10 });
+        StateRepository.saveToSlot(1, board, 'My Save');
+
+        const result = StateRepository.getSlotInfo(1);
+
+        expect(result).not.toBeNull();
+        expect(result!.name).toBe('My Save');
+        expect(result!.savedAt).toBeGreaterThan(0);
+      });
+
+      it('throws error for invalid slot number', () => {
+        expect(() => StateRepository.getSlotInfo(0)).toThrow(
+          'Invalid slot number'
+        );
+        expect(() => StateRepository.getSlotInfo(4)).toThrow(
+          'Invalid slot number'
+        );
+      });
+    });
+
+    describe('getAllSlotInfo', () => {
+      it('returns array of 3 slot infos', () => {
+        const result = StateRepository.getAllSlotInfo();
+
+        expect(result).toHaveLength(3);
+      });
+
+      it('returns null for empty slots', () => {
+        const result = StateRepository.getAllSlotInfo();
+
+        expect(result[0]).toBeNull();
+        expect(result[1]).toBeNull();
+        expect(result[2]).toBeNull();
+      });
+
+      it('returns slot info for occupied slots', () => {
+        const board = createTestBoard();
+        StateRepository.saveToSlot(1, board, 'Slot 1');
+        StateRepository.saveToSlot(3, board, 'Slot 3');
+
+        const result = StateRepository.getAllSlotInfo();
+
+        expect(result[0]!.name).toBe('Slot 1');
+        expect(result[1]).toBeNull();
+        expect(result[2]!.name).toBe('Slot 3');
+      });
+    });
+  });
 });
