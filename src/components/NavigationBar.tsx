@@ -162,6 +162,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             {showSaveDropdown && (
               <div className="dropdown-menu">
                 <button
+                  type="button"
                   className="dropdown-item"
                   onClick={() => {
                     onSaveContext();
@@ -172,6 +173,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 </button>
                 {onResetBoard && (
                   <button
+                    type="button"
                     className="dropdown-item dropdown-item--destructive"
                     onClick={handleResetClick}
                   >

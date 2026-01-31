@@ -364,10 +364,6 @@ describe('NavigationBar Component', () => {
   describe('Reset Board', () => {
     const mockOnResetBoard = vi.fn();
 
-    beforeEach(() => {
-      vi.clearAllMocks();
-    });
-
     it('shows Reset Board option in save dropdown when onResetBoard prop is provided', () => {
       render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
 

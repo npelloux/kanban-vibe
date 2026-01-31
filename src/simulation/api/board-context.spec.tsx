@@ -19,6 +19,7 @@ vi.mock('../infra/state-repository', () => ({
     loadAutosave: vi.fn(),
     saveAutosave: vi.fn(),
     clearAutosave: vi.fn(),
+    clearBoard: vi.fn(),
   },
 }));
 
@@ -988,6 +989,7 @@ describe('useResetBoardContext', () => {
       });
 
       expect(StateRepository.clearAutosave).toHaveBeenCalled();
+      expect(StateRepository.clearBoard).not.toHaveBeenCalled();
     });
   });
 });

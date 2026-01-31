@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -23,18 +23,45 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   const titleId = useId();
   const messageId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
 
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements?.[0];
+    firstFocusable?.focus();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onCancel();
+        return;
+      }
+
+      if (e.key === 'Tab' && focusableElements && focusableElements.length > 0) {
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousActiveElement.current?.focus();
+    };
   }, [isOpen, onCancel]);
 
   if (!isOpen) {
@@ -52,8 +79,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       className="confirm-dialog__backdrop"
       data-testid="dialog-backdrop"
       onClick={handleBackdropClick}
+      role="presentation"
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
