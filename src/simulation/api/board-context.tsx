@@ -39,9 +39,14 @@ interface SaveStateContextValue {
   lastSavedAt: Date | null;
 }
 
+interface ResetBoardContextValue {
+  resetBoard: () => void;
+}
+
 const BoardContext = createContext<BoardContextValue | null>(null);
 const HistoryContext = createContext<HistoryContextValue | null>(null);
 const SaveStateContext = createContext<SaveStateContextValue | null>(null);
+const ResetBoardContext = createContext<ResetBoardContextValue | null>(null);
 
 export interface BoardProviderProps {
   children: ReactNode;
@@ -160,11 +165,32 @@ export function BoardProvider({ children }: BoardProviderProps) {
     [saveStatus, lastSavedAt]
   );
 
+  const resetBoard = useCallback(() => {
+    if (autosaveTimeoutRef.current !== null) {
+      clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+    const emptyBoard = BoardFactory.empty(WipLimits.empty());
+    setBoardState(emptyBoard);
+    StateRepository.clearAutosave();
+    StateRepository.saveBoard(emptyBoard);
+    setSaveStatus('saved');
+  }, []);
+
+  const resetBoardValue = useMemo(
+    () => ({
+      resetBoard,
+    }),
+    [resetBoard]
+  );
+
   return (
     <BoardContext.Provider value={{ board, setBoard, updateBoard }}>
       <HistoryContext.Provider value={historyValue}>
         <SaveStateContext.Provider value={saveStateValue}>
-          {children}
+          <ResetBoardContext.Provider value={resetBoardValue}>
+            {children}
+          </ResetBoardContext.Provider>
         </SaveStateContext.Provider>
       </HistoryContext.Provider>
     </BoardContext.Provider>
@@ -191,6 +217,14 @@ export function useSaveStateContext(): SaveStateContextValue {
   const context = useContext(SaveStateContext);
   if (!context) {
     throw new Error('useSaveStateContext must be used within BoardProvider');
+  }
+  return context;
+}
+
+export function useResetBoardContext(): ResetBoardContextValue {
+  const context = useContext(ResetBoardContext);
+  if (!context) {
+    throw new Error('useResetBoardContext must be used within BoardProvider');
   }
   return context;
 }

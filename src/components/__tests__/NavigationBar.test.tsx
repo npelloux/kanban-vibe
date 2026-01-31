@@ -360,4 +360,97 @@ describe('NavigationBar Component', () => {
       expect(navRight).toContainElement(screen.getByTestId('day-counter'));
     });
   });
+
+  describe('Reset Board', () => {
+    const mockOnResetBoard = vi.fn();
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('shows Reset Board option in save dropdown when onResetBoard prop is provided', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+
+      expect(screen.getByText('Reset Board')).toBeInTheDocument();
+    });
+
+    it('does not show Reset Board option when onResetBoard prop is not provided', () => {
+      render(<NavigationBar {...defaultProps} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+
+      expect(screen.queryByText('Reset Board')).not.toBeInTheDocument();
+    });
+
+    it('shows confirmation dialog when Reset Board is clicked', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Reset Board?')).toBeInTheDocument();
+    });
+
+    it('calls onResetBoard when confirmation is accepted', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+      fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(mockOnResetBoard).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not call onResetBoard when confirmation is cancelled', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(mockOnResetBoard).not.toHaveBeenCalled();
+    });
+
+    it('closes confirmation dialog after confirming', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+      fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('closes confirmation dialog after cancelling', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('closes save dropdown when Reset Board is clicked', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+
+      expect(screen.queryByText('Save Context')).not.toBeInTheDocument();
+    });
+
+    it('shows destructive styling on the confirm button', () => {
+      render(<NavigationBar {...defaultProps} onResetBoard={mockOnResetBoard} />);
+
+      fireEvent.click(screen.getByLabelText('Save options'));
+      fireEvent.click(screen.getByText('Reset Board'));
+
+      const resetButton = screen.getByRole('button', { name: 'Reset' });
+      expect(resetButton).toHaveClass('confirm-dialog__button--destructive');
+    });
+  });
 });

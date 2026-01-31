@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, act, renderHook } from '@testing-library/react';
-import { BoardProvider, useBoardContext, useHistoryContext, useSaveStateContext } from './board-context';
+import {
+  BoardProvider,
+  useBoardContext,
+  useHistoryContext,
+  useSaveStateContext,
+  useResetBoardContext,
+} from './board-context';
 import { Board } from '../domain/board/board';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { StateRepository } from '../infra/state-repository';
@@ -12,6 +18,7 @@ vi.mock('../infra/state-repository', () => ({
     saveBoard: vi.fn(),
     loadAutosave: vi.fn(),
     saveAutosave: vi.fn(),
+    clearAutosave: vi.fn(),
   },
 }));
 
@@ -815,6 +822,172 @@ describe('useSaveStateContext', () => {
       expect(result.current.saveState.saveStatus).toBe('error');
 
       mockSaveAutosave.mockRestore();
+    });
+  });
+});
+
+describe('useResetBoardContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+    vi.mocked(StateRepository.loadAutosave).mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('throws error when used outside BoardProvider', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => renderHook(() => useResetBoardContext())).toThrow(
+      'useResetBoardContext must be used within BoardProvider'
+    );
+
+    consoleError.mockRestore();
+  });
+
+  it('provides resetBoard function', () => {
+    const { result } = renderHook(() => useResetBoardContext(), { wrapper });
+
+    expect(result.current.resetBoard).toBeDefined();
+    expect(typeof result.current.resetBoard).toBe('function');
+  });
+
+  describe('resetBoard', () => {
+    it('resets board to empty state', () => {
+      vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(10));
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          reset: useResetBoardContext(),
+        }),
+        { wrapper }
+      );
+
+      expect(result.current.board.board.currentDay).toBe(10);
+
+      act(() => {
+        result.current.reset.resetBoard();
+      });
+
+      expect(result.current.board.board.currentDay).toBe(0);
+    });
+
+    it('clears autosave from localStorage', () => {
+      vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(10));
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          reset: useResetBoardContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.reset.resetBoard();
+      });
+
+      expect(StateRepository.clearAutosave).toHaveBeenCalledTimes(1);
+    });
+
+    it('saves the empty board to localStorage', () => {
+      vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(10));
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          reset: useResetBoardContext(),
+        }),
+        { wrapper }
+      );
+
+      vi.mocked(StateRepository.saveBoard).mockClear();
+
+      act(() => {
+        result.current.reset.resetBoard();
+      });
+
+      expect(StateRepository.saveBoard).toHaveBeenCalledWith(
+        expect.objectContaining({ currentDay: 0 })
+      );
+    });
+
+    it('resets saveStatus to saved', () => {
+      vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(10));
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          reset: useResetBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 15));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('dirty');
+
+      act(() => {
+        result.current.reset.resetBoard();
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saved');
+    });
+
+    it('clears pending autosave timeout', () => {
+      vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(10));
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          reset: useResetBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 15));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('dirty');
+
+      act(() => {
+        result.current.reset.resetBoard();
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saved');
+
+      act(() => {
+        vi.advanceTimersByTime(600);
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saved');
+    });
+
+    it('does not affect manual save slots (separate key)', () => {
+      vi.mocked(StateRepository.loadBoard).mockReturnValue(createTestBoard(10));
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          reset: useResetBoardContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.reset.resetBoard();
+      });
+
+      expect(StateRepository.clearAutosave).toHaveBeenCalled();
     });
   });
 });
