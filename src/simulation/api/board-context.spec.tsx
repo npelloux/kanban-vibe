@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, act, renderHook } from '@testing-library/react';
-import { BoardProvider, useBoardContext, useHistoryContext } from './board-context';
+import { BoardProvider, useBoardContext, useHistoryContext, useSaveStateContext } from './board-context';
 import { Board } from '../domain/board/board';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { StateRepository } from '../infra/state-repository';
@@ -650,6 +650,142 @@ describe('BoardProvider with History', () => {
       expect(StateRepository.saveBoard).toHaveBeenCalledWith(
         expect.objectContaining({ currentDay: 5 })
       );
+    });
+  });
+});
+
+describe('useSaveStateContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-31T12:00:00Z'));
+    vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+    vi.mocked(StateRepository.loadAutosave).mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('throws error when used outside BoardProvider', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => renderHook(() => useSaveStateContext())).toThrow(
+      'useSaveStateContext must be used within BoardProvider'
+    );
+
+    consoleError.mockRestore();
+  });
+
+  it('provides initial saved state when no changes have been made', () => {
+    const { result } = renderHook(() => useSaveStateContext(), { wrapper });
+
+    expect(result.current.saveStatus).toBe('saved');
+  });
+
+  it('provides lastSavedAt as null initially when no save has occurred', () => {
+    const { result } = renderHook(() => useSaveStateContext(), { wrapper });
+
+    expect(result.current.lastSavedAt).toBeNull();
+  });
+
+  describe('save state transitions', () => {
+    it('transitions to saving when board changes during debounce', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      expect(result.current.saveState.saveStatus).toBe('saved');
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saving');
+    });
+
+    it('transitions to saved after debounce completes', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saving');
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saved');
+    });
+
+    it('updates lastSavedAt when save completes', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      const initialTime = result.current.saveState.lastSavedAt;
+
+      vi.setSystemTime(new Date('2026-01-31T12:01:00Z'));
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(result.current.saveState.lastSavedAt?.getTime()).toBeGreaterThan(
+        initialTime?.getTime() ?? 0
+      );
+    });
+
+    it('resets saving state when rapid changes occur', () => {
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saving');
+
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 2));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saving');
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saved');
     });
   });
 });

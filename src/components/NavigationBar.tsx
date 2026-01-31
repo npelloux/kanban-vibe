@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Logo } from './Logo';
 import { PolicyRunner } from './PolicyRunner';
+import { SaveIndicator, type SaveStatus } from './SaveIndicator';
 import type { TabType } from './TabNavigation';
 import type { PolicyType } from './PolicyRunner';
 
@@ -18,6 +19,8 @@ interface NavigationBarProps {
   canUndo?: boolean;
   onRedo?: () => void;
   canRedo?: boolean;
+  saveStatus?: SaveStatus;
+  lastSavedAt?: Date;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -34,6 +37,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   canUndo = false,
   onRedo,
   canRedo = false,
+  saveStatus,
+  lastSavedAt,
 }) => {
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
@@ -192,6 +197,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
           )}
         </div>
         
+        {saveStatus && (
+          <SaveIndicator status={saveStatus} lastSavedAt={lastSavedAt} />
+        )}
+
         <div className="day-counter">
           <span className="day-label">Day</span>
           <span className="day-number" data-testid="day-counter">{currentDay}</span>

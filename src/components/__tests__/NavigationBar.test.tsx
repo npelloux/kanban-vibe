@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NavigationBar } from '../NavigationBar';
 import '@testing-library/jest-dom';
 
@@ -291,6 +291,73 @@ describe('NavigationBar Component', () => {
       const undoIndex = buttons.findIndex(b => b.getAttribute('aria-label') === 'Undo');
       const redoIndex = buttons.findIndex(b => b.getAttribute('aria-label') === 'Redo');
       expect(redoIndex).toBeGreaterThan(undoIndex);
+    });
+  });
+
+  describe('Save Indicator', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-01-31T12:00:00Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('renders save indicator when saveStatus prop is provided', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          saveStatus="saved"
+          lastSavedAt={new Date('2026-01-31T12:00:00Z')}
+        />
+      );
+
+      expect(screen.getByText('Saved')).toBeInTheDocument();
+    });
+
+    it('shows Saving... when saveStatus is saving', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          saveStatus="saving"
+        />
+      );
+
+      expect(screen.getByText('Saving...')).toBeInTheDocument();
+    });
+
+    it('shows relative time when saved', () => {
+      render(
+        <NavigationBar
+          {...defaultProps}
+          saveStatus="saved"
+          lastSavedAt={new Date('2026-01-31T11:58:00Z')}
+        />
+      );
+
+      expect(screen.getByText('2 min ago')).toBeInTheDocument();
+    });
+
+    it('does not render save indicator when saveStatus is not provided', () => {
+      render(<NavigationBar {...defaultProps} />);
+
+      expect(screen.queryByText('Saved')).not.toBeInTheDocument();
+      expect(screen.queryByText('Saving...')).not.toBeInTheDocument();
+    });
+
+    it('positions save indicator near day counter', () => {
+      const { container } = render(
+        <NavigationBar
+          {...defaultProps}
+          saveStatus="saved"
+          lastSavedAt={new Date('2026-01-31T12:00:00Z')}
+        />
+      );
+
+      const navRight = container.querySelector('.nav-right');
+      expect(navRight).toContainElement(screen.getByText('Saved'));
+      expect(navRight).toContainElement(screen.getByTestId('day-counter'));
     });
   });
 });
