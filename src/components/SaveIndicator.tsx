@@ -11,9 +11,13 @@ interface SaveIndicatorProps {
 function formatRelativeTime(date: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
+  if (diffMs < 0) {
+    return 'just now';
+  }
   const diffSeconds = Math.floor(diffMs / 1000);
   const diffMinutes = Math.floor(diffSeconds / 60);
   const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
 
   if (diffSeconds < 60) {
     return 'just now';
@@ -21,10 +25,16 @@ function formatRelativeTime(date: Date): string {
   if (diffMinutes < 60) {
     return `${diffMinutes} min ago`;
   }
-  if (diffHours === 1) {
-    return '1 hour ago';
+  if (diffHours < 24) {
+    if (diffHours === 1) {
+      return '1 hour ago';
+    }
+    return `${diffHours} hours ago`;
   }
-  return `${diffHours} hours ago`;
+  if (diffDays === 1) {
+    return '1 day ago';
+  }
+  return `${diffDays} days ago`;
 }
 
 function CheckmarkIcon() {
@@ -41,6 +51,7 @@ function CheckmarkIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
@@ -62,6 +73,7 @@ function SpinnerIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       className="save-indicator__spinner"
+      aria-hidden="true"
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
@@ -82,6 +94,7 @@ function WarningIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="8" x2="12" y2="12" />
@@ -104,6 +117,7 @@ function ErrorIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
       <line x1="15" y1="9" x2="9" y2="15" />

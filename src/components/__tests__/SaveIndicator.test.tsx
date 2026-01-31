@@ -240,5 +240,38 @@ describe('SaveIndicator Component', () => {
 
       expect(screen.getByText('2 hours ago')).toBeInTheDocument();
     });
+
+    it('shows day format for times over 24 hours', () => {
+      render(
+        <SaveIndicator
+          status="saved"
+          lastSavedAt={new Date('2026-01-30T12:00:00Z')}
+        />
+      );
+
+      expect(screen.getByText('1 day ago')).toBeInTheDocument();
+    });
+
+    it('shows plural days for times over 1 day', () => {
+      render(
+        <SaveIndicator
+          status="saved"
+          lastSavedAt={new Date('2026-01-29T12:00:00Z')}
+        />
+      );
+
+      expect(screen.getByText('2 days ago')).toBeInTheDocument();
+    });
+
+    it('treats future dates as just now', () => {
+      render(
+        <SaveIndicator
+          status="saved"
+          lastSavedAt={new Date('2026-01-31T12:05:00Z')}
+        />
+      );
+
+      expect(screen.getByText('just now')).toBeInTheDocument();
+    });
   });
 });

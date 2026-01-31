@@ -787,5 +787,34 @@ describe('useSaveStateContext', () => {
 
       expect(result.current.saveState.saveStatus).toBe('saved');
     });
+
+    it('transitions to error when autosave fails', () => {
+      const mockSaveAutosave = vi.spyOn(StateRepository, 'saveAutosave');
+      mockSaveAutosave.mockImplementation(() => {
+        throw new Error('Storage quota exceeded');
+      });
+
+      const { result } = renderHook(
+        () => ({
+          board: useBoardContext(),
+          saveState: useSaveStateContext(),
+        }),
+        { wrapper }
+      );
+
+      act(() => {
+        result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('saving');
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(result.current.saveState.saveStatus).toBe('error');
+
+      mockSaveAutosave.mockRestore();
+    });
   });
 });

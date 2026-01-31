@@ -68,10 +68,15 @@ export function BoardProvider({ children }: BoardProviderProps) {
     }
     setSaveStatus('saving');
     autosaveTimeoutRef.current = setTimeout(() => {
-      StateRepository.saveAutosave(boardToSave);
-      autosaveTimeoutRef.current = null;
-      setSaveStatus('saved');
-      setLastSavedAt(new Date());
+      try {
+        StateRepository.saveAutosave(boardToSave);
+        autosaveTimeoutRef.current = null;
+        setSaveStatus('saved');
+        setLastSavedAt(new Date());
+      } catch {
+        autosaveTimeoutRef.current = null;
+        setSaveStatus('error');
+      }
     }, AUTOSAVE_DEBOUNCE_MS);
   }, []);
 
