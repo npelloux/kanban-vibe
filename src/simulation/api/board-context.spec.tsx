@@ -690,7 +690,7 @@ describe('useSaveStateContext', () => {
   });
 
   describe('save state transitions', () => {
-    it('transitions to saving when board changes during debounce', () => {
+    it('transitions to dirty when board changes during debounce', () => {
       const { result } = renderHook(
         () => ({
           board: useBoardContext(),
@@ -705,7 +705,7 @@ describe('useSaveStateContext', () => {
         result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
       });
 
-      expect(result.current.saveState.saveStatus).toBe('saving');
+      expect(result.current.saveState.saveStatus).toBe('dirty');
     });
 
     it('transitions to saved after debounce completes', () => {
@@ -721,7 +721,7 @@ describe('useSaveStateContext', () => {
         result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
       });
 
-      expect(result.current.saveState.saveStatus).toBe('saving');
+      expect(result.current.saveState.saveStatus).toBe('dirty');
 
       act(() => {
         vi.advanceTimersByTime(500);
@@ -756,7 +756,7 @@ describe('useSaveStateContext', () => {
       );
     });
 
-    it('resets saving state when rapid changes occur', () => {
+    it('stays dirty when rapid changes occur', () => {
       const { result } = renderHook(
         () => ({
           board: useBoardContext(),
@@ -769,7 +769,7 @@ describe('useSaveStateContext', () => {
         result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
       });
 
-      expect(result.current.saveState.saveStatus).toBe('saving');
+      expect(result.current.saveState.saveStatus).toBe('dirty');
 
       act(() => {
         vi.advanceTimersByTime(200);
@@ -779,7 +779,7 @@ describe('useSaveStateContext', () => {
         result.current.board.updateBoard((b) => Board.withCurrentDay(b, 2));
       });
 
-      expect(result.current.saveState.saveStatus).toBe('saving');
+      expect(result.current.saveState.saveStatus).toBe('dirty');
 
       act(() => {
         vi.advanceTimersByTime(500);
@@ -806,7 +806,7 @@ describe('useSaveStateContext', () => {
         result.current.board.updateBoard((b) => Board.withCurrentDay(b, 1));
       });
 
-      expect(result.current.saveState.saveStatus).toBe('saving');
+      expect(result.current.saveState.saveStatus).toBe('dirty');
 
       act(() => {
         vi.advanceTimersByTime(500);

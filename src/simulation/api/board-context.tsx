@@ -66,8 +66,9 @@ export function BoardProvider({ children }: BoardProviderProps) {
     if (autosaveTimeoutRef.current !== null) {
       clearTimeout(autosaveTimeoutRef.current);
     }
-    setSaveStatus('saving');
+    setSaveStatus('dirty');
     autosaveTimeoutRef.current = setTimeout(() => {
+      setSaveStatus('saving');
       try {
         StateRepository.saveAutosave(boardToSave);
         autosaveTimeoutRef.current = null;
