@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Worker } from './Worker';
 import type { WorkerType } from './Worker';
 
-interface WorkerData {
+interface WorkerSummary {
   readonly id: string;
   readonly type: WorkerType;
 }
 
 interface MobileWorkerPoolProps {
-  workers: readonly WorkerData[];
+  workers: readonly WorkerSummary[];
   selectedWorkerId: string | null;
   onWorkerSelect: (workerId: string) => void;
   onAddWorker?: (type: WorkerType) => void;
   onDeleteWorker?: (workerId: string) => void;
 }
+
+const SWIPE_THRESHOLD = 80;
 
 export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
   workers,
@@ -25,6 +27,9 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [showAddWorkerOptions, setShowAddWorkerOptions] = useState(false);
   const [selectedType, setSelectedType] = useState<WorkerType>('red');
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const touchStartY = useRef<number | null>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   const handleFabClick = () => {
     setIsOpen(true);
@@ -33,6 +38,41 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
   const handleClose = () => {
     setIsOpen(false);
     setShowAddWorkerOptions(false);
+    setSwipeOffset(0);
+  };
+
+  const handleOverlayKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') {
+      event.preventDefault();
+      handleClose();
+    }
+  };
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    const sheet = sheetRef.current;
+    if (sheet && sheet.scrollTop === 0) {
+      touchStartY.current = event.touches[0].clientY;
+    }
+  };
+
+  const handleTouchMove = (event: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+
+    const currentY = event.touches[0].clientY;
+    const deltaY = currentY - touchStartY.current;
+
+    if (deltaY > 0) {
+      setSwipeOffset(deltaY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeOffset > SWIPE_THRESHOLD) {
+      handleClose();
+    } else {
+      setSwipeOffset(0);
+    }
+    touchStartY.current = null;
   };
 
   const handleAddClick = () => {
@@ -56,6 +96,10 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
     }
   };
 
+  const sheetStyle = swipeOffset > 0
+    ? { transform: `translateY(${swipeOffset}px)`, transition: 'none' }
+    : {};
+
   return (
     <>
       {!isOpen && (
@@ -75,12 +119,21 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
           <div
             className="mobile-worker-pool-overlay"
             data-testid="bottom-sheet-overlay"
+            role="button"
+            tabIndex={0}
+            aria-label="Close worker pool"
             onClick={handleClose}
+            onKeyDown={handleOverlayKeyDown}
           />
           <div
+            ref={sheetRef}
             className="mobile-worker-pool-sheet"
             role="dialog"
             aria-label="Worker pool"
+            style={sheetStyle}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <div className="mobile-worker-pool-header">
               <h3>Workers</h3>

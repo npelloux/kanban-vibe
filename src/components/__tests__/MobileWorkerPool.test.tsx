@@ -108,7 +108,8 @@ describe('MobileWorkerPool Component', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
 
-      expect(screen.getByRole('button', { name: /close worker pool/i })).toBeInTheDocument();
+      const closeButton = screen.getByRole('dialog').querySelector('.mobile-worker-pool-close');
+      expect(closeButton).toBeInTheDocument();
     });
 
     it('closes bottom sheet when close button is clicked', () => {
@@ -123,7 +124,8 @@ describe('MobileWorkerPool Component', () => {
       fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
       expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('button', { name: /close worker pool/i }));
+      const closeButton = screen.getByRole('dialog').querySelector('.mobile-worker-pool-close') as HTMLButtonElement;
+      fireEvent.click(closeButton);
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
@@ -280,6 +282,59 @@ describe('MobileWorkerPool Component', () => {
       fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
 
       expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Worker pool');
+    });
+
+    it('overlay is keyboard accessible', () => {
+      render(
+        <MobileWorkerPool
+          workers={mockWorkers}
+          selectedWorkerId={null}
+          onWorkerSelect={mockOnWorkerSelect}
+        />
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
+
+      const overlay = screen.getByTestId('bottom-sheet-overlay');
+      expect(overlay).toHaveAttribute('role', 'button');
+      expect(overlay).toHaveAttribute('tabIndex', '0');
+      expect(overlay).toHaveAttribute('aria-label', 'Close worker pool');
+    });
+
+    it('closes bottom sheet when overlay receives Enter key', () => {
+      render(
+        <MobileWorkerPool
+          workers={mockWorkers}
+          selectedWorkerId={null}
+          onWorkerSelect={mockOnWorkerSelect}
+        />
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const overlay = screen.getByTestId('bottom-sheet-overlay');
+      fireEvent.keyDown(overlay, { key: 'Enter' });
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('closes bottom sheet when overlay receives Escape key', () => {
+      render(
+        <MobileWorkerPool
+          workers={mockWorkers}
+          selectedWorkerId={null}
+          onWorkerSelect={mockOnWorkerSelect}
+        />
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const overlay = screen.getByTestId('bottom-sheet-overlay');
+      fireEvent.keyDown(overlay, { key: 'Escape' });
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 });
