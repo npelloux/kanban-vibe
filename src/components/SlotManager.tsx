@@ -35,6 +35,7 @@ export const SlotManager: React.FC<SlotManagerProps> = ({
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
   const onCloseRef = useRef(onClose);
   const [editingSlot, setEditingSlot] = useState<SlotNumber | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -66,6 +67,12 @@ export const SlotManager: React.FC<SlotManagerProps> = ({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, confirmAction, editingSlot]);
+
+  useEffect(() => {
+    if (editingSlot !== null) {
+      editInputRef.current?.focus();
+    }
+  }, [editingSlot]);
 
   if (!isOpen) {
     return null;
@@ -142,13 +149,13 @@ export const SlotManager: React.FC<SlotManagerProps> = ({
         <div className="slot-manager__slot-header">
           {isEditing ? (
             <input
+              ref={editInputRef}
               type="text"
               className="slot-manager__slot-input"
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               onBlur={handleEditSubmit}
               onKeyDown={handleEditKeyDown}
-              autoFocus
             />
           ) : (
             <>
@@ -211,11 +218,11 @@ export const SlotManager: React.FC<SlotManagerProps> = ({
   };
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: Backdrop click-to-close is intentional mouse UX, keyboard users use Escape key (handled in useEffect)
     <div
       className="slot-manager__backdrop"
       data-testid="slot-manager-backdrop"
       onClick={handleBackdropClick}
-      role="presentation"
     >
       <div
         ref={dialogRef}

@@ -27,12 +27,12 @@ export interface SlotInfo {
   savedAt: number;
 }
 
-export interface SlotData extends SlotInfo {
+export interface SlotSnapshot extends SlotInfo {
   board: Board;
 }
 
 function isValidSlotNumber(slot: number): slot is SlotNumber {
-  return slot >= 1 && slot <= 3;
+  return Number.isInteger(slot) && slot >= 1 && slot <= 3;
 }
 
 function getSlotKey(slot: SlotNumber): string {
@@ -124,7 +124,7 @@ export const StateRepository = {
     }
   },
 
-  loadFromSlot(slot: number): SlotData | null {
+  loadFromSlot(slot: number): SlotSnapshot | null {
     if (!isValidSlotNumber(slot)) {
       throw new Error('Invalid slot number');
     }
@@ -166,15 +166,15 @@ export const StateRepository = {
     if (!isValidSlotNumber(slot)) {
       throw new Error('Invalid slot number');
     }
-    const slotData = this.loadFromSlot(slot);
-    if (slotData === null) {
+    const slotSnapshot = this.loadFromSlot(slot);
+    if (slotSnapshot === null) {
       throw new Error('Slot is empty');
     }
     const key = getSlotKey(slot);
     const updatedData = {
       name: newName,
-      savedAt: slotData.savedAt,
-      state: serializeBoard(slotData.board),
+      savedAt: slotSnapshot.savedAt,
+      state: serializeBoard(slotSnapshot.board),
     };
     const json = JSON.stringify(updatedData);
     localStorage.setItem(key, json);
