@@ -84,6 +84,7 @@ export function useSimulationControls(
       info(`Running siloted-expert for ${days} days...`, POLICY_TOAST_DURATION);
 
       let totalCardsCompleted = 0;
+      let lastDay = board.currentDay;
 
       try {
         for (let i = 1; i <= days; i++) {
@@ -118,6 +119,7 @@ export function useSimulationControls(
 
             const newlyCompleted = findNewlyCompletedCards(current.cards, result.cards);
             totalCardsCompleted += newlyCompleted.length;
+            lastDay = result.newDay;
 
             return Board.withCurrentDay(Board.withCards(current, result.cards), result.newDay);
           });
@@ -128,7 +130,7 @@ export function useSimulationControls(
         setPolicyRunState({ status: 'idle' });
 
         if (abortController.signal.aborted) {
-          warning(`Policy cancelled`, POLICY_TOAST_DURATION);
+          warning(`Policy cancelled at day ${lastDay}`, POLICY_TOAST_DURATION);
         } else {
           success(`Policy completed. ${totalCardsCompleted} card${totalCardsCompleted === 1 ? '' : 's'} finished.`, POLICY_TOAST_DURATION);
         }

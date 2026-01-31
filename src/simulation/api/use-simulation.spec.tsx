@@ -549,7 +549,7 @@ describe('useSimulationControls', () => {
     it('shows success toast when card reaches done', () => {
       const card = createTestCard('ABC', { stage: 'green' });
       const board = createTestBoard({ currentDay: 5, cards: [card] });
-      const completedCard = { ...card, stage: 'done' as Stage, completionDay: 6 };
+      const completedCard = { ...card, stage: 'done', completionDay: 6 };
       vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
         cards: [completedCard],
         newDay: 6,
@@ -569,8 +569,8 @@ describe('useSimulationControls', () => {
       const card1 = createTestCard('ABC', { stage: 'green' });
       const card2 = createTestCard('DEF', { stage: 'green' });
       const board = createTestBoard({ currentDay: 5, cards: [card1, card2] });
-      const completedCard1 = { ...card1, stage: 'done' as Stage, completionDay: 6 };
-      const completedCard2 = { ...card2, stage: 'done' as Stage, completionDay: 6 };
+      const completedCard1 = { ...card1, stage: 'done', completionDay: 6 };
+      const completedCard2 = { ...card2, stage: 'done', completionDay: 6 };
       vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
         cards: [completedCard1, completedCard2],
         newDay: 6,
@@ -595,8 +595,9 @@ describe('useSimulationControls', () => {
       });
       const { getHookResult } = renderHook(board);
 
+      let policyPromise: Promise<void>;
       await act(async () => {
-        getHookResult().runPolicy(30);
+        policyPromise = getHookResult().runPolicy(30);
         await Promise.resolve();
       });
 
@@ -605,7 +606,8 @@ describe('useSimulationControls', () => {
         .toHaveAttribute('data-toast-type', 'info');
 
       await act(async () => {
-        await getHookResult().runPolicy(1);
+        getHookResult().cancelPolicy();
+        await policyPromise;
       });
     });
 
@@ -627,10 +629,10 @@ describe('useSimulationControls', () => {
     });
 
     it('shows warning toast when policy is cancelled', async () => {
-      const board = createTestBoard();
+      const board = createTestBoard({ currentDay: 5 });
       vi.spyOn(runPolicyModule, 'runPolicyDay').mockReturnValue({
         cards: [],
-        newDay: 1,
+        newDay: 6,
       });
       const { getHookResult } = renderHook(board);
 
@@ -644,7 +646,7 @@ describe('useSimulationControls', () => {
       const toasts = screen.getAllByRole('alert');
       const warningToast = toasts.find(t => t.getAttribute('data-toast-type') === 'warning');
       expect(warningToast).toBeDefined();
-      expect(warningToast?.textContent).toMatch(/Policy cancelled/);
+      expect(warningToast?.textContent).toMatch(/Policy cancelled at day/);
     });
   });
 });
