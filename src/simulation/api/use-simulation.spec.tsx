@@ -28,8 +28,12 @@ function createTestCard(
     completionDay: number | null;
   }> = {}
 ): Card {
+  const cardId = CardId.create(id);
+  if (cardId === null) {
+    throw new Error(`Invalid test card ID: ${id}`);
+  }
   return Card.create({
-    id: CardId.create(id),
+    id: cardId,
     content: `Card ${id}`,
     stage: overrides.stage ?? 'options',
     workItems: WorkItems.create(
