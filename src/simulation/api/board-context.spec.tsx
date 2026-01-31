@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, act, renderHook } from '@testing-library/react';
 import { BoardProvider, useBoardContext, useHistoryContext } from './board-context';
 import { Board } from '../domain/board/board';
