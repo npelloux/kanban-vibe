@@ -385,7 +385,7 @@
   }
   
   .card.card-drag-over {
-    box-shadow: 0 0 0 3px #4caf50;
+    box-shadow: 0 0 0 3px var(--success-green);
     transform: translateY(-4px);
     transition: all 0.2s ease;
   }
@@ -395,56 +395,110 @@
   .kanban-subheader-row {
     min-width: 700px; /* Ensure minimum width for scrollable area */
   }
-  
-  .column {
-    min-width: 100px;
+
+  .kanban-columns {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
-  
+
+  .column {
+    min-width: 140px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Touch targets for mobile */
+  .add-card-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+  }
+
+  .card-block-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   /* Card styles */
   .card {
-    padding: 0.4rem;
+    padding: 0.5rem;
+    min-height: 44px;
   }
-  
+
   .card-id {
     font-size: 1rem;
   }
-  
+
   .card-content {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
   }
-  
+
   .work-item {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Column header improvements */
+  .column-header {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .column h2 {
+    font-size: 0.85rem;
   }
 }
 
-/* Small mobile devices */
+/* Small mobile devices (375px and below) */
 @media (max-width: 480px) {
   .nav-tab {
-    padding: 0.4rem 0.6rem;
+    padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
+    min-height: 44px;
   }
-  
+
   .day-counter {
-    padding: 0.4rem 0.6rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
   }
-  
+
   .day-label {
     font-size: 0.8rem;
   }
-  
+
   .day-number {
     font-size: 1rem;
   }
-  
+
   .worker {
-    width: 35px;
-    height: 35px;
+    width: 44px;
+    height: 44px;
   }
-  
-  .worker-avatar {
-    font-size: 0.9rem;
+
+  .column {
+    min-width: 120px;
+  }
+
+  .column h2 {
+    font-size: 0.8rem;
+  }
+
+  .column-collapsed-content {
+    padding: 0.75rem;
+  }
+
+  .card {
+    padding: 0.5rem;
+  }
+
+  .card-content {
+    font-size: 0.8rem;
+  }
+
+  .work-item {
+    width: 8px;
+    height: 8px;
   }
 }
 
@@ -736,6 +790,50 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+/* Collapsible column styles */
+.column-collapse-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: var(--dark-gray);
+  transition: background-color 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.column-collapse-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.column-collapse-button:focus {
+  outline: 2px solid var(--classic-blue);
+  outline-offset: 2px;
+}
+
+.column-collapsed {
+  min-height: auto;
+}
+
+.column-collapsed-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: var(--medium-gray);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.column-card-count {
+  text-align: center;
 }
 
 /* Card styles */
