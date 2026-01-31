@@ -520,4 +520,92 @@ describe('StateRepository', () => {
       expect(() => StateRepository.clearBoard()).not.toThrow();
     });
   });
+
+  describe('autosave', () => {
+    const AUTOSAVE_KEY = 'kanban-vibe-autosave';
+
+    describe('saveAutosave', () => {
+      it('saves board to autosave key', () => {
+        const board = createTestBoard({ currentDay: 5 });
+
+        StateRepository.saveAutosave(board);
+
+        expect(localStorage.setItem).toHaveBeenCalledWith(
+          AUTOSAVE_KEY,
+          expect.any(String)
+        );
+        const saved = JSON.parse(mockStorage[AUTOSAVE_KEY]);
+        expect(saved.currentDay).toBe(5);
+      });
+
+      it('uses different key than manual save', () => {
+        const board = createTestBoard();
+
+        StateRepository.saveAutosave(board);
+        StateRepository.saveBoard(board);
+
+        expect(mockStorage[AUTOSAVE_KEY]).toBeDefined();
+        expect(mockStorage[STORAGE_KEY]).toBeDefined();
+        expect(AUTOSAVE_KEY).not.toBe(STORAGE_KEY);
+      });
+
+      it('handles localStorage quota exceeded gracefully', () => {
+        const board = createTestBoard();
+        vi.mocked(localStorage.setItem).mockImplementation(() => {
+          const error = new DOMException('Quota exceeded', 'QuotaExceededError');
+          throw error;
+        });
+
+        expect(() => StateRepository.saveAutosave(board)).not.toThrow();
+      });
+    });
+
+    describe('loadAutosave', () => {
+      it('returns null when no autosave exists', () => {
+        const result = StateRepository.loadAutosave();
+
+        expect(result).toBeNull();
+      });
+
+      it('loads board from autosave key', () => {
+        const board = createTestBoard({ currentDay: 7 });
+        StateRepository.saveAutosave(board);
+
+        const loaded = StateRepository.loadAutosave();
+
+        expect(loaded).not.toBeNull();
+        expect(loaded?.currentDay).toBe(7);
+      });
+
+      it('returns null for corrupted autosave data', () => {
+        mockStorage[AUTOSAVE_KEY] = 'not valid json {{{';
+
+        const result = StateRepository.loadAutosave();
+
+        expect(result).toBeNull();
+      });
+
+      it('returns null for invalid schema in autosave', () => {
+        mockStorage[AUTOSAVE_KEY] = JSON.stringify({
+          notAValidBoard: true,
+        });
+
+        const result = StateRepository.loadAutosave();
+
+        expect(result).toBeNull();
+      });
+    });
+
+    describe('clearAutosave', () => {
+      it('removes autosave from localStorage', () => {
+        const board = createTestBoard();
+        StateRepository.saveAutosave(board);
+
+        StateRepository.clearAutosave();
+
+        expect(localStorage.removeItem).toHaveBeenCalledWith(AUTOSAVE_KEY);
+        expect(mockStorage[AUTOSAVE_KEY]).toBeUndefined();
+      });
+    });
+  });
 });

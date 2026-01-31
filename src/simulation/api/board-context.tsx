@@ -4,6 +4,8 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
+  useRef,
   type ReactNode,
 } from 'react';
 import type { Board } from '../domain/board/board';
@@ -37,10 +39,36 @@ export interface BoardProviderProps {
   children: ReactNode;
 }
 
+const AUTOSAVE_DEBOUNCE_MS = 500;
+
 export function BoardProvider({ children }: BoardProviderProps) {
   const [board, setBoardState] = useState<Board>(() => {
-    return StateRepository.loadBoard() ?? BoardFactory.empty(WipLimits.empty());
+    return (
+      StateRepository.loadBoard() ??
+      StateRepository.loadAutosave() ??
+      BoardFactory.empty(WipLimits.empty())
+    );
   });
+
+  const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleAutosave = useCallback((boardToSave: Board) => {
+    if (autosaveTimeoutRef.current !== null) {
+      clearTimeout(autosaveTimeoutRef.current);
+    }
+    autosaveTimeoutRef.current = setTimeout(() => {
+      StateRepository.saveAutosave(boardToSave);
+      autosaveTimeoutRef.current = null;
+    }, AUTOSAVE_DEBOUNCE_MS);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (autosaveTimeoutRef.current !== null) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const [historyManager, setHistoryManager] = useState<HistoryManagerState>(
     () => HistoryManager.create()
@@ -49,15 +77,17 @@ export function BoardProvider({ children }: BoardProviderProps) {
   const setBoard = useCallback((newBoard: Board) => {
     setBoardState(newBoard);
     StateRepository.saveBoard(newBoard);
-  }, []);
+    scheduleAutosave(newBoard);
+  }, [scheduleAutosave]);
 
   const updateBoard = useCallback((updater: (board: Board) => Board) => {
     setBoardState((current) => {
       const newBoard = updater(current);
       StateRepository.saveBoard(newBoard);
+      scheduleAutosave(newBoard);
       return newBoard;
     });
-  }, []);
+  }, [scheduleAutosave]);
 
   const canUndo = useMemo(
     () => HistoryManager.canUndo(historyManager),
