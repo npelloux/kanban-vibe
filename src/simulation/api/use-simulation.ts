@@ -1,8 +1,25 @@
 import { useCallback, useState, useRef } from 'react';
 import { useBoardContext } from './board-context';
 import { Board } from '../domain/board/board';
+import type { Card } from '../domain/card/card';
 import { advanceDay as advanceDayUseCase } from '../application/advance-day';
 import { runPolicyDay } from '../application/run-policy';
+import { useToast } from '../../api/use-toast';
+
+const DAY_TOAST_DURATION = 2000;
+const POLICY_TOAST_DURATION = 5000;
+
+function findNewlyCompletedCards(
+  previousCards: readonly Card[],
+  newCards: readonly Card[]
+): Card[] {
+  const previousDoneIds = new Set(
+    previousCards.filter(c => c.stage === 'done').map(c => c.id)
+  );
+  return newCards.filter(
+    c => c.stage === 'done' && !previousDoneIds.has(c.id)
+  );
+}
 
 type PolicyRunState = { status: 'idle' } | { status: 'running'; progress: number };
 
@@ -21,6 +38,7 @@ export function useSimulationControls(
 ) {
   const { createAbortController = () => new AbortController() } = options;
   const { board, updateBoard } = useBoardContext();
+  const { info, success, warning } = useToast();
   const [policyRunState, setPolicyRunState] = useState<PolicyRunState>({ status: 'idle' });
   const abortControllerRef = useRef<AbortController | null>(null);
   const isRunningRef = useRef(false);
@@ -31,6 +49,9 @@ export function useSimulationControls(
   const advanceDay = useCallback(() => {
     if (isRunningRef.current) return;
 
+    let newDay = 0;
+    let completedCards: Card[] = [];
+
     updateBoard((current) => {
       const result = advanceDayUseCase({
         cards: current.cards,
@@ -38,9 +59,17 @@ export function useSimulationControls(
         wipLimits: current.wipLimits,
       });
 
+      newDay = result.newDay;
+      completedCards = findNewlyCompletedCards(current.cards, result.cards);
+
       return Board.withCurrentDay(Board.withCards(current, result.cards), result.newDay);
     });
-  }, [updateBoard]);
+
+    info(`Day ${newDay}`, DAY_TOAST_DURATION);
+    completedCards.forEach(card => {
+      success(`Card ${card.id} completed!`);
+    });
+  }, [updateBoard, info, success]);
 
   const runPolicy = useCallback(
     async (days: number) => {
@@ -52,20 +81,29 @@ export function useSimulationControls(
       abortControllerRef.current = createAbortController();
       const abortController = abortControllerRef.current;
 
+      info(`Running siloted-expert for ${days} days...`, POLICY_TOAST_DURATION);
+
+      let totalCardsCompleted = 0;
+      let lastDay = 0;
+
       try {
         for (let i = 1; i <= days; i++) {
-          if (abortController.signal.aborted) break;
+          if (abortController.signal.aborted) {
+            break;
+          }
 
           await Promise.resolve();
 
-          if (abortController.signal.aborted) break;
+          if (abortController.signal.aborted) {
+            break;
+          }
 
           setPolicyRunState({ status: 'running', progress: i });
 
-          let shouldBreak = false;
           updateBoard((current) => {
+            lastDay = current.currentDay;
+
             if (abortController.signal.aborted) {
-              shouldBreak = true;
               return current;
             }
 
@@ -78,21 +116,29 @@ export function useSimulationControls(
             });
 
             if (abortController.signal.aborted) {
-              shouldBreak = true;
               return current;
             }
+
+            const newlyCompleted = findNewlyCompletedCards(current.cards, result.cards);
+            totalCardsCompleted += newlyCompleted.length;
+            lastDay = result.newDay;
 
             return Board.withCurrentDay(Board.withCards(current, result.cards), result.newDay);
           });
 
-          if (shouldBreak || abortController.signal.aborted) break;
         }
       } finally {
         isRunningRef.current = false;
         setPolicyRunState({ status: 'idle' });
+
+        if (abortController.signal.aborted) {
+          warning(`Policy cancelled at day ${lastDay}`, POLICY_TOAST_DURATION);
+        } else {
+          success(`Policy completed. ${totalCardsCompleted} card${totalCardsCompleted === 1 ? '' : 's'} finished.`, POLICY_TOAST_DURATION);
+        }
       }
     },
-    [updateBoard, createAbortController]
+    [updateBoard, createAbortController, info, success, warning]
   );
 
   const cancelPolicy = useCallback(() => {

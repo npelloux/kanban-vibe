@@ -1,12 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, act } from '@testing-library/react';
+import { render, act, screen } from '@testing-library/react';
 import { useSimulationControls } from './use-simulation';
 import { BoardProvider } from './board-context';
 import { Board } from '../domain/board/board';
+import { Card, type Stage } from '../domain/card/card';
+import { CardId } from '../domain/card/card-id';
+import { WorkItems } from '../domain/card/work-items';
+import { Worker } from '../domain/worker/worker';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { StateRepository } from '../infra/state-repository';
+import { ToastProvider } from '../../api/use-toast';
 import * as advanceDayModule from '../application/advance-day';
 import * as runPolicyModule from '../application/run-policy';
+import '@testing-library/jest-dom';
 
 vi.mock('../infra/state-repository', () => ({
   StateRepository: {
@@ -15,15 +21,42 @@ vi.mock('../infra/state-repository', () => ({
   },
 }));
 
+function createTestCard(
+  id: string,
+  overrides: Partial<{
+    stage: Stage;
+    completionDay: number | null;
+  }> = {}
+): Card {
+  const cardId = CardId.create(id);
+  if (cardId === null) {
+    throw new Error(`Invalid test card ID: ${id}`);
+  }
+  return Card.create({
+    id: cardId,
+    content: `Card ${id}`,
+    stage: overrides.stage ?? 'options',
+    workItems: WorkItems.create(
+      { total: 100, completed: 100 },
+      { total: 100, completed: 100 },
+      { total: 100, completed: 100 }
+    ),
+    startDay: 1,
+    completionDay: overrides.completionDay ?? null,
+  });
+}
+
 function createTestBoard(
   overrides: Partial<{
     currentDay: number;
+    cards: Card[];
+    workers: Worker[];
   }> = {}
 ): Board {
   return Board.create({
     wipLimits: WipLimits.empty(),
-    cards: [],
-    workers: [],
+    cards: overrides.cards ?? [],
+    workers: overrides.workers ?? [],
     currentDay: overrides.currentDay ?? 0,
   });
 }
@@ -54,9 +87,11 @@ function renderHook(board: Board) {
   vi.mocked(StateRepository.loadBoard).mockReturnValue(board);
 
   const result = render(
-    <BoardProvider>
-      <TestConsumer onResult={(r) => { hookResult = r; }} />
-    </BoardProvider>
+    <ToastProvider>
+      <BoardProvider>
+        <TestConsumer onResult={(r) => { hookResult = r; }} />
+      </BoardProvider>
+    </ToastProvider>
   );
 
   return { ...result, getHookResult: () => hookResult! };
@@ -493,6 +528,129 @@ describe('useSimulationControls', () => {
 
       expect(callsAfterFirst).toBe(1);
       expect(totalCalls).toBeGreaterThan(callsAfterFirst);
+    });
+  });
+
+  describe('day advance notifications', () => {
+    it('shows info toast when day is advanced', () => {
+      const board = createTestBoard({ currentDay: 5 });
+      vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
+        cards: [],
+        newDay: 6,
+      });
+      const { getHookResult } = renderHook(board);
+
+      act(() => {
+        getHookResult().advanceDay();
+      });
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Day 6');
+      expect(screen.getByRole('alert')).toHaveAttribute('data-toast-type', 'info');
+    });
+  });
+
+  describe('card completion notifications', () => {
+    it('shows success toast when card reaches done', () => {
+      const card = createTestCard('ABC', { stage: 'green' });
+      const board = createTestBoard({ currentDay: 5, cards: [card] });
+      const completedCard = createTestCard('ABC', { stage: 'done', completionDay: 6 });
+      vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
+        cards: [completedCard],
+        newDay: 6,
+      });
+      const { getHookResult } = renderHook(board);
+
+      act(() => {
+        getHookResult().advanceDay();
+      });
+
+      expect(screen.getByText(/Card ABC completed/)).toBeInTheDocument();
+      expect(screen.getByText(/Card ABC completed/).closest('[role="alert"]'))
+        .toHaveAttribute('data-toast-type', 'success');
+    });
+
+    it('shows multiple toasts when multiple cards complete same day', () => {
+      const card1 = createTestCard('ABC', { stage: 'green' });
+      const card2 = createTestCard('DEF', { stage: 'green' });
+      const board = createTestBoard({ currentDay: 5, cards: [card1, card2] });
+      const completedCard1 = createTestCard('ABC', { stage: 'done', completionDay: 6 });
+      const completedCard2 = createTestCard('DEF', { stage: 'done', completionDay: 6 });
+      vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
+        cards: [completedCard1, completedCard2],
+        newDay: 6,
+      });
+      const { getHookResult } = renderHook(board);
+
+      act(() => {
+        getHookResult().advanceDay();
+      });
+
+      expect(screen.getByText(/Card ABC completed/)).toBeInTheDocument();
+      expect(screen.getByText(/Card DEF completed/)).toBeInTheDocument();
+    });
+  });
+
+  describe('policy notifications', () => {
+    it('shows info toast when policy starts', async () => {
+      const board = createTestBoard();
+      vi.spyOn(runPolicyModule, 'runPolicyDay').mockReturnValue({
+        cards: [],
+        newDay: 1,
+      });
+      const { getHookResult } = renderHook(board);
+
+      let policyPromise: Promise<void>;
+      await act(async () => {
+        policyPromise = getHookResult().runPolicy(30);
+        await Promise.resolve();
+      });
+
+      expect(screen.getByText(/Running siloted-expert for 30 days/)).toBeInTheDocument();
+      expect(screen.getByText(/Running siloted-expert for 30 days/).closest('[role="alert"]'))
+        .toHaveAttribute('data-toast-type', 'info');
+
+      await act(async () => {
+        getHookResult().cancelPolicy();
+        await policyPromise;
+      });
+    });
+
+    it('shows success toast when policy completes', async () => {
+      const board = createTestBoard({ currentDay: 0 });
+      vi.spyOn(runPolicyModule, 'runPolicyDay').mockReturnValue({
+        cards: [],
+        newDay: 1,
+      });
+      const { getHookResult } = renderHook(board);
+
+      await act(async () => {
+        await getHookResult().runPolicy(3);
+      });
+
+      expect(screen.getByText(/Policy completed/)).toBeInTheDocument();
+      expect(screen.getByText(/Policy completed/).closest('[role="alert"]'))
+        .toHaveAttribute('data-toast-type', 'success');
+    });
+
+    it('shows warning toast when policy is cancelled', async () => {
+      const board = createTestBoard({ currentDay: 5 });
+      vi.spyOn(runPolicyModule, 'runPolicyDay').mockReturnValue({
+        cards: [],
+        newDay: 6,
+      });
+      const { getHookResult } = renderHook(board);
+
+      let policyPromise: Promise<void>;
+      await act(async () => {
+        policyPromise = getHookResult().runPolicy(10);
+        getHookResult().cancelPolicy();
+        await policyPromise;
+      });
+
+      const toasts = screen.getAllByRole('alert');
+      const warningToast = toasts.find(t => t.getAttribute('data-toast-type') === 'warning');
+      expect(warningToast).toBeDefined();
+      expect(warningToast).toHaveTextContent(/Policy cancelled at day/);
     });
   });
 });
