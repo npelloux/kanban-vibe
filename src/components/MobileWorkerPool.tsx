@@ -61,9 +61,8 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
     const currentY = event.touches[0].clientY;
     const deltaY = currentY - touchStartY.current;
 
-    if (deltaY > 0) {
-      setSwipeOffset(deltaY);
-    }
+    // Clamp to non-negative so dragging back up reduces the offset
+    setSwipeOffset(Math.max(0, deltaY));
   };
 
   const handleTouchEnd = () => {
@@ -72,6 +71,11 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
     } else {
       setSwipeOffset(0);
     }
+    touchStartY.current = null;
+  };
+
+  const handleTouchCancel = () => {
+    setSwipeOffset(0);
     touchStartY.current = null;
   };
 
@@ -116,11 +120,10 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
 
       {isOpen && (
         <>
-          <div
+          <button
+            type="button"
             className="mobile-worker-pool-overlay"
             data-testid="bottom-sheet-overlay"
-            role="button"
-            tabIndex={0}
             aria-label="Close worker pool"
             onClick={handleClose}
             onKeyDown={handleOverlayKeyDown}
@@ -134,6 +137,7 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
           >
             <div className="mobile-worker-pool-header">
               <h3>Workers</h3>

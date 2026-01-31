@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MobileWorkerPool } from '../MobileWorkerPool';
 
@@ -122,9 +122,10 @@ describe('MobileWorkerPool Component', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toBeInTheDocument();
 
-      const closeButton = screen.getByRole('dialog').querySelector('.mobile-worker-pool-close') as HTMLButtonElement;
+      const closeButton = within(dialog).getByRole('button', { name: /close worker pool/i });
       fireEvent.click(closeButton);
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -296,8 +297,7 @@ describe('MobileWorkerPool Component', () => {
       fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
 
       const overlay = screen.getByTestId('bottom-sheet-overlay');
-      expect(overlay).toHaveAttribute('role', 'button');
-      expect(overlay).toHaveAttribute('tabIndex', '0');
+      expect(overlay.tagName).toBe('BUTTON');
       expect(overlay).toHaveAttribute('aria-label', 'Close worker pool');
     });
 
