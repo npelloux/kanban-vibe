@@ -9,20 +9,22 @@ export interface WipLimit {
   readonly max: number;
 }
 
-interface ColumnProps {
+interface ColumnPropsBase {
   title: string;
   cards: readonly Card[];
   type?: 'options' | 'red' | 'blue' | 'green';
   status?: 'active' | 'finished';
   showAddCardButton?: boolean;
   wipLimit?: WipLimit;
-  collapsible?: boolean;
-  defaultCollapsed?: boolean;
   onCardClick?: (cardId: CardId) => void;
   onWorkerDrop?: (cardId: CardId, workerId: string, workerType: WorkerType) => void;
   onAddCard?: () => void;
   onToggleBlock?: (cardId: CardId) => void;
 }
+
+type ColumnProps =
+  | (ColumnPropsBase & { collapsible: true; defaultCollapsed?: boolean })
+  | (ColumnPropsBase & { collapsible?: false; defaultCollapsed?: never });
 
 export type { WorkItemsType };
 
