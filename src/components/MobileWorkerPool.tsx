@@ -13,6 +13,8 @@ interface MobileWorkerPoolProps {
   onWorkerSelect: (workerId: string) => void;
   onAddWorker?: (type: WorkerType) => void;
   onDeleteWorker?: (workerId: string) => void;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 const SWIPE_THRESHOLD = 80;
@@ -23,8 +25,20 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
   onWorkerSelect,
   onAddWorker,
   onDeleteWorker,
+  isOpen: controlledIsOpen,
+  onOpenChange,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const setIsOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInternalIsOpen(value);
+    }
+  };
   const [showAddWorkerOptions, setShowAddWorkerOptions] = useState(false);
   const [selectedType, setSelectedType] = useState<WorkerType>('red');
   const [swipeOffset, setSwipeOffset] = useState(0);

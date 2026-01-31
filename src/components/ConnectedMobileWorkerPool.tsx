@@ -2,7 +2,15 @@ import React from 'react';
 import { MobileWorkerPool } from './MobileWorkerPool';
 import { useWorkerManagement } from '../simulation/api/use-workers';
 
-export const ConnectedMobileWorkerPool: React.FC = () => {
+interface ConnectedMobileWorkerPoolProps {
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
+}
+
+export const ConnectedMobileWorkerPool: React.FC<ConnectedMobileWorkerPoolProps> = ({
+  isOpen,
+  onOpenChange,
+}) => {
   const { workers, selectedWorkerId, selectWorker, addWorker, deleteWorker } =
     useWorkerManagement();
 
@@ -13,6 +21,8 @@ export const ConnectedMobileWorkerPool: React.FC = () => {
       onWorkerSelect={selectWorker}
       onAddWorker={addWorker}
       onDeleteWorker={deleteWorker}
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
     />
   );
 };
