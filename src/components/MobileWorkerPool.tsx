@@ -61,7 +61,6 @@ export const MobileWorkerPool: React.FC<MobileWorkerPoolProps> = ({
     const currentY = event.touches[0].clientY;
     const deltaY = currentY - touchStartY.current;
 
-    // Clamp to non-negative so dragging back up reduces the offset
     setSwipeOffset(Math.max(0, deltaY));
   };
 

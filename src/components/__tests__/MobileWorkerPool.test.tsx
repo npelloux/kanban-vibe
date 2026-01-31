@@ -108,7 +108,8 @@ describe('MobileWorkerPool Component', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /open worker pool/i }));
 
-      const closeButton = screen.getByRole('dialog').querySelector('.mobile-worker-pool-close');
+      const dialog = screen.getByRole('dialog');
+      const closeButton = within(dialog).getByRole('button', { name: /close worker pool/i });
       expect(closeButton).toBeInTheDocument();
     });
 
