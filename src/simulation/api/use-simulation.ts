@@ -84,7 +84,7 @@ export function useSimulationControls(
       info(`Running siloted-expert for ${days} days...`, POLICY_TOAST_DURATION);
 
       let totalCardsCompleted = 0;
-      let lastDay = board.currentDay;
+      let lastDay = 0;
 
       try {
         for (let i = 1; i <= days; i++) {
@@ -101,6 +101,8 @@ export function useSimulationControls(
           setPolicyRunState({ status: 'running', progress: i });
 
           updateBoard((current) => {
+            lastDay = current.currentDay;
+
             if (abortController.signal.aborted) {
               return current;
             }

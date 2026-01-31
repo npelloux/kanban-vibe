@@ -549,7 +549,7 @@ describe('useSimulationControls', () => {
     it('shows success toast when card reaches done', () => {
       const card = createTestCard('ABC', { stage: 'green' });
       const board = createTestBoard({ currentDay: 5, cards: [card] });
-      const completedCard = { ...card, stage: 'done', completionDay: 6 };
+      const completedCard = createTestCard('ABC', { stage: 'done', completionDay: 6 });
       vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
         cards: [completedCard],
         newDay: 6,
@@ -569,8 +569,8 @@ describe('useSimulationControls', () => {
       const card1 = createTestCard('ABC', { stage: 'green' });
       const card2 = createTestCard('DEF', { stage: 'green' });
       const board = createTestBoard({ currentDay: 5, cards: [card1, card2] });
-      const completedCard1 = { ...card1, stage: 'done', completionDay: 6 };
-      const completedCard2 = { ...card2, stage: 'done', completionDay: 6 };
+      const completedCard1 = createTestCard('ABC', { stage: 'done', completionDay: 6 });
+      const completedCard2 = createTestCard('DEF', { stage: 'done', completionDay: 6 });
       vi.spyOn(advanceDayModule, 'advanceDay').mockReturnValue({
         cards: [completedCard1, completedCard2],
         newDay: 6,
@@ -646,7 +646,7 @@ describe('useSimulationControls', () => {
       const toasts = screen.getAllByRole('alert');
       const warningToast = toasts.find(t => t.getAttribute('data-toast-type') === 'warning');
       expect(warningToast).toBeDefined();
-      expect(warningToast?.textContent).toMatch(/Policy cancelled at day/);
+      expect(warningToast).toHaveTextContent(/Policy cancelled at day/);
     });
   });
 });
