@@ -3,6 +3,7 @@ import './App.css';
 import { Column } from './components/Column';
 import { NextDayButton } from './components/NextDayButton';
 import { ConnectedWorkerPool } from './components/ConnectedWorkerPool';
+import { ConnectedMobileWorkerPool } from './components/ConnectedMobileWorkerPool';
 import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram';
 import { WipAgingDiagram } from './components/WipAgingDiagram';
 import { FlowMetrics } from './components/FlowMetrics';
@@ -111,7 +112,10 @@ function AppContent() {
         lastSavedAt={lastSavedAt ?? undefined}
         onResetBoard={resetBoard}
       />
-      <ConnectedWorkerPool />
+      <div className="desktop-worker-pool">
+        <ConnectedWorkerPool />
+      </div>
+      <ConnectedMobileWorkerPool />
       {renderContent()}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
         <NextDayButton onClick={advanceDay} disabled={isRunning} />
