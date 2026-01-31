@@ -32,8 +32,16 @@ interface HistoryContextValue {
   redo: () => void;
 }
 
+export type SaveStatus = 'saved' | 'saving' | 'dirty' | 'error';
+
+interface SaveStateContextValue {
+  saveStatus: SaveStatus;
+  lastSavedAt: Date | null;
+}
+
 const BoardContext = createContext<BoardContextValue | null>(null);
 const HistoryContext = createContext<HistoryContextValue | null>(null);
+const SaveStateContext = createContext<SaveStateContextValue | null>(null);
 
 export interface BoardProviderProps {
   children: ReactNode;
@@ -51,14 +59,25 @@ export function BoardProvider({ children }: BoardProviderProps) {
   });
 
   const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   const scheduleAutosave = useCallback((boardToSave: Board) => {
     if (autosaveTimeoutRef.current !== null) {
       clearTimeout(autosaveTimeoutRef.current);
     }
+    setSaveStatus('dirty');
     autosaveTimeoutRef.current = setTimeout(() => {
-      StateRepository.saveAutosave(boardToSave);
-      autosaveTimeoutRef.current = null;
+      setSaveStatus('saving');
+      try {
+        StateRepository.saveAutosave(boardToSave);
+        autosaveTimeoutRef.current = null;
+        setSaveStatus('saved');
+        setLastSavedAt(new Date());
+      } catch {
+        autosaveTimeoutRef.current = null;
+        setSaveStatus('error');
+      }
     }, AUTOSAVE_DEBOUNCE_MS);
   }, []);
 
@@ -133,10 +152,20 @@ export function BoardProvider({ children }: BoardProviderProps) {
     [historyManager, canUndo, canRedo, pushHistory, undo, redo]
   );
 
+  const saveStateValue = useMemo(
+    () => ({
+      saveStatus,
+      lastSavedAt,
+    }),
+    [saveStatus, lastSavedAt]
+  );
+
   return (
     <BoardContext.Provider value={{ board, setBoard, updateBoard }}>
       <HistoryContext.Provider value={historyValue}>
-        {children}
+        <SaveStateContext.Provider value={saveStateValue}>
+          {children}
+        </SaveStateContext.Provider>
       </HistoryContext.Provider>
     </BoardContext.Provider>
   );
@@ -154,6 +183,14 @@ export function useHistoryContext(): HistoryContextValue {
   const context = useContext(HistoryContext);
   if (!context) {
     throw new Error('useHistoryContext must be used within BoardProvider');
+  }
+  return context;
+}
+
+export function useSaveStateContext(): SaveStateContextValue {
+  const context = useContext(SaveStateContext);
+  if (!context) {
+    throw new Error('useSaveStateContext must be used within BoardProvider');
   }
   return context;
 }
