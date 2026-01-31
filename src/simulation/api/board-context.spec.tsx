@@ -10,6 +10,8 @@ vi.mock('../infra/state-repository', () => ({
   StateRepository: {
     loadBoard: vi.fn(),
     saveBoard: vi.fn(),
+    loadAutosave: vi.fn(),
+    saveAutosave: vi.fn(),
   },
 }));
 
@@ -50,7 +52,13 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 describe('BoardContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+    vi.mocked(StateRepository.loadAutosave).mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('BoardProvider', () => {
@@ -281,12 +289,161 @@ describe('BoardContext', () => {
       expect(capturedUpdateBoards[0]).toBe(capturedUpdateBoards[1]);
     });
   });
+
+  describe('autosave', () => {
+    describe('loading on mount', () => {
+      it('loads from autosave when no manual save exists', () => {
+        const autosavedBoard = createTestBoard(15);
+        vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+        vi.mocked(StateRepository.loadAutosave).mockReturnValue(autosavedBoard);
+
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        expect(screen.getByTestId('current-day')).toHaveTextContent('15');
+      });
+
+      it('prefers manual save over autosave', () => {
+        const manualBoard = createTestBoard(10);
+        const autosavedBoard = createTestBoard(15);
+        vi.mocked(StateRepository.loadBoard).mockReturnValue(manualBoard);
+        vi.mocked(StateRepository.loadAutosave).mockReturnValue(autosavedBoard);
+
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        expect(screen.getByTestId('current-day')).toHaveTextContent('10');
+      });
+
+      it('falls back to empty board when both saves are null', () => {
+        vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+        vi.mocked(StateRepository.loadAutosave).mockReturnValue(null);
+
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        expect(screen.getByTestId('current-day')).toHaveTextContent('0');
+      });
+    });
+
+    describe('debounced saving', () => {
+      it('triggers autosave 500ms after state change', () => {
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        act(() => {
+          screen.getByTestId('update-board').click();
+        });
+
+        expect(StateRepository.saveAutosave).not.toHaveBeenCalled();
+
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+
+        expect(StateRepository.saveAutosave).toHaveBeenCalledTimes(1);
+        expect(StateRepository.saveAutosave).toHaveBeenCalledWith(
+          expect.objectContaining({ currentDay: 1 })
+        );
+      });
+
+      it('only saves final state when rapid changes occur within 500ms', () => {
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        act(() => {
+          screen.getByTestId('update-board').click();
+        });
+        act(() => {
+          vi.advanceTimersByTime(200);
+        });
+        act(() => {
+          screen.getByTestId('update-board').click();
+        });
+        act(() => {
+          vi.advanceTimersByTime(200);
+        });
+        act(() => {
+          screen.getByTestId('update-board').click();
+        });
+
+        expect(StateRepository.saveAutosave).not.toHaveBeenCalled();
+
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+
+        expect(StateRepository.saveAutosave).toHaveBeenCalledTimes(1);
+        expect(StateRepository.saveAutosave).toHaveBeenCalledWith(
+          expect.objectContaining({ currentDay: 3 })
+        );
+      });
+
+      it('does not autosave if no state changes occur', () => {
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        act(() => {
+          vi.advanceTimersByTime(1000);
+        });
+
+        expect(StateRepository.saveAutosave).not.toHaveBeenCalled();
+      });
+
+      it('autosaves after setBoard changes', () => {
+        render(
+          <BoardProvider>
+            <TestConsumer />
+          </BoardProvider>
+        );
+
+        act(() => {
+          screen.getByTestId('set-board').click();
+        });
+
+        expect(StateRepository.saveAutosave).not.toHaveBeenCalled();
+
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+
+        expect(StateRepository.saveAutosave).toHaveBeenCalledTimes(1);
+        expect(StateRepository.saveAutosave).toHaveBeenCalledWith(
+          expect.objectContaining({ currentDay: 42 })
+        );
+      });
+    });
+  });
 });
 
 describe('BoardProvider with History', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     vi.mocked(StateRepository.loadBoard).mockReturnValue(null);
+    vi.mocked(StateRepository.loadAutosave).mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('useHistoryContext', () => {
