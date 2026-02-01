@@ -7,15 +7,23 @@ interface WorkerSummary {
   readonly type: WorkerType;
 }
 
-interface MobileWorkerPoolProps {
+type ControlledOpenProps = {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+};
+
+type UncontrolledOpenProps = {
+  isOpen?: undefined;
+  onOpenChange?: undefined;
+};
+
+type MobileWorkerPoolProps = {
   workers: readonly WorkerSummary[];
   selectedWorkerId: string | null;
   onWorkerSelect: (workerId: string) => void;
   onAddWorker?: (type: WorkerType) => void;
   onDeleteWorker?: (workerId: string) => void;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-}
+} & (ControlledOpenProps | UncontrolledOpenProps);
 
 const SWIPE_THRESHOLD = 80;
 

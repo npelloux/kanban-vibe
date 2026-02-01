@@ -1,8 +1,8 @@
+import type { ComponentProps } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MobileNavigation } from '../MobileNavigation';
-import type { TabType } from '../TabNavigation';
 
 describe('MobileNavigation Component', () => {
   const mockOnTabChange = vi.fn();
@@ -10,12 +10,12 @@ describe('MobileNavigation Component', () => {
   const mockOnOpenWorkerPool = vi.fn();
 
   const defaultProps = {
-    activeTab: 'kanban' as TabType,
+    activeTab: 'kanban',
     onTabChange: mockOnTabChange,
     currentDay: 5,
     onNextDay: mockOnNextDay,
     onOpenWorkerPool: mockOnOpenWorkerPool,
-  };
+  } satisfies ComponentProps<typeof MobileNavigation>;
 
   beforeEach(() => {
     vi.clearAllMocks();

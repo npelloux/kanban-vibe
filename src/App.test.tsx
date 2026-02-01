@@ -22,8 +22,9 @@ vi.mock('./simulation/infra/state-repository', () => ({
 }));
 
 const getDesktopNextDayButton = () => {
-  const buttons = screen.getAllByRole('button', { name: /next day/i });
-  return buttons[0];
+  const container = document.querySelector('.desktop-next-day-button');
+  if (!container) throw new Error('Desktop next day button container not found');
+  return within(container as HTMLElement).getByRole('button', { name: /next day/i });
 };
 
 describe('App Component', () => {
@@ -48,10 +49,7 @@ describe('App Component', () => {
   });
 
   it('displays the current day as 0', () => {
-    // Arrange
     render(<App />);
-
-    // Assert - use test-id since day number appears in both desktop and mobile nav
     expect(screen.getByTestId('day-counter')).toHaveTextContent('0');
   });
 
@@ -67,16 +65,14 @@ describe('App Component', () => {
   });
 
   it('renders the worker pool with the correct workers', () => {
-    // Arrange & Act
     render(<App />);
 
-    // Assert - check for desktop worker pool header (multiple "Workers" texts may exist)
     const workerPoolHeadings = screen.getAllByRole('heading', { name: /workers/i });
     expect(workerPoolHeadings.length).toBeGreaterThan(0);
-    expect(screen.getByTestId('worker-bob')).toBeInTheDocument(); // Red worker
-    expect(screen.getByTestId('worker-zoe')).toBeInTheDocument(); // Blue worker
-    expect(screen.getByTestId('worker-lea')).toBeInTheDocument(); // Blue worker
-    expect(screen.getByTestId('worker-taz')).toBeInTheDocument(); // Green worker
+    expect(screen.getByTestId('worker-bob')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-zoe')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-lea')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-taz')).toBeInTheDocument();
   });
 
   it('selects a worker when clicked', () => {

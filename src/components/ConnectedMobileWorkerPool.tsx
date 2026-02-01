@@ -2,17 +2,35 @@ import React from 'react';
 import { MobileWorkerPool } from './MobileWorkerPool';
 import { useWorkerManagement } from '../simulation/api/use-workers';
 
-interface ConnectedMobileWorkerPoolProps {
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-}
+type ControlledOpenProps = {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+};
 
-export const ConnectedMobileWorkerPool: React.FC<ConnectedMobileWorkerPoolProps> = ({
-  isOpen,
-  onOpenChange,
-}) => {
+type UncontrolledOpenProps = {
+  isOpen?: undefined;
+  onOpenChange?: undefined;
+};
+
+type ConnectedMobileWorkerPoolProps = ControlledOpenProps | UncontrolledOpenProps;
+
+export const ConnectedMobileWorkerPool: React.FC<ConnectedMobileWorkerPoolProps> = (props) => {
   const { workers, selectedWorkerId, selectWorker, addWorker, deleteWorker } =
     useWorkerManagement();
+
+  if (props.isOpen !== undefined) {
+    return (
+      <MobileWorkerPool
+        workers={workers}
+        selectedWorkerId={selectedWorkerId}
+        onWorkerSelect={selectWorker}
+        onAddWorker={addWorker}
+        onDeleteWorker={deleteWorker}
+        isOpen={props.isOpen}
+        onOpenChange={props.onOpenChange}
+      />
+    );
+  }
 
   return (
     <MobileWorkerPool
@@ -21,8 +39,6 @@ export const ConnectedMobileWorkerPool: React.FC<ConnectedMobileWorkerPoolProps>
       onWorkerSelect={selectWorker}
       onAddWorker={addWorker}
       onDeleteWorker={deleteWorker}
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
     />
   );
 };
