@@ -8,9 +8,10 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { createBarChartOptions, createLineChartOptions } from './chart-options';
 
 // Register Chart.js components
 ChartJS.register(
@@ -145,177 +146,20 @@ export const FlowMetrics: React.FC<FlowMetricsProps> = ({ cards, currentDay }) =
     ]
   };
   
-  // Common chart options for mobile responsiveness
-  const commonOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index' as const,
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          boxWidth: 12,
-          padding: 8,
-          font: {
-            size: 11,
-          },
-          usePointStyle: true,
-        },
-      },
-      tooltip: {
-        enabled: true,
-        bodyFont: {
-          size: 12,
-        },
-        titleFont: {
-          size: 13,
-        },
-        padding: 10,
-        caretSize: 8,
-      },
-    },
-  };
+  const barOptions = createBarChartOptions(
+    { text: 'Daily Throughput' },
+    { title: 'Cards Completed' }
+  );
 
-  const barOptions = {
-    ...commonOptions,
-    plugins: {
-      ...commonOptions.plugins,
-      title: {
-        display: true,
-        text: 'Daily Throughput',
-        font: {
-          size: 14,
-        },
-        padding: {
-          top: 10,
-          bottom: 10,
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          maxRotation: 45,
-          minRotation: 0,
-          autoSkip: true,
-          maxTicksLimit: 8,
-          font: {
-            size: 10,
-          },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Cards Completed',
-          font: {
-            size: 11,
-          },
-        },
-        ticks: {
-          font: {
-            size: 10,
-          },
-        },
-      },
-    },
-  };
+  const lineOptions = createLineChartOptions(
+    { text: `${rollingWindow}-Day Rolling Average Throughput` },
+    { title: 'Cards Completed (Average)' }
+  );
 
-  const lineOptions = {
-    ...commonOptions,
-    plugins: {
-      ...commonOptions.plugins,
-      title: {
-        display: true,
-        text: `${rollingWindow}-Day Rolling Average Throughput`,
-        font: {
-          size: 14,
-        },
-        padding: {
-          top: 10,
-          bottom: 10,
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          maxRotation: 45,
-          minRotation: 0,
-          autoSkip: true,
-          maxTicksLimit: 8,
-          font: {
-            size: 10,
-          },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Cards Completed (Average)',
-          font: {
-            size: 11,
-          },
-        },
-        ticks: {
-          font: {
-            size: 10,
-          },
-        },
-      },
-    },
-  };
-
-  const wipOptions = {
-    ...commonOptions,
-    plugins: {
-      ...commonOptions.plugins,
-      title: {
-        display: true,
-        text: 'Work in Progress Over Time',
-        font: {
-          size: 14,
-        },
-        padding: {
-          top: 10,
-          bottom: 10,
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          maxRotation: 45,
-          minRotation: 0,
-          autoSkip: true,
-          maxTicksLimit: 8,
-          font: {
-            size: 10,
-          },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Number of Cards',
-          font: {
-            size: 11,
-          },
-        },
-        ticks: {
-          font: {
-            size: 10,
-          },
-        },
-      },
-    },
-  };
+  const wipOptions = createBarChartOptions(
+    { text: 'Work in Progress Over Time' },
+    { title: 'Number of Cards' }
+  );
   
   // Calculate Little's Law prediction (Avg Lead Time = Avg WIP / Avg Throughput)
   const avgWip = Object.values(wipByDay).reduce((sum, wip) => sum + wip, 0) / currentDay;

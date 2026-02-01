@@ -23,6 +23,14 @@ vi.mock('react-chartjs-2', () => ({
   ),
 }));
 
+function getChartOptions(chart: HTMLElement): Record<string, unknown> {
+  const optionsAttr = chart.getAttribute('data-options');
+  if (!optionsAttr) {
+    throw new Error('Chart element is missing data-options attribute');
+  }
+  return JSON.parse(optionsAttr) as Record<string, unknown>;
+}
+
 const sampleHistoricalData = [
   { day: 0, columnData: { options: 5, redActive: 0, redFinished: 0, blueActive: 0, blueFinished: 0, green: 0, done: 0 } },
   { day: 1, columnData: { options: 4, redActive: 1, redFinished: 0, blueActive: 0, blueFinished: 0, green: 0, done: 0 } },
@@ -47,7 +55,7 @@ describe('Responsive Charts', () => {
       render(<CumulativeFlowDiagram historicalData={sampleHistoricalData} />);
 
       const chart = screen.getByTestId('mock-line-chart');
-      const options = JSON.parse(chart.getAttribute('data-options') || '{}');
+      const options = getChartOptions(chart);
 
       expect(options.responsive).toBe(true);
       expect(options.maintainAspectRatio).toBe(false);
@@ -57,10 +65,12 @@ describe('Responsive Charts', () => {
       render(<CumulativeFlowDiagram historicalData={sampleHistoricalData} />);
 
       const chart = screen.getByTestId('mock-line-chart');
-      const options = JSON.parse(chart.getAttribute('data-options') || '{}');
+      const options = getChartOptions(chart);
+      const plugins = options.plugins as Record<string, unknown>;
+      const tooltip = plugins.tooltip as Record<string, unknown>;
 
-      expect(options.plugins.tooltip.mode).toBe('index');
-      expect(options.plugins.tooltip.intersect).toBe(false);
+      expect(tooltip.mode).toBe('index');
+      expect(tooltip.intersect).toBe(false);
     });
 
     it('has chart container with proper sizing class', () => {
@@ -74,10 +84,11 @@ describe('Responsive Charts', () => {
       render(<CumulativeFlowDiagram historicalData={sampleHistoricalData} />);
 
       const chart = screen.getByTestId('mock-line-chart');
-      const options = JSON.parse(chart.getAttribute('data-options') || '{}');
+      const options = getChartOptions(chart);
+      const plugins = options.plugins as Record<string, unknown>;
 
-      expect(options.plugins.legend).toBeDefined();
-      expect(options.plugins.legend.position).toBeDefined();
+      expect(plugins.legend).toBeDefined();
+      expect((plugins.legend as Record<string, unknown>).position).toBeDefined();
     });
   });
 
@@ -86,7 +97,7 @@ describe('Responsive Charts', () => {
       render(<WipAgingDiagram cards={sampleCards} currentDay={5} />);
 
       const chart = screen.getByTestId('mock-scatter-chart');
-      const options = JSON.parse(chart.getAttribute('data-options') || '{}');
+      const options = getChartOptions(chart);
 
       expect(options.responsive).toBe(true);
       expect(options.maintainAspectRatio).toBe(false);
@@ -110,11 +121,12 @@ describe('Responsive Charts', () => {
       render(<WipAgingDiagram cards={sampleCards} currentDay={5} />);
 
       const chart = screen.getByTestId('mock-scatter-chart');
-      const options = JSON.parse(chart.getAttribute('data-options') || '{}');
+      const options = getChartOptions(chart);
+      const scales = options.scales as Record<string, unknown>;
 
-      expect(options.scales).toBeDefined();
-      expect(options.scales.x).toBeDefined();
-      expect(options.scales.y).toBeDefined();
+      expect(scales).toBeDefined();
+      expect(scales.x).toBeDefined();
+      expect(scales.y).toBeDefined();
     });
   });
 
@@ -127,7 +139,7 @@ describe('Responsive Charts', () => {
       expect(barCharts.length).toBeGreaterThan(0);
 
       barCharts.forEach((chart) => {
-        const options = JSON.parse(chart.getAttribute('data-options') || '{}');
+        const options = getChartOptions(chart);
         expect(options.responsive).toBe(true);
         expect(options.maintainAspectRatio).toBe(false);
       });

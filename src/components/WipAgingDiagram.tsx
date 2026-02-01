@@ -6,12 +6,11 @@ import {
   PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
-import type { TooltipItem, ChartOptions } from 'chart.js';
+import type { TooltipItem, ChartOptions, ChartData } from 'chart.js';
 import { Scatter } from 'react-chartjs-2';
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,6 +24,12 @@ interface CardData {
   id: string;
   stage: string;
   age: number;
+}
+
+interface WipPoint {
+  x: number;
+  y: number;
+  id: string;
 }
 
 interface WipAgingDiagramProps {
@@ -89,18 +94,17 @@ export const WipAgingDiagram: React.FC<WipAgingDiagramProps> = ({ cards, current
     
     return {
       label: columnLabels[index],
-      data: dataPoints,
+      data: dataPoints as WipPoint[],
       backgroundColor: colors[index],
       borderColor: colors[index].replace('0.8', '1'),
       borderWidth: 1,
       pointRadius: 8,
-      pointHoverRadius: 10
+      pointHoverRadius: 10,
     };
   });
-  
-  // Prepare data for the scatter chart
-  const data = {
-    datasets
+
+  const data: ChartData<'scatter', WipPoint[]> = {
+    datasets,
   };
   
   // Chart options
@@ -146,7 +150,7 @@ export const WipAgingDiagram: React.FC<WipAgingDiagramProps> = ({ cards, current
         caretSize: 8,
         callbacks: {
           label: function (tooltipItem: TooltipItem<'scatter'>) {
-            const dataPoint = tooltipItem.raw as { x: number; y: number; id: string };
+            const dataPoint = tooltipItem.raw as WipPoint;
             const columnName = columnLabels[Math.round(dataPoint.x)];
             return `Card ${dataPoint.id} in ${columnName}: ${dataPoint.y} days old`;
           },
