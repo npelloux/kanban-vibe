@@ -18,19 +18,10 @@ export const ConnectedMobileWorkerPool: React.FC<ConnectedMobileWorkerPoolProps>
   const { workers, selectedWorkerId, selectWorker, addWorker, deleteWorker } =
     useWorkerManagement();
 
-  if (props.isOpen !== undefined) {
-    return (
-      <MobileWorkerPool
-        workers={workers}
-        selectedWorkerId={selectedWorkerId}
-        onWorkerSelect={selectWorker}
-        onAddWorker={addWorker}
-        onDeleteWorker={deleteWorker}
-        isOpen={props.isOpen}
-        onOpenChange={props.onOpenChange}
-      />
-    );
-  }
+  const controlledProps =
+    props.isOpen !== undefined
+      ? { isOpen: props.isOpen, onOpenChange: props.onOpenChange }
+      : {};
 
   return (
     <MobileWorkerPool
@@ -39,6 +30,7 @@ export const ConnectedMobileWorkerPool: React.FC<ConnectedMobileWorkerPoolProps>
       onWorkerSelect={selectWorker}
       onAddWorker={addWorker}
       onDeleteWorker={deleteWorker}
+      {...controlledProps}
     />
   );
 };
