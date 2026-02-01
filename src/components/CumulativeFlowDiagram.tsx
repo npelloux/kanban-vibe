@@ -129,42 +129,87 @@ export const CumulativeFlowDiagram: React.FC<CumulativeFlowDiagramProps> = ({ hi
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          boxWidth: 12,
+          padding: 8,
+          font: {
+            size: 11,
+          },
+          usePointStyle: true,
+        },
       },
       title: {
         display: true,
         text: 'Cumulative Flow Diagram',
         font: {
-          size: 18
-        }
+          size: 16,
+        },
+        padding: {
+          top: 10,
+          bottom: 10,
+        },
       },
       tooltip: {
         mode: 'index' as const,
         intersect: false,
-      }
+        enabled: true,
+        bodyFont: {
+          size: 12,
+        },
+        titleFont: {
+          size: 13,
+        },
+        padding: 10,
+        caretSize: 8,
+      },
     },
     scales: {
       x: {
         title: {
           display: true,
-          text: 'Day'
-        }
+          text: 'Day',
+          font: {
+            size: 12,
+          },
+        },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 10,
+          font: {
+            size: 10,
+          },
+        },
       },
       y: {
         stacked: false,
         title: {
           display: true,
-          text: 'Number of Cards'
-        }
-      }
-    }
+          text: 'Number of Cards',
+          font: {
+            size: 12,
+          },
+        },
+        ticks: {
+          font: {
+            size: 10,
+          },
+        },
+      },
+    },
   };
 
   return (
     <div className="cumulative-flow-diagram">
-      <div style={{ height: '500px', width: '100%' }}>
+      <div className="chart-container">
         <Line data={cumulativeData} options={options} />
       </div>
     </div>
