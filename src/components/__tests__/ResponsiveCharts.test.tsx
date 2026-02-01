@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { CumulativeFlowDiagram } from '../CumulativeFlowDiagram';
 import { WipAgingDiagram } from '../WipAgingDiagram';
@@ -123,7 +123,6 @@ describe('Responsive Charts', () => {
       render(<FlowMetrics cards={sampleFlowCards} currentDay={5} />);
 
       const barCharts = screen.getAllByTestId('mock-bar-chart');
-      const lineCharts = screen.getAllByTestId('mock-line-chart');
 
       expect(barCharts.length).toBeGreaterThan(0);
 
@@ -167,7 +166,6 @@ describe('Responsive Charts', () => {
     it('CFD container has responsive wrapper', () => {
       render(<CumulativeFlowDiagram historicalData={sampleHistoricalData} />);
 
-      const chartWrapper = document.querySelector('.chart-container');
       const diagramWrapper = document.querySelector('.cumulative-flow-diagram');
       expect(diagramWrapper).toBeInTheDocument();
     });
