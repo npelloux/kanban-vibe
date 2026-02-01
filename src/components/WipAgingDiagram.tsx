@@ -6,12 +6,11 @@ import {
   PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
-import type { TooltipItem, ChartOptions } from 'chart.js';
+import type { TooltipItem, ChartOptions, ChartData } from 'chart.js';
 import { Scatter } from 'react-chartjs-2';
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,6 +24,12 @@ interface CardData {
   id: string;
   stage: string;
   age: number;
+}
+
+interface WipPoint {
+  x: number;
+  y: number;
+  id: string;
 }
 
 interface WipAgingDiagramProps {
@@ -89,44 +94,68 @@ export const WipAgingDiagram: React.FC<WipAgingDiagramProps> = ({ cards, current
     
     return {
       label: columnLabels[index],
-      data: dataPoints,
+      data: dataPoints as WipPoint[],
       backgroundColor: colors[index],
       borderColor: colors[index].replace('0.8', '1'),
       borderWidth: 1,
       pointRadius: 8,
-      pointHoverRadius: 10
+      pointHoverRadius: 10,
     };
   });
-  
-  // Prepare data for the scatter chart
-  const data = {
-    datasets
+
+  const data: ChartData<'scatter', WipPoint[]> = {
+    datasets,
   };
   
   // Chart options
   const options: ChartOptions<'scatter'> = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'point' as const,
+      intersect: true,
+    },
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          boxWidth: 12,
+          padding: 8,
+          font: {
+            size: 10,
+          },
+          usePointStyle: true,
+        },
       },
       title: {
         display: true,
         text: `Card Aging by Column (Day ${currentDay})`,
         font: {
-          size: 18
-        }
+          size: 16,
+        },
+        padding: {
+          top: 10,
+          bottom: 10,
+        },
       },
       tooltip: {
+        enabled: true,
+        bodyFont: {
+          size: 12,
+        },
+        titleFont: {
+          size: 13,
+        },
+        padding: 10,
+        caretSize: 8,
         callbacks: {
-          label: function(tooltipItem: TooltipItem<'scatter'>) {
-            const dataPoint = tooltipItem.raw as { x: number; y: number; id: string };
+          label: function (tooltipItem: TooltipItem<'scatter'>) {
+            const dataPoint = tooltipItem.raw as WipPoint;
             const columnName = columnLabels[Math.round(dataPoint.x)];
             return `Card ${dataPoint.id} in ${columnName}: ${dataPoint.y} days old`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       x: {
@@ -135,32 +164,48 @@ export const WipAgingDiagram: React.FC<WipAgingDiagramProps> = ({ cards, current
         min: -0.5,
         max: columnLabels.length - 0.5,
         ticks: {
-          callback: function(value: number | string) {
+          callback: function (value: number | string) {
             const index = Math.round(Number(value));
             return index >= 0 && index < columnLabels.length ? columnLabels[index] : '';
           },
-          stepSize: 1
+          stepSize: 1,
+          maxRotation: 45,
+          minRotation: 0,
+          font: {
+            size: 9,
+          },
         },
         title: {
           display: true,
-          text: 'Columns'
-        }
+          text: 'Columns',
+          font: {
+            size: 12,
+          },
+        },
       },
       y: {
         type: 'linear',
         beginAtZero: true,
-        max: Math.max(maxAge + 1, 5), // Ensure we have some space at the top
+        max: Math.max(maxAge + 1, 5),
         title: {
           display: true,
-          text: 'Age (days)'
-        }
-      }
-    }
+          text: 'Age (days)',
+          font: {
+            size: 12,
+          },
+        },
+        ticks: {
+          font: {
+            size: 10,
+          },
+        },
+      },
+    },
   };
   
   return (
     <div className="wip-aging-diagram">
-      <div style={{ height: '500px', width: '100%' }}>
+      <div className="chart-container">
         <Scatter data={data} options={options} />
       </div>
       

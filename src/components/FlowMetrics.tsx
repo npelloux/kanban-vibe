@@ -8,9 +8,10 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { createBarChartOptions, createLineChartOptions } from './chart-options';
 
 // Register Chart.js components
 ChartJS.register(
@@ -145,84 +146,20 @@ export const FlowMetrics: React.FC<FlowMetricsProps> = ({ cards, currentDay }) =
     ]
   };
   
-  // Chart options
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Daily Throughput',
-        font: {
-          size: 18
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Cards Completed'
-        }
-      }
-    }
-  };
-  
-  const lineOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: `${rollingWindow}-Day Rolling Average Throughput`,
-        font: {
-          size: 18
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Cards Completed (Average)'
-        }
-      }
-    }
-  };
-  
-  const wipOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Work in Progress Over Time',
-        font: {
-          size: 18
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Number of Cards'
-        }
-      }
-    }
-  };
+  const barOptions = createBarChartOptions(
+    { text: 'Daily Throughput' },
+    { title: 'Cards Completed' }
+  );
+
+  const lineOptions = createLineChartOptions(
+    { text: `${rollingWindow}-Day Rolling Average Throughput` },
+    { title: 'Cards Completed (Average)' }
+  );
+
+  const wipOptions = createBarChartOptions(
+    { text: 'Work in Progress Over Time' },
+    { title: 'Number of Cards' }
+  );
   
   // Calculate Little's Law prediction (Avg Lead Time = Avg WIP / Avg Throughput)
   const avgWip = Object.values(wipByDay).reduce((sum, wip) => sum + wip, 0) / currentDay;
@@ -263,22 +200,19 @@ export const FlowMetrics: React.FC<FlowMetricsProps> = ({ cards, currentDay }) =
       
       <div className="charts-container">
         <div className="chart-wrapper">
-          <h3>Daily Throughput</h3>
-          <div style={{ height: '300px' }}>
+          <div className="chart-container chart-container-small">
             <Bar data={throughputData} options={barOptions} />
           </div>
         </div>
-        
+
         <div className="chart-wrapper">
-          <h3>Rolling Average Throughput</h3>
-          <div style={{ height: '300px' }}>
+          <div className="chart-container chart-container-small">
             <Line data={rollingThroughputData} options={lineOptions} />
           </div>
         </div>
-        
+
         <div className="chart-wrapper">
-          <h3>Work in Progress Over Time</h3>
-          <div style={{ height: '300px' }}>
+          <div className="chart-container chart-container-small">
             <Bar data={wipData} options={wipOptions} />
           </div>
         </div>
