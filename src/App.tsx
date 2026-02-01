@@ -8,6 +8,7 @@ import { CumulativeFlowDiagram } from './components/CumulativeFlowDiagram';
 import { WipAgingDiagram } from './components/WipAgingDiagram';
 import { FlowMetrics } from './components/FlowMetrics';
 import { NavigationBar } from './components/NavigationBar';
+import { MobileNavigation } from './components/MobileNavigation';
 import type { TabType } from './components/TabNavigation';
 import { BoardProvider, useBoardContext, useHistoryContext, useSaveStateContext, useResetBoardContext } from './simulation/api/board-context';
 import { useHistory } from './simulation/api/use-history';
@@ -32,6 +33,7 @@ function AppContent() {
   const historicalData = useHistoricalTracking(board, currentDay);
 
   const [activeTab, setActiveTab] = useState<TabType>('kanban');
+  const [isMobileWorkerPoolOpen, setIsMobileWorkerPoolOpen] = useState(false);
 
   const handleCardClick = (cardId: CardId) => {
     if (selectedWorkerId) {
@@ -112,12 +114,23 @@ function AppContent() {
         lastSavedAt={lastSavedAt ?? undefined}
         onResetBoard={resetBoard}
       />
+      <MobileNavigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        currentDay={currentDay}
+        onNextDay={advanceDay}
+        onOpenWorkerPool={() => setIsMobileWorkerPoolOpen(true)}
+        isNextDayDisabled={isRunning}
+      />
       <div className="desktop-worker-pool">
         <ConnectedWorkerPool />
       </div>
-      <ConnectedMobileWorkerPool />
+      <ConnectedMobileWorkerPool
+        isOpen={isMobileWorkerPoolOpen}
+        onOpenChange={setIsMobileWorkerPoolOpen}
+      />
       {renderContent()}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+      <div className="desktop-next-day-button">
         <NextDayButton onClick={advanceDay} disabled={isRunning} />
       </div>
     </div>

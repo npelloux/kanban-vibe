@@ -21,6 +21,12 @@ vi.mock('./simulation/infra/state-repository', () => ({
   },
 }));
 
+const getDesktopNextDayButton = () => {
+  const container = document.querySelector('.desktop-next-day-button');
+  if (!container) throw new Error('Desktop next day button container not found');
+  return within(container as HTMLElement).getByRole('button', { name: /next day/i });
+};
+
 describe('App Component', () => {
   beforeEach(() => {
     Math.random = originalRandom;
@@ -43,11 +49,8 @@ describe('App Component', () => {
   });
 
   it('displays the current day as 0', () => {
-    // Arrange
     render(<App />);
-    
-    // Assert
-    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByTestId('day-counter')).toHaveTextContent('0');
   });
 
   it('increments the day counter when Next Day is clicked', () => {
@@ -55,22 +58,21 @@ describe('App Component', () => {
     render(<App />);
     
     // Act - click Next Day button
-    fireEvent.click(screen.getByText('Next Day'));
+    fireEvent.click(getDesktopNextDayButton());
     
     // Assert - use a more specific selector to find the day number
     expect(screen.getByTestId('day-counter')).toHaveTextContent('1');
   });
 
   it('renders the worker pool with the correct workers', () => {
-    // Arrange & Act
     render(<App />);
-    
-    // Assert
-    expect(screen.getByText('Workers')).toBeInTheDocument();
-    expect(screen.getByTestId('worker-bob')).toBeInTheDocument(); // Red worker
-    expect(screen.getByTestId('worker-zoe')).toBeInTheDocument(); // Blue worker
-    expect(screen.getByTestId('worker-lea')).toBeInTheDocument(); // Blue worker
-    expect(screen.getByTestId('worker-taz')).toBeInTheDocument(); // Green worker
+
+    const workerPoolHeadings = screen.getAllByRole('heading', { name: /workers/i });
+    expect(workerPoolHeadings.length).toBeGreaterThan(0);
+    expect(screen.getByTestId('worker-bob')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-zoe')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-lea')).toBeInTheDocument();
+    expect(screen.getByTestId('worker-taz')).toBeInTheDocument();
   });
 
   it('selects a worker when clicked', () => {
@@ -125,7 +127,7 @@ describe('App Component', () => {
     const cardId = optionsCards[0].getAttribute('data-card-id');
     
     // Act - click Next Day button
-    fireEvent.click(screen.getByText('Next Day'));
+    fireEvent.click(getDesktopNextDayButton());
     
     // Assert - card should still be in the Options column
     const updatedOptionsColumn = screen.getByRole('heading', { name: 'Options' }).closest('.column') as HTMLElement;
@@ -162,7 +164,7 @@ describe('App Component', () => {
     const cardId = redActiveCards[0].getAttribute('data-card-id');
     
     // Act - click Next Day button
-    fireEvent.click(screen.getByText('Next Day'));
+    fireEvent.click(getDesktopNextDayButton());
     
     // Assert - card should still be in the Red Active column
     const updatedRedActiveColumn = screen.getByRole('heading', { name: 'Red Active' }).closest('.column') as HTMLElement;

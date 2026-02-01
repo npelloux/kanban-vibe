@@ -1865,3 +1865,236 @@
   min-height: 44px;
   min-width: 44px;
 }
+
+/* Mobile Navigation - Hamburger Menu and Bottom Nav */
+.mobile-header {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-hamburger-button {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--dark-gray);
+}
+
+.mobile-hamburger-button:hover {
+  background-color: var(--light-gray);
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-logo-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--classic-blue);
+}
+
+.mobile-day-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 50px;
+}
+
+.mobile-day-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  color: var(--ultimate-gray);
+  font-weight: 600;
+}
+
+.mobile-day-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--dark-gray);
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background-color: var(--white);
+  z-index: 1002;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+  animation: slideInLeft 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+.mobile-menu-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+
+.mobile-menu-close {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--dark-gray);
+}
+
+.mobile-menu-close:hover {
+  background-color: var(--light-gray);
+}
+
+.mobile-menu-tabs {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  flex: 1;
+}
+
+.mobile-menu-tab {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--dark-gray);
+  text-align: left;
+  min-height: 52px;
+}
+
+.mobile-menu-tab:hover {
+  background-color: var(--light-gray);
+}
+
+.mobile-menu-tab.active {
+  background-color: rgba(15, 76, 129, 0.1);
+  color: var(--classic-blue);
+  font-weight: 600;
+  border-left: 3px solid var(--classic-blue);
+}
+
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--white);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  justify-content: space-around;
+  align-items: center;
+}
+
+.mobile-bottom-nav-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--dark-gray);
+  min-height: 52px;
+  border-radius: 8px;
+}
+
+.mobile-bottom-nav-button:hover {
+  background-color: var(--light-gray);
+}
+
+.mobile-bottom-nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-bottom-nav-button span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Desktop Next Day button container */
+.desktop-next-day-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+/* Mobile responsive: Show mobile nav, hide desktop nav */
+@media (max-width: 768px) {
+  .navigation-bar {
+    display: none;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  .desktop-next-day-button {
+    display: none;
+  }
+
+  .app {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
