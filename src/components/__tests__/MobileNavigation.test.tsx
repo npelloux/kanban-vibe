@@ -182,9 +182,12 @@ describe('MobileNavigation Component', () => {
       render(<MobileNavigation {...defaultProps} />);
 
       fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+      expect(screen.getByRole('navigation', { name: /mobile menu/i })).toBeInTheDocument();
 
       const overlay = screen.getByTestId('menu-overlay');
-      expect(overlay.tagName).toBe('BUTTON');
+      expect(overlay).toHaveAttribute('aria-label', 'Close menu');
+      overlay.focus();
+      expect(document.activeElement).toBe(overlay);
     });
   });
 
