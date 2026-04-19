@@ -1,0 +1,4 @@
+[submodule ".sdeg"]
+	path = .sdeg
+	url = git@github.com:aelworks-fr/sdeg-kernel.git
+	branch = feature/sdlc-v2-4-gates
