@@ -47,6 +47,18 @@ Expand the policy system with:
 
 **Deliverables:**
 
+- **D1.0:** Policy strategy extraction (prérequis)
+  - `runPolicyDay` (`src/simulation/application/run-policy.ts`) est aujourd'hui
+    monolithique : le pipeline de la journée et la stratégie siloted-expert sont
+    entremêlés, et `PolicyType` est une union à un seul membre
+  - Extraire une interface `Policy` (voir §7 « Policy Interface ») et convertir
+    l'existant en `SilotedExpertPolicy`, sans changement de comportement
+  - Le pipeline de la journée (move options → move finished → assign → age →
+    output → transition → clear) reste partagé ; seule la stratégie varie
+  - `PolicyType` devient un registre extensible plutôt qu'un littéral
+  - Acceptance: les politiques suivantes s'ajoutent sans toucher au pipeline
+  - Verification: `policy-execution.golden.spec.ts` passe sans modification
+
 - **D1.1:** Generalist Policy
   - Workers assigned to ANY card needing work (not just matching color)
   - Prioritize: oldest cards first, then cards closest to completion
