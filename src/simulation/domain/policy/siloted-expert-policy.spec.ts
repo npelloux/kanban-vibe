@@ -135,3 +135,13 @@ describe('SilotedExpertPolicy', () => {
     });
   });
 });
+
+describe('SilotedExpertPolicy output range', () => {
+  it('rewards a worker matching the column colour', () => {
+    expect(SilotedExpertPolicy.outputRangeFor('red', 'red')).toEqual({ min: 3, max: 6 });
+  });
+
+  it('gives no bonus to a worker outside their colour', () => {
+    expect(SilotedExpertPolicy.outputRangeFor('red', 'green')).toEqual({ min: 0, max: 3 });
+  });
+});

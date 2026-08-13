@@ -1,7 +1,9 @@
 import type { Card as CardType } from '../domain/card/card';
 import {
   WorkerOutputCalculator,
+  standardOutputRange,
   type ColumnColor,
+  type OutputRangeFor,
   type RandomFn,
 } from '../domain/worker/worker-output';
 import type { ColumnKey } from '../domain/wip/wip-limits';
@@ -44,7 +46,8 @@ export function countCardsInStage(
 
 export function applyWorkerOutputToCard(
   card: CardType,
-  random: RandomFn
+  random: RandomFn,
+  outputRangeFor: OutputRangeFor = standardOutputRange
 ): CardType {
   if (card.assignedWorkers.length === 0 || !isActiveStage(card.stage)) {
     return card;
@@ -54,9 +57,8 @@ export function applyWorkerOutputToCard(
   let workItems = { ...card.workItems };
 
   for (const worker of card.assignedWorkers) {
-    const output = WorkerOutputCalculator.calculate(
-      worker.type,
-      columnColor,
+    const output = WorkerOutputCalculator.calculateInRange(
+      outputRangeFor(worker.type, columnColor),
       random
     );
 

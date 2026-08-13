@@ -358,6 +358,7 @@ describe('RunPolicyUseCase policy delegation', () => {
         assignedByPolicy.push(...cards.map((card) => String(card.id)));
         return [...cards];
       },
+      outputRangeFor: () => ({ min: 0, max: 3 }),
     };
 
     runPolicyDay({
@@ -382,6 +383,7 @@ describe('RunPolicyUseCase policy delegation', () => {
           ...card,
           assignedWorkers: [{ id: 'ghost', type: 'red' as const }],
         })),
+      outputRangeFor: () => ({ min: 0, max: 3 }),
     };
 
     const result = runPolicyDay({
@@ -425,5 +427,60 @@ describe('RunPolicyUseCase policy delegation', () => {
         random: neverAssign,
       })
     ).toThrow(UnknownPolicyError);
+  });
+});
+
+describe('RunPolicyUseCase output range delegation', () => {
+  const alwaysMaxOutput = (): number => 0.99;
+
+  it('caps a matching worker at the generalist range', () => {
+    const result = runPolicyDay({
+      policyType: 'generalist',
+      cards: [createTestCard({
+        id: createValidCardId('A'),
+        stage: 'red-active',
+        workItems: { red: { total: 99, completed: 0 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } },
+      })],
+      workers: [createTestWorker('bob', 'red')],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: alwaysMaxOutput,
+    });
+
+    expect(result.cards[0].workItems.red.completed).toBe(3);
+  });
+
+  it('grants the specialisation bonus under siloted-expert', () => {
+    const result = runPolicyDay({
+      policyType: 'siloted-expert',
+      cards: [createTestCard({
+        id: createValidCardId('A'),
+        stage: 'red-active',
+        workItems: { red: { total: 99, completed: 0 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } },
+      })],
+      workers: [createTestWorker('bob', 'red')],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: alwaysMaxOutput,
+    });
+
+    expect(result.cards[0].workItems.red.completed).toBe(6);
+  });
+
+  it('lets a generalist work on a card outside their colour', () => {
+    const result = runPolicyDay({
+      policyType: 'generalist',
+      cards: [createTestCard({
+        id: createValidCardId('A'),
+        stage: 'blue-active',
+        workItems: { red: { total: 5, completed: 5 }, blue: { total: 99, completed: 0 }, green: { total: 5, completed: 0 } },
+      })],
+      workers: [createTestWorker('bob', 'red')],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: alwaysMaxOutput,
+    });
+
+    expect(result.cards[0].workItems.blue.completed).toBe(3);
   });
 });
