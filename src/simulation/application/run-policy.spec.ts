@@ -537,3 +537,29 @@ describe('RunPolicyUseCase pull gating', () => {
     expect(optionsCard?.stage).toBe('red-active');
   });
 });
+
+describe('RunPolicyUseCase pull gating combined with WIP limits', () => {
+  const noOutput = (): number => 0;
+
+  it('still honours a binding WIP limit when the policy allows the pull', () => {
+    const wipLimits = WipLimits.withColumnLimit(WipLimits.empty(), 'redActive', {
+      min: 0,
+      max: 1,
+    });
+
+    const result = runPolicyDay({
+      policyType: 'throughput-maximizer',
+      cards: [
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'options' }),
+      ],
+      workers: [],
+      currentDay: 0,
+      wipLimits,
+      random: noOutput,
+    });
+
+    const inRedActive = result.cards.filter((card) => card.stage === 'red-active');
+    expect(inRedActive).toHaveLength(1);
+  });
+});

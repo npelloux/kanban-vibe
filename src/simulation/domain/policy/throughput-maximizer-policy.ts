@@ -8,12 +8,18 @@ import {
 } from '../worker/worker-output';
 import type { Policy } from './policy';
 import { fillCardsInOrder, withoutAssignments } from './worker-sharing';
+import {
+  remainingWorkOn,
+  isWorkableCard,
+  type ActiveCard,
+  type ActiveStage,
+} from './active-card';
 
 const DESCRIPTION =
   'Stop starting, start finishing: workers serve the cards closest to Done first ' +
   '(green before blue before red), and no new card leaves Options until the pipeline is clear.';
 
-const STAGES_CLOSEST_TO_DONE_FIRST: readonly Card['stage'][] = [
+const STAGES_CLOSEST_TO_DONE_FIRST: readonly ActiveStage[] = [
   'green',
   'blue-active',
   'red-active',
@@ -27,18 +33,7 @@ const IN_PROGRESS_STAGES: readonly Card['stage'][] = [
   'green',
 ];
 
-function colorOfStage(stage: Card['stage']): ColumnColor {
-  if (stage === 'red-active') return 'red';
-  if (stage === 'blue-active') return 'blue';
-  return 'green';
-}
-
-function remainingWorkOn(card: Card): number {
-  const progress = card.workItems[colorOfStage(card.stage)];
-  return progress.total - progress.completed;
-}
-
-function byLeastWorkRemaining(first: Card, second: Card): number {
+function byLeastWorkRemaining(first: ActiveCard, second: ActiveCard): number {
   const remainingDifference = remainingWorkOn(first) - remainingWorkOn(second);
   if (remainingDifference !== 0) {
     return remainingDifference;
@@ -46,15 +41,11 @@ function byLeastWorkRemaining(first: Card, second: Card): number {
   return first.id.localeCompare(second.id);
 }
 
-function isWorkable(card: Card): boolean {
-  return !card.isBlocked;
-}
-
 function cardsClosestToDoneFirst(cards: readonly Card[]): Card[] {
+  const workableCards = cards.filter(isWorkableCard);
+
   return STAGES_CLOSEST_TO_DONE_FIRST.flatMap((stage) =>
-    cards
-      .filter((card) => card.stage === stage && isWorkable(card))
-      .sort(byLeastWorkRemaining)
+    workableCards.filter((card) => card.stage === stage).sort(byLeastWorkRemaining)
   );
 }
 
@@ -79,7 +70,7 @@ export const ThroughputMaximizerPolicy: Policy = {
 
   allowsPullFromOptions(cards: readonly Card[]): boolean {
     return !cards.some(
-      (card) => IN_PROGRESS_STAGES.includes(card.stage) && isWorkable(card)
+      (card) => IN_PROGRESS_STAGES.includes(card.stage) && !card.isBlocked
     );
   },
 };
