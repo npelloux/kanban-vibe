@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { runPolicyDay } from './run-policy';
+import type { Card as CardType } from '../domain/card/card';
+import { UnknownPolicyError } from '../domain/policy/unknown-policy-error';
+import type { Policy } from '../domain/policy/policy';
 import { createTestCard, createTestWorker, createValidCardId } from './test-fixtures';
 
 describe('RunPolicyUseCase', () => {
@@ -339,5 +342,88 @@ describe('RunPolicyUseCase', () => {
 
       expect(result.cards[0].stage).toBe('red-active');
     });
+  });
+});
+
+describe('RunPolicyUseCase policy delegation', () => {
+  const neverAssign = (): number => 0.5;
+
+  it('delegates worker assignment to the selected policy', () => {
+    const assignedByPolicy: string[] = [];
+    const recordingPolicy: Policy = {
+      id: 'recording',
+      name: 'Recording',
+      description: 'Test double capturing the cards it receives',
+      assignWorkers: (cards: readonly CardType[]): CardType[] => {
+        assignedByPolicy.push(...cards.map((card) => String(card.id)));
+        return [...cards];
+      },
+    };
+
+    runPolicyDay({
+      policy: recordingPolicy,
+      cards: [createTestCard({ id: createValidCardId('A'), stage: 'red-active' })],
+      workers: [createTestWorker('bob', 'red')],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: neverAssign,
+    });
+
+    expect(assignedByPolicy).toEqual(['A']);
+  });
+
+  it('applies the assignment the policy returned', () => {
+    const assigningPolicy: Policy = {
+      id: 'assigning',
+      name: 'Assigning',
+      description: 'Test double assigning every worker to every card',
+      assignWorkers: (cards: readonly CardType[]): CardType[] =>
+        cards.map((card) => ({
+          ...card,
+          assignedWorkers: [{ id: 'ghost', type: 'red' as const }],
+        })),
+    };
+
+    const result = runPolicyDay({
+      policy: assigningPolicy,
+      cards: [createTestCard({
+        id: createValidCardId('A'),
+        stage: 'red-active',
+        workItems: { red: { total: 99, completed: 0 }, blue: { total: 5, completed: 0 }, green: { total: 5, completed: 0 } },
+      })],
+      workers: [],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: () => 0.99,
+    });
+
+    expect(result.cards[0].workItems.red.completed).toBeGreaterThan(0);
+  });
+
+  it('resolves a policy given by id', () => {
+    const result = runPolicyDay({
+      policyType: 'siloted-expert',
+      cards: [],
+      workers: [],
+      currentDay: 3,
+      wipLimits: WipLimits.empty(),
+      random: neverAssign,
+    });
+
+    expect(result.newDay).toBe(4);
+  });
+
+  it('rejects an unknown policy id instead of falling back to siloted-expert', () => {
+    expect(() =>
+      runPolicyDay({
+        // @ts-expect-error an unregistered policy id must not type-check
+        policyType: 'does-not-exist',
+        cards: [],
+        workers: [],
+        currentDay: 0,
+        wipLimits: WipLimits.empty(),
+        random: neverAssign,
+      })
+    ).toThrow(UnknownPolicyError);
   });
 });

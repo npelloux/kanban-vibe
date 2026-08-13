@@ -15,17 +15,24 @@ import {
   countCardsInStage,
   stageToColumnKey,
 } from './card-stage-helpers';
+import type { Policy } from '../domain/policy/policy';
+import { PolicyRegistry, type PolicyType } from '../domain/policy/policy-registry';
 
-export type PolicyType = 'siloted-expert';
+export type { PolicyType };
 
-export interface RunPolicyInput {
-  readonly policyType: PolicyType;
+interface RunPolicyBaseInput {
   readonly cards: readonly CardType[];
   readonly workers: readonly Worker[];
   readonly currentDay: number;
   readonly wipLimits: ReturnType<typeof WipLimits.empty>;
   readonly random?: RandomFn;
 }
+
+export type RunPolicyInput = RunPolicyBaseInput &
+  ({ readonly policyType: PolicyType; readonly policy?: never } | {
+    readonly policy: Policy;
+    readonly policyType?: never;
+  });
 
 export interface RunPolicyResult {
   readonly cards: CardType[];
@@ -166,101 +173,6 @@ function moveToNextStage(
   return updatedCards;
 }
 
-function assignWorkersToMatchingCards(
-  cards: CardType[],
-  workers: readonly Worker[]
-): CardType[] {
-  const emptyWorkers: CardType['assignedWorkers'] = [];
-  let updatedCards = cards.map((card) => ({
-    ...card,
-    assignedWorkers: emptyWorkers,
-  }));
-
-  const redActiveCards = updatedCards
-    .filter((card) => card.stage === 'red-active')
-    .sort((a, b) => b.age - a.age);
-  const blueActiveCards = updatedCards
-    .filter((card) => card.stage === 'blue-active')
-    .sort((a, b) => b.age - a.age);
-  const greenCards = updatedCards
-    .filter((card) => card.stage === 'green')
-    .sort((a, b) => b.age - a.age);
-
-  const redWorkers = workers.filter((w) => w.type === 'red');
-  const blueWorkers = workers.filter((w) => w.type === 'blue');
-  const greenWorkers = workers.filter((w) => w.type === 'green');
-
-  updatedCards = assignWorkersToCards(redWorkers, redActiveCards, updatedCards);
-  updatedCards = assignWorkersToCards(blueWorkers, blueActiveCards, updatedCards);
-  updatedCards = assignWorkersToCards(greenWorkers, greenCards, updatedCards);
-
-  return updatedCards;
-}
-
-function assignWorkersToCards(
-  workersToAssign: readonly Worker[],
-  cardsToAssign: readonly CardType[],
-  allCards: CardType[]
-): CardType[] {
-  if (workersToAssign.length === 0 || cardsToAssign.length === 0) {
-    return allCards;
-  }
-
-  let updatedCards = allCards.map((c) => ({ ...c }));
-  let workerIndex = 0;
-  let cardIndex = 0;
-
-  while (workerIndex < workersToAssign.length && cardIndex < cardsToAssign.length) {
-    const worker = workersToAssign[workerIndex];
-    const targetCardId = cardsToAssign[cardIndex].id;
-
-    updatedCards = updatedCards.map((c) =>
-      c.id === targetCardId
-        ? { ...c, assignedWorkers: [...c.assignedWorkers, { id: worker.id, type: worker.type }] }
-        : c
-    );
-
-    workerIndex++;
-    cardIndex++;
-  }
-
-  if (workerIndex < workersToAssign.length) {
-    cardIndex = 0;
-
-    while (workerIndex < workersToAssign.length) {
-      const worker = workersToAssign[workerIndex];
-      const targetCardId = cardsToAssign[cardIndex].id;
-      const targetCard = updatedCards.find((c) => c.id === targetCardId);
-
-      if (targetCard && targetCard.assignedWorkers.length < 3) {
-        updatedCards = updatedCards.map((c) =>
-          c.id === targetCardId
-            ? { ...c, assignedWorkers: [...c.assignedWorkers, { id: worker.id, type: worker.type }] }
-            : c
-        );
-        workerIndex++;
-      }
-
-      cardIndex++;
-
-      if (cardIndex >= cardsToAssign.length) {
-        const canAnyCardAcceptWorkers = cardsToAssign.some((c) => {
-          const card = updatedCards.find((uc) => uc.id === c.id);
-          return card && card.assignedWorkers.length < 3;
-        });
-
-        if (!canAnyCardAcceptWorkers) {
-          break;
-        }
-
-        cardIndex = 0;
-      }
-    }
-  }
-
-  return updatedCards;
-}
-
 function applyWorkerOutput(cards: CardType[], random: RandomFn): CardType[] {
   return cards.map((card) => applyWorkerOutputToCard(card, random));
 }
@@ -324,6 +236,10 @@ function clearWorkerAssignments(cards: CardType[]): CardType[] {
   return cards.map((card) => ({ ...card, assignedWorkers: [] }));
 }
 
+function resolvePolicy(input: RunPolicyInput): Policy {
+  return input.policy ?? PolicyRegistry.get(input.policyType);
+}
+
 export function runPolicyDay(input: RunPolicyInput): RunPolicyResult {
   const {
     cards,
@@ -333,6 +249,7 @@ export function runPolicyDay(input: RunPolicyInput): RunPolicyResult {
     random = Math.random,
   } = input;
 
+  const policy = resolvePolicy(input);
   const newDay = currentDay + 1;
 
   const cardsAfterOptionsMove = moveOptionsToRedActive(
@@ -346,10 +263,7 @@ export function runPolicyDay(input: RunPolicyInput): RunPolicyResult {
     wipLimits
   );
 
-  const cardsWithWorkers = assignWorkersToMatchingCards(
-    cardsAfterFinishedMove,
-    workers
-  );
+  const cardsWithWorkers = policy.assignWorkers(cardsAfterFinishedMove, workers);
 
   const agedCards = CardAgingService.ageCards(cardsWithWorkers);
 
