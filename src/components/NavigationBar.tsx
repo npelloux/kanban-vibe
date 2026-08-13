@@ -5,7 +5,7 @@ import { SaveIndicator, type SaveStatus } from './SaveIndicator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { SlotManager } from './SlotManager';
 import type { TabType } from './TabNavigation';
-import type { PolicyType } from './PolicyRunner';
+import type { PolicyType } from '../simulation/domain/policy/policy-registry';
 import type { SlotInfo, SlotNumber } from '../simulation/infra/state-repository';
 
 interface NavigationBarProps {

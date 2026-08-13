@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-export type PolicyType = 'siloted-expert';
+import type { PolicyType } from '../simulation/domain/policy/policy-registry';
 
 interface PolicyRunnerProps {
   onRunPolicy: (policyType: PolicyType, days: number) => void;

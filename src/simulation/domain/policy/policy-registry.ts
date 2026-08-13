@@ -2,12 +2,6 @@ import type { Policy } from './policy';
 import { SilotedExpertPolicy } from './siloted-expert-policy';
 import { UnknownPolicyError } from './unknown-policy-error';
 
-/**
- * The single place where a policy becomes available to the simulation.
- *
- * Adding a policy means adding an entry here — neither the RunPolicy use case
- * nor the selection UI needs to change.
- */
 const POLICIES = {
   'siloted-expert': SilotedExpertPolicy,
 } as const satisfies Record<string, Policy>;

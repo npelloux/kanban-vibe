@@ -28,7 +28,6 @@ interface RunPolicyBaseInput {
   readonly random?: RandomFn;
 }
 
-/** Callers name the strategy by id, or pass one directly (comparison runs, tests). */
 export type RunPolicyInput = RunPolicyBaseInput &
   ({ readonly policyType: PolicyType; readonly policy?: never } | {
     readonly policy: Policy;

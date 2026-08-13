@@ -11,12 +11,7 @@ function cardsInStage(cards: readonly Card[], stage: Card['stage']): Card[] {
   return cards.filter((card) => card.stage === stage).sort(byAgeDescending);
 }
 
-/**
- * Hands the workers out one per card in order, then keeps cycling over the same
- * cards — round-robin, not fill-the-first — until every worker is placed or no
- * card has room left.
- */
-function shareOutWorkers(
+function shareWorkersRoundRobin(
   workersToAssign: readonly Worker[],
   cardCount: number
 ): Worker[][] {
@@ -66,7 +61,10 @@ function assignWorkersToCards(
     return allCards;
   }
 
-  const assignmentsPerCard = shareOutWorkers(workersToAssign, cardsToAssign.length);
+  const assignmentsPerCard = shareWorkersRoundRobin(
+    workersToAssign,
+    cardsToAssign.length
+  );
 
   const assignmentsByCardId = new Map(
     cardsToAssign.map((card, index) => [card.id, assignmentsPerCard[index]])
