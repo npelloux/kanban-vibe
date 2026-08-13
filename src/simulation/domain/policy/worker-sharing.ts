@@ -57,8 +57,16 @@ export function assignWorkersToCards(
     cardsToAssign.length
   );
 
+  return applyAssignments(cardsToAssign, assignmentsPerCard, allCards);
+}
+
+function applyAssignments(
+  assignedCards: readonly Card[],
+  assignmentsPerCard: readonly Worker[][],
+  allCards: Card[]
+): Card[] {
   const assignmentsByCardId = new Map(
-    cardsToAssign.map((card, index) => [card.id, assignmentsPerCard[index]])
+    assignedCards.map((card, index) => [card.id, assignmentsPerCard[index]])
   );
 
   return allCards.map((card) => {
@@ -80,4 +88,34 @@ export function assignWorkersToCards(
 export function withoutAssignments(cards: readonly Card[]): Card[] {
   const noWorkers: Card['assignedWorkers'] = [];
   return cards.map((card) => ({ ...card, assignedWorkers: noWorkers }));
+}
+
+export function fillCardsInOrder(
+  workersToAssign: readonly Worker[],
+  cardsInPriorityOrder: readonly Card[],
+  allCards: Card[]
+): Card[] {
+  if (workersToAssign.length === 0 || cardsInPriorityOrder.length === 0) {
+    return allCards;
+  }
+
+  const assignmentsPerCard: Worker[][] = cardsInPriorityOrder.map(() => []);
+
+  let cardIndex = 0;
+  for (const worker of workersToAssign) {
+    while (
+      cardIndex < cardsInPriorityOrder.length &&
+      assignmentsPerCard[cardIndex].length >= MAX_ASSIGNED_WORKERS
+    ) {
+      cardIndex++;
+    }
+
+    if (cardIndex >= cardsInPriorityOrder.length) {
+      break;
+    }
+
+    assignmentsPerCard[cardIndex].push(worker);
+  }
+
+  return applyAssignments(cardsInPriorityOrder, assignmentsPerCard, allCards);
 }

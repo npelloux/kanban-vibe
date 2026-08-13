@@ -69,6 +69,6 @@ describe('PolicyRegistry with the generalist policy', () => {
   it('lists both policies for the selection UI', () => {
     const ids = PolicyRegistry.list().map((policy) => policy.id);
 
-    expect(ids).toEqual(['siloted-expert', 'generalist']);
+    expect(ids).toEqual(['siloted-expert', 'generalist', 'bottleneck-first']);
   });
 });
