@@ -6,7 +6,7 @@ import {
   type OutputRange,
 } from '../worker/worker-output';
 import type { Policy } from './policy';
-import { assignWorkersToCards } from './worker-sharing';
+import { assignWorkersToCards, withoutAssignments } from './worker-sharing';
 
 const DESCRIPTION =
   'Workers take on any card needing work regardless of colour (producing 0-3 work items). ' +
@@ -52,11 +52,7 @@ export const GeneralistPolicy: Policy = {
   description: DESCRIPTION,
 
   assignWorkers(cards: readonly Card[], workers: readonly Worker[]): Card[] {
-    const noWorkers: Card['assignedWorkers'] = [];
-    const unassignedCards = cards.map((card) => ({
-      ...card,
-      assignedWorkers: noWorkers,
-    }));
+    const unassignedCards = withoutAssignments(cards);
 
     const cardsNeedingWork = unassignedCards
       .filter(isAvailableForWork)

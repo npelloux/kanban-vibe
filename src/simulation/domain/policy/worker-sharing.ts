@@ -76,3 +76,8 @@ export function assignWorkersToCards(
     };
   });
 }
+
+export function withoutAssignments(cards: readonly Card[]): Card[] {
+  const noWorkers: Card['assignedWorkers'] = [];
+  return cards.map((card) => ({ ...card, assignedWorkers: noWorkers }));
+}

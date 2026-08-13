@@ -7,7 +7,7 @@ import {
   type OutputRange,
 } from '../worker/worker-output';
 import type { Policy } from './policy';
-import { assignWorkersToCards } from './worker-sharing';
+import { assignWorkersToCards, withoutAssignments } from './worker-sharing';
 
 function byAgeDescending(first: Card, second: Card): number {
   return second.age - first.age;
@@ -16,7 +16,6 @@ function byAgeDescending(first: Card, second: Card): number {
 function cardsInStage(cards: readonly Card[], stage: Card['stage']): Card[] {
   return cards.filter((card) => card.stage === stage).sort(byAgeDescending);
 }
-
 
 const DESCRIPTION =
   'Workers always work on cards in their own active color (producing 3-6 work items). ' +
@@ -40,11 +39,7 @@ export const SilotedExpertPolicy: Policy = {
   description: DESCRIPTION,
 
   assignWorkers(cards: readonly Card[], workers: readonly Worker[]): Card[] {
-    const noWorkers: Card['assignedWorkers'] = [];
-    const unassignedCards = cards.map((card) => ({
-      ...card,
-      assignedWorkers: noWorkers,
-    }));
+    const unassignedCards = withoutAssignments(cards);
 
     return LANES.reduce(
       (assignedCards, lane) =>
