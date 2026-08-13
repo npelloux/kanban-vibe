@@ -173,8 +173,14 @@ function moveToNextStage(
   return updatedCards;
 }
 
-function applyWorkerOutput(cards: CardType[], random: RandomFn): CardType[] {
-  return cards.map((card) => applyWorkerOutputToCard(card, random));
+function applyWorkerOutput(
+  cards: CardType[],
+  random: RandomFn,
+  policy: Policy
+): CardType[] {
+  return cards.map((card) =>
+    applyWorkerOutputToCard(card, random, policy.outputRangeFor)
+  );
 }
 
 function transitionReadyCards(
@@ -267,7 +273,7 @@ export function runPolicyDay(input: RunPolicyInput): RunPolicyResult {
 
   const agedCards = CardAgingService.ageCards(cardsWithWorkers);
 
-  const cardsWithOutput = applyWorkerOutput(agedCards, random);
+  const cardsWithOutput = applyWorkerOutput(agedCards, random, policy);
 
   const transitionedCards = transitionReadyCards(
     cardsWithOutput,

@@ -9,8 +9,8 @@ export interface OutputRange {
   readonly max: number;
 }
 
-const SPECIALIZED_RANGE: OutputRange = { min: 3, max: 6 };
-const NON_SPECIALIZED_RANGE: OutputRange = { min: 0, max: 3 };
+export const SPECIALIZED_RANGE: OutputRange = { min: 3, max: 6 };
+export const NON_SPECIALIZED_RANGE: OutputRange = { min: 0, max: 3 };
 
 export class WorkerOutputCalculator {
   static isSpecialized(workerType: WorkerType, columnColor: ColumnColor): boolean {
@@ -28,7 +28,18 @@ export class WorkerOutputCalculator {
     columnColor: ColumnColor,
     random: RandomFn = Math.random
   ): number {
-    const range = this.getOutputRange(workerType, columnColor);
+    return this.calculateInRange(this.getOutputRange(workerType, columnColor), random);
+  }
+
+  static calculateInRange(range: OutputRange, random: RandomFn = Math.random): number {
     return Math.floor(random() * (range.max - range.min + 1)) + range.min;
   }
 }
+
+export type OutputRangeFor = (
+  workerType: WorkerType,
+  columnColor: ColumnColor
+) => OutputRange;
+
+export const standardOutputRange: OutputRangeFor = (workerType, columnColor) =>
+  WorkerOutputCalculator.getOutputRange(workerType, columnColor);

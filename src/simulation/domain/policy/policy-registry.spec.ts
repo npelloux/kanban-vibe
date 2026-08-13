@@ -60,3 +60,15 @@ describe('PolicyRegistry', () => {
     });
   });
 });
+
+describe('PolicyRegistry with the generalist policy', () => {
+  it('returns the generalist policy', () => {
+    expect(PolicyRegistry.get('generalist').id).toBe('generalist');
+  });
+
+  it('lists both policies for the selection UI', () => {
+    const ids = PolicyRegistry.list().map((policy) => policy.id);
+
+    expect(ids).toEqual(['siloted-expert', 'generalist']);
+  });
+});
