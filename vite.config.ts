@@ -8,6 +8,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Restrict discovery to the app sources: the .sdeg submodule ships its own
+    // node:test suites, which vitest cannot collect.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
     setupFiles: ['./src/setupTests.ts', 'allure-vitest/setup'],
     reporters: [
       'default',
