@@ -81,4 +81,8 @@ export const BottleneckFirstPolicy: Policy = {
   outputRangeFor(workerType: WorkerType, columnColor: ColumnColor): OutputRange {
     return WorkerOutputCalculator.getOutputRange(workerType, columnColor);
   },
+
+  allowsPullFromOptions(): boolean {
+    return true;
+  },
 };

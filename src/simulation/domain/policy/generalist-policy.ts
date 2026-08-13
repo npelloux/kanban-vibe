@@ -64,4 +64,8 @@ export const GeneralistPolicy: Policy = {
   outputRangeFor(): OutputRange {
     return NON_SPECIALIZED_RANGE;
   },
+
+  allowsPullFromOptions(): boolean {
+    return true;
+  },
 };

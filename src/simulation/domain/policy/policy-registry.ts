@@ -2,12 +2,14 @@ import type { Policy } from './policy';
 import { SilotedExpertPolicy } from './siloted-expert-policy';
 import { GeneralistPolicy } from './generalist-policy';
 import { BottleneckFirstPolicy } from './bottleneck-first-policy';
+import { ThroughputMaximizerPolicy } from './throughput-maximizer-policy';
 import { UnknownPolicyError } from './unknown-policy-error';
 
 const POLICIES = {
   'siloted-expert': SilotedExpertPolicy,
   generalist: GeneralistPolicy,
   'bottleneck-first': BottleneckFirstPolicy,
+  'throughput-maximizer': ThroughputMaximizerPolicy,
 } as const satisfies Record<string, Policy>;
 
 export type PolicyType = keyof typeof POLICIES;

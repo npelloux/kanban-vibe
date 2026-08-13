@@ -359,6 +359,7 @@ describe('RunPolicyUseCase policy delegation', () => {
         return [...cards];
       },
       outputRangeFor: () => ({ min: 0, max: 3 }),
+      allowsPullFromOptions: () => true,
     };
 
     runPolicyDay({
@@ -384,6 +385,7 @@ describe('RunPolicyUseCase policy delegation', () => {
           assignedWorkers: [{ id: 'ghost', type: 'red' as const }],
         })),
       outputRangeFor: () => ({ min: 0, max: 3 }),
+      allowsPullFromOptions: () => true,
     };
 
     const result = runPolicyDay({
@@ -482,5 +484,56 @@ describe('RunPolicyUseCase output range delegation', () => {
     });
 
     expect(result.cards[0].workItems.blue.completed).toBe(3);
+  });
+});
+
+describe('RunPolicyUseCase pull gating', () => {
+  const noOutput = (): number => 0;
+
+  it('holds a card in options while the pipeline is busy', () => {
+    const result = runPolicyDay({
+      policyType: 'throughput-maximizer',
+      cards: [
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'green' }),
+      ],
+      workers: [],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: noOutput,
+    });
+
+    const optionsCard = result.cards.find((card) => String(card.id) === 'A');
+    expect(optionsCard?.stage).toBe('options');
+  });
+
+  it('pulls a card once the pipeline is clear', () => {
+    const result = runPolicyDay({
+      policyType: 'throughput-maximizer',
+      cards: [createTestCard({ id: createValidCardId('A'), stage: 'options' })],
+      workers: [],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: noOutput,
+    });
+
+    expect(result.cards[0].stage).toBe('red-active');
+  });
+
+  it('still pulls under policies that do not gate the pull', () => {
+    const result = runPolicyDay({
+      policyType: 'siloted-expert',
+      cards: [
+        createTestCard({ id: createValidCardId('A'), stage: 'options' }),
+        createTestCard({ id: createValidCardId('B'), stage: 'green' }),
+      ],
+      workers: [],
+      currentDay: 0,
+      wipLimits: WipLimits.empty(),
+      random: noOutput,
+    });
+
+    const optionsCard = result.cards.find((card) => String(card.id) === 'A');
+    expect(optionsCard?.stage).toBe('red-active');
   });
 });

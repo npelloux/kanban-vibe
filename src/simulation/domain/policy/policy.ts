@@ -11,4 +11,6 @@ export interface Policy {
   assignWorkers(cards: readonly Card[], workers: readonly Worker[]): Card[];
 
   outputRangeFor(workerType: WorkerType, columnColor: ColumnColor): OutputRange;
+
+  allowsPullFromOptions(cards: readonly Card[]): boolean;
 }
