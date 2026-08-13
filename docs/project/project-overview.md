@@ -67,7 +67,7 @@ An interactive web-based Kanban simulation that models software development work
 |-------|------|--------|-------------|
 | 1 | Core Simulation | Implemented | Kanban board, workers, simulation engine, analytics |
 | 2 | Enhanced UX | Implemented | Undo/redo, notifications, auto-save, mobile layout |
-| 3 | Advanced Policies | Proposed | Multiple policies, comparison mode, templates |
+| 3 | Advanced Policies | Approved (active) | Multiple policies, comparison mode, templates |
 | 4 | Collaboration | Proposed | Shareable links, live collaboration, recordings |
 | 5 | Educational Features | Proposed | Tutorials, learning paths, challenges, instructor tools |
 
@@ -84,6 +84,6 @@ An interactive web-based Kanban simulation that models software development work
 - **Phase 1 PRD**: `docs/project/PRD/archived/PRD-phase1-core-simulation.md`
 - **Phase 2 PRD**: `docs/project/PRD/archived/PRD-phase2-enhanced-ux.md`
 - **Clean Architecture Refactoring PRD**: `docs/project/PRD/archived/PRD-refactoring-clean-architecture.md`
-- **Phase 3 PRD**: `docs/project/PRD/notstarted/PRD-phase3-advanced-policies.md`
+- **Phase 3 PRD**: `docs/project/PRD/active/PRD-phase3-advanced-policies.md`
 - **Phase 4 PRD**: `docs/project/PRD/notstarted/PRD-phase4-collaboration.md`
 - **Phase 5 PRD**: `docs/project/PRD/notstarted/PRD-phase5-educational-features.md`

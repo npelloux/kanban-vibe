@@ -57,14 +57,13 @@ The Clean Architecture refactoring is **complete** (M0-M9). The original monolit
 | M2-D2.1 | StageTransitionService.canTransition() | ✅ Complete | [#53](https://github.com/npelloux/kanban-vibe/pull/53) |
 | M2-D2.2 | StageTransitionService.nextStage() | ✅ Complete | [#55](https://github.com/npelloux/kanban-vibe/pull/55) |
 | M2-D2.3 | CardAgingService | ✅ Complete | |
-
-| **M3** | **WIP Limit Enforcement** | ✅ **Complete** | WIP limit logic extracted to domain services |
-| **M4** | **Worker Output Calculation** | ✅ **Complete** | Worker output logic with injectable randomness |
-| **M5** | **Application Use Cases** | ✅ **Complete** | Use cases orchestrating domain logic |
-| **M6** | **Infrastructure Adapters** | ✅ **Complete** | LocalStorage repository, JSON import/export |
-| **M7** | **React Hooks Integration** | ✅ **Complete** | Board context and custom hooks |
-| **M8** | **Component Refactoring** | ✅ **Complete** | App.tsx reduced to a composition root |
-| **M9** | **Integration Verification** | ✅ **Complete** | Smoke tests, CI coverage, documentation |
+| **M3** | **WIP Limit Enforcement** — WIP logic extracted to domain services | ✅ **Complete** | |
+| **M4** | **Worker Output Calculation** — injectable randomness | ✅ **Complete** | |
+| **M5** | **Application Use Cases** — orchestration of domain logic | ✅ **Complete** | |
+| **M6** | **Infrastructure Adapters** — LocalStorage repository, JSON import/export | ✅ **Complete** | |
+| **M7** | **React Hooks Integration** — board context and custom hooks | ✅ **Complete** | |
+| **M8** | **Component Refactoring** — App.tsx reduced to a composition root | ✅ **Complete** | |
+| **M9** | **Integration Verification** — smoke tests, CI coverage, documentation | ✅ **Complete** | |
 
 ## Future Development Phases
 
@@ -265,7 +264,7 @@ The architecture in place is described by **[PRD: Clean Architecture Refactoring
 ### 🎯 Current Priority Areas
 
 The refactoring backlog is closed. New work comes from the phase PRDs, the next one being
-[Phase 3 — Advanced Policies & Scenarios](docs/project/PRD/notstarted/PRD-phase3-advanced-policies.md).
+[Phase 3 — Advanced Policies & Scenarios](docs/project/PRD/active/PRD-phase3-advanced-policies.md).
 
 ### 📚 Essential Documentation
 
