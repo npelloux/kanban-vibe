@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PolicyRegistry } from '../simulation/domain/policy/policy-registry';
 import type { PolicyType } from '../simulation/domain/policy/policy-registry';
 
 interface PolicyRunnerProps {
@@ -38,15 +39,6 @@ export const PolicyRunner: React.FC<PolicyRunnerProps> = ({
   const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     setDaysToRun(isNaN(value) ? 10 : value);
-  };
-
-  const getPolicyDescription = (policy: PolicyType): string => {
-    switch (policy) {
-      case 'siloted-expert':
-        return 'Workers always work on cards in their own active color (producing 3-6 work items). Finished tasks move to the next column as soon as possible. Max WIP limits are respected at all times.';
-      default:
-        return '';
-    }
   };
 
   const renderProgressBar = () => {
@@ -115,7 +107,7 @@ export const PolicyRunner: React.FC<PolicyRunnerProps> = ({
                 Siloted Expert
               </label>
               <p className="policy-description">
-                {getPolicyDescription(selectedPolicy)}
+                {PolicyRegistry.get(selectedPolicy).description}
               </p>
             </div>
             

@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WipLimits } from '../domain/wip/wip-limits';
-import { runPolicyDay, type PolicyType } from './run-policy';
+import { runPolicyDay } from './run-policy';
 import type { Card as CardType } from '../domain/card/card';
 import { UnknownPolicyError } from '../domain/policy/unknown-policy-error';
+import type { Policy } from '../domain/policy/policy';
 import { createTestCard, createTestWorker, createValidCardId } from './test-fixtures';
 
 describe('RunPolicyUseCase', () => {
@@ -349,7 +350,7 @@ describe('RunPolicyUseCase policy delegation', () => {
 
   it('delegates worker assignment to the selected policy', () => {
     const assignedByPolicy: string[] = [];
-    const recordingPolicy = {
+    const recordingPolicy: Policy = {
       id: 'recording',
       name: 'Recording',
       description: 'Test double capturing the cards it receives',
@@ -372,7 +373,7 @@ describe('RunPolicyUseCase policy delegation', () => {
   });
 
   it('applies the assignment the policy returned', () => {
-    const assigningPolicy = {
+    const assigningPolicy: Policy = {
       id: 'assigning',
       name: 'Assigning',
       description: 'Test double assigning every worker to every card',
@@ -415,7 +416,8 @@ describe('RunPolicyUseCase policy delegation', () => {
   it('rejects an unknown policy id instead of falling back to siloted-expert', () => {
     expect(() =>
       runPolicyDay({
-        policyType: 'does-not-exist' as PolicyType,
+        // @ts-expect-error an unregistered policy id must not type-check
+        policyType: 'does-not-exist',
         cards: [],
         workers: [],
         currentDay: 0,

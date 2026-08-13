@@ -1,6 +1,7 @@
 import type { Card } from '../card/card';
 import { MAX_ASSIGNED_WORKERS } from '../card/card';
 import type { Worker } from '../worker/worker';
+import type { WorkerType } from '../worker/worker-type';
 import type { Policy } from './policy';
 
 function byAgeDescending(first: Card, second: Card): number {
@@ -87,7 +88,20 @@ function assignWorkersToCards(
 }
 
 const DESCRIPTION =
-  'Each worker only works on cards matching their own colour, oldest cards first.';
+  'Workers always work on cards in their own active color (producing 3-6 work items). ' +
+  'Finished tasks move to the next column as soon as possible. ' +
+  'Max WIP limits are respected at all times.';
+
+interface WorkLane {
+  readonly stage: Card['stage'];
+  readonly workerType: WorkerType;
+}
+
+const LANES: readonly WorkLane[] = [
+  { stage: 'red-active', workerType: 'red' },
+  { stage: 'blue-active', workerType: 'blue' },
+  { stage: 'green', workerType: 'green' },
+];
 
 export const SilotedExpertPolicy: Policy = {
   id: 'siloted-expert',
@@ -96,20 +110,19 @@ export const SilotedExpertPolicy: Policy = {
 
   assignWorkers(cards: readonly Card[], workers: readonly Worker[]): Card[] {
     const noWorkers: Card['assignedWorkers'] = [];
-    let updatedCards = cards.map((card) => ({ ...card, assignedWorkers: noWorkers }));
+    const unassignedCards = cards.map((card) => ({
+      ...card,
+      assignedWorkers: noWorkers,
+    }));
 
-    const redActiveCards = cardsInStage(updatedCards, 'red-active');
-    const blueActiveCards = cardsInStage(updatedCards, 'blue-active');
-    const greenCards = cardsInStage(updatedCards, 'green');
-
-    const redWorkers = workers.filter((worker) => worker.type === 'red');
-    const blueWorkers = workers.filter((worker) => worker.type === 'blue');
-    const greenWorkers = workers.filter((worker) => worker.type === 'green');
-
-    updatedCards = assignWorkersToCards(redWorkers, redActiveCards, updatedCards);
-    updatedCards = assignWorkersToCards(blueWorkers, blueActiveCards, updatedCards);
-    updatedCards = assignWorkersToCards(greenWorkers, greenCards, updatedCards);
-
-    return updatedCards;
+    return LANES.reduce(
+      (assignedCards, lane) =>
+        assignWorkersToCards(
+          workers.filter((worker) => worker.type === lane.workerType),
+          cardsInStage(assignedCards, lane.stage),
+          assignedCards
+        ),
+      unassignedCards
+    );
   },
 };
