@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ToastProvider, useToast } from './use-toast';
+import { ToastProvider } from './toast-provider';
+import { useToast } from './use-toast';
 import type { ReactNode } from 'react';
 
 const wrapper = ({ children }: { children: ReactNode }) => (

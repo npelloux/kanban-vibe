@@ -17,8 +17,7 @@ interface DraggedWorkerData {
   element: HTMLElement | null;
 }
 
-// Export for use in other components
-export const draggedWorkerData: DraggedWorkerData = {
+const draggedWorkerData: DraggedWorkerData = {
   id: '',
   type: 'red',
   element: null

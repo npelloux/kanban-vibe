@@ -9,7 +9,7 @@ import { WorkItems } from '../domain/card/work-items';
 import { Worker } from '../domain/worker/worker';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { StateRepository } from '../infra/state-repository';
-import { ToastProvider } from '../../api/use-toast';
+import { ToastProvider } from '../../api/toast-provider';
 import * as advanceDayModule from '../application/advance-day';
 import * as runPolicyModule from '../application/run-policy';
 import '@testing-library/jest-dom';

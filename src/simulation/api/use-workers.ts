@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useBoardContext } from './board-context';
+import { useBoardContext } from './use-board-context';
 import { Board } from '../domain/board/board';
 import { Worker } from '../domain/worker/worker';
 import type { WorkerType } from '../domain/worker/worker-type';

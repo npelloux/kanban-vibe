@@ -1,4 +1,4 @@
-import type { SaveStatus } from '../simulation/api/board-context';
+import type { SaveStatus } from '../simulation/api/board-contexts';
 import { formatRelativeTime } from './time-formatting/format-relative-time';
 
 export type { SaveStatus };

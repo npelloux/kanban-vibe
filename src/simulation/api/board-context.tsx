@@ -1,6 +1,4 @@
 import {
-  createContext,
-  useContext,
   useState,
   useCallback,
   useMemo,
@@ -16,37 +14,13 @@ import {
   HistoryManager,
   type HistoryManagerState,
 } from '../application/history-manager';
-
-interface BoardContextValue {
-  board: Board;
-  setBoard: (board: Board) => void;
-  updateBoard: (updater: (board: Board) => Board) => void;
-}
-
-interface HistoryContextValue {
-  historyManager: HistoryManagerState;
-  canUndo: boolean;
-  canRedo: boolean;
-  pushHistory: (action: string, state: Board) => void;
-  undo: () => void;
-  redo: () => void;
-}
-
-export type SaveStatus = 'saved' | 'saving' | 'dirty' | 'error';
-
-interface SaveStateContextValue {
-  saveStatus: SaveStatus;
-  lastSavedAt: Date | null;
-}
-
-interface ResetBoardContextValue {
-  resetBoard: () => void;
-}
-
-const BoardContext = createContext<BoardContextValue | null>(null);
-const HistoryContext = createContext<HistoryContextValue | null>(null);
-const SaveStateContext = createContext<SaveStateContextValue | null>(null);
-const ResetBoardContext = createContext<ResetBoardContextValue | null>(null);
+import {
+  BoardContext,
+  HistoryContext,
+  SaveStateContext,
+  ResetBoardContext,
+} from './board-contexts';
+import type { SaveStatus } from './board-contexts';
 
 export interface BoardProviderProps {
   children: ReactNode;
@@ -195,36 +169,4 @@ export function BoardProvider({ children }: BoardProviderProps) {
       </HistoryContext.Provider>
     </BoardContext.Provider>
   );
-}
-
-export function useBoardContext(): BoardContextValue {
-  const context = useContext(BoardContext);
-  if (!context) {
-    throw new Error('useBoardContext must be used within BoardProvider');
-  }
-  return context;
-}
-
-export function useHistoryContext(): HistoryContextValue {
-  const context = useContext(HistoryContext);
-  if (!context) {
-    throw new Error('useHistoryContext must be used within BoardProvider');
-  }
-  return context;
-}
-
-export function useSaveStateContext(): SaveStateContextValue {
-  const context = useContext(SaveStateContext);
-  if (!context) {
-    throw new Error('useSaveStateContext must be used within BoardProvider');
-  }
-  return context;
-}
-
-export function useResetBoardContext(): ResetBoardContextValue {
-  const context = useContext(ResetBoardContext);
-  if (!context) {
-    throw new Error('useResetBoardContext must be used within BoardProvider');
-  }
-  return context;
 }

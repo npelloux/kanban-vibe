@@ -9,7 +9,7 @@ import { WipLimits } from '../domain/wip/wip-limits';
 import { Worker } from '../domain/worker/worker';
 import { WorkItems } from '../domain/card/work-items';
 import { StateRepository } from '../infra/state-repository';
-import { ToastProvider } from '../../api/use-toast';
+import { ToastProvider } from '../../api/toast-provider';
 import '@testing-library/jest-dom';
 
 vi.mock('../infra/state-repository', () => ({

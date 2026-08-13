@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, act, renderHook } from '@testing-library/react';
+import { BoardProvider } from './board-context';
 import {
-  BoardProvider,
   useBoardContext,
   useHistoryContext,
   useSaveStateContext,
   useResetBoardContext,
-} from './board-context';
+} from './use-board-context';
 import { Board } from '../domain/board/board';
 import { WipLimits } from '../domain/wip/wip-limits';
 import { StateRepository } from '../infra/state-repository';

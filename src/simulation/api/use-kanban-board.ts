@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useBoardContext } from './board-context';
+import { useBoardContext } from './use-board-context';
 import { Board } from '../domain/board/board';
 import { Card, type Stage } from '../domain/card/card';
 import type { CardId } from '../domain/card/card-id';

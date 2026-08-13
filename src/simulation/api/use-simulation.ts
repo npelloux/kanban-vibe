@@ -1,5 +1,5 @@
 import { useCallback, useState, useRef } from 'react';
-import { useBoardContext } from './board-context';
+import { useBoardContext } from './use-board-context';
 import { Board } from '../domain/board/board';
 import type { Card } from '../domain/card/card';
 import { advanceDay as advanceDayUseCase } from '../application/advance-day';

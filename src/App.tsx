@@ -10,7 +10,8 @@ import { FlowMetrics } from './components/FlowMetrics';
 import { NavigationBar } from './components/NavigationBar';
 import { MobileNavigation } from './components/MobileNavigation';
 import type { TabType } from './components/TabNavigation';
-import { BoardProvider, useBoardContext, useHistoryContext, useSaveStateContext, useResetBoardContext } from './simulation/api/board-context';
+import { BoardProvider } from './simulation/api/board-context';
+import { useBoardContext, useHistoryContext, useSaveStateContext, useResetBoardContext } from './simulation/api/use-board-context';
 import { useHistory } from './simulation/api/use-history';
 import { useHistoricalTracking } from './simulation/api/use-historical-tracking';
 import { useKanbanBoard } from './simulation/api/use-kanban-board';
@@ -19,7 +20,7 @@ import { useWorkerManagement } from './simulation/api/use-workers';
 import type { Stage } from './simulation/domain/card/card';
 import type { CardId } from './simulation/domain/card/card-id';
 import { exportBoard, importBoard } from './simulation/infra/json-export';
-import { ToastProvider } from './api/use-toast';
+import { ToastProvider } from './api/toast-provider';
 
 function AppContent() {
   const { board, updateBoard } = useBoardContext();
