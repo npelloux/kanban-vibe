@@ -1,6 +1,6 @@
 # Phase 2: Enhanced User Experience - Tasks
 
-**PRD:** `docs/project/PRD/active/PRD-phase2-enhanced-ux.md`
+**PRD:** `docs/project/PRD/archived/PRD-phase2-enhanced-ux.md`
 
 ## Overview
 

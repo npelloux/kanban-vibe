@@ -31,7 +31,7 @@ The application is deployed at: [kanban-vibe.vercel.app](https://kanban-vibe.ver
 
 ## Clean Architecture Refactoring Status
 
-The project is currently undergoing a comprehensive Clean Architecture refactoring to improve maintainability, testability, and extensibility. The original monolithic structure is being replaced with a domain-driven design approach.
+The Clean Architecture refactoring is **complete** (M0-M9). The original monolithic structure has been replaced with a domain-driven design approach, improving maintainability, testability and extensibility.
 
 ### Completed Milestones
 
@@ -58,28 +58,19 @@ The project is currently undergoing a comprehensive Clean Architecture refactori
 | M2-D2.2 | StageTransitionService.nextStage() | ✅ Complete | [#55](https://github.com/npelloux/kanban-vibe/pull/55) |
 | M2-D2.3 | CardAgingService | ✅ Complete | |
 
-### In Progress
-
-| Milestone | Description | Status | Next Steps |
-|-----------|-------------|--------|------------|
-| **M3** | **WIP Limit Enforcement** | 📋 Planned | Extract WIP limit logic to domain services |
-| **M4** | **Worker Output Calculation** | 📋 Planned | Extract worker output logic with injectable randomness |
-| **M5** | **Application Use Cases** | 📋 Planned | Create use cases to orchestrate domain logic |
-
-### Future Milestones
-
-| Milestone | Description | Priority |
-|-----------|-------------|----------|
-| **M6** | **Infrastructure Adapters** | High - Required before UI refactoring |
-| **M7** | **React Hooks Integration** | High - Bridge domain to React |
-| **M8** | **Component Refactoring** | High - Remove business logic from components |
-| **M9** | **Integration Verification** | High - Full smoke testing |
+| **M3** | **WIP Limit Enforcement** | ✅ **Complete** | WIP limit logic extracted to domain services |
+| **M4** | **Worker Output Calculation** | ✅ **Complete** | Worker output logic with injectable randomness |
+| **M5** | **Application Use Cases** | ✅ **Complete** | Use cases orchestrating domain logic |
+| **M6** | **Infrastructure Adapters** | ✅ **Complete** | LocalStorage repository, JSON import/export |
+| **M7** | **React Hooks Integration** | ✅ **Complete** | Board context and custom hooks |
+| **M8** | **Component Refactoring** | ✅ **Complete** | App.tsx reduced to a composition root |
+| **M9** | **Integration Verification** | ✅ **Complete** | Smoke tests, CI coverage, documentation |
 
 ## Future Development Phases
 
-### Immediate Focus: Clean Architecture Foundation
+### Current State
 
-The primary focus is completing the Clean Architecture refactoring (M0-M9) to establish a solid foundation. This refactoring is **not adding new features** but extracting the existing business logic into a maintainable, testable structure.
+Phase 1 (Core Simulation), the Clean Architecture refactoring (M0-M9) and Phase 2 (Enhanced UX — undo/redo, notifications, auto-save, mobile layout) are all delivered. The next planned increment is **Phase 3 — Advanced Policies & Scenarios**.
 
 **Key Architectural Principles:**
 - **Domain-First Design**: Pure TypeScript domain layer with no framework dependencies
@@ -249,9 +240,9 @@ npm run test:serve   # Serve Allure report
 
 ## Understanding the Design & Contributing
 
-### 📋 Active PRD: Clean Architecture Refactoring
+### 📋 Reference PRD: Clean Architecture Refactoring
 
-The current development work is guided by **[PRD: Clean Architecture Refactoring](docs/project/PRD/active/PRD-refactoring-clean-architecture.md)**, which contains:
+The architecture in place is described by **[PRD: Clean Architecture Refactoring](docs/project/PRD/archived/PRD-refactoring-clean-architecture.md)** (delivered, kept as reference), which contains:
 
 - **Complete milestone breakdown** (M0-M9) with specific deliverables
 - **Domain rules extracted from existing code** (stage transitions, worker output, WIP limits)
@@ -261,7 +252,7 @@ The current development work is guided by **[PRD: Clean Architecture Refactoring
 
 ### 🗺️ How to Contribute Your Way
 
-1. **Start with the PRD**: Read the [Clean Architecture PRD](docs/project/PRD/active/PRD-refactoring-clean-architecture.md) to understand the current milestone progress and upcoming tasks.
+1. **Start with the PRD**: Read the [Clean Architecture PRD](docs/project/PRD/archived/PRD-refactoring-clean-architecture.md) to understand the layering the codebase follows.
 
 2. **Understand Domain Rules**: The PRD Appendix A documents all current business rules extracted from App.tsx. These are the "golden rules" that must be preserved during refactoring.
 
@@ -273,18 +264,14 @@ The current development work is guided by **[PRD: Clean Architecture Refactoring
 
 ### 🎯 Current Priority Areas
 
-| Area | Status | Next Actions |
-|------|--------|--------------|
-| **Domain Services** | M2 Complete, M3-M4 Needed | Extract WIP enforcement, worker output calculation |
-| **Use Cases** | M5 Planned | Create AdvanceDayUseCase, MoveCardUseCase, AssignWorkerUseCase |
-| **Infrastructure** | M6 Planned | LocalStorage, JSON import/export with backward compatibility |
-| **React Integration** | M7-M8 Planned | Custom hooks, component refactoring |
+The refactoring backlog is closed. New work comes from the phase PRDs, the next one being
+[Phase 3 — Advanced Policies & Scenarios](docs/project/PRD/notstarted/PRD-phase3-advanced-policies.md).
 
 ### 📚 Essential Documentation
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
-| **[Clean Architecture PRD](docs/project/PRD/active/PRD-refactoring-clean-architecture.md)** | **Primary reference** | **Always start here** |
+| **[Clean Architecture PRD](docs/project/PRD/archived/PRD-refactoring-clean-architecture.md)** | **Primary reference** | **Always start here** |
 | [Software Design Conventions](docs/conventions/software-design.md) | Design principles & patterns | Before writing domain code |
 | [Testing Conventions](docs/conventions/testing.md) | How to write tests | Before writing any tests |
 | [Product Vision](docs/product-vision-jtbd.md) | Jobs-to-be-Done analysis | Understanding user needs |

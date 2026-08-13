@@ -1,8 +1,12 @@
 # PRD: Phase 2 — Enhanced User Experience
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Depends on:** Phase 1 (Core Simulation) — Implemented
+
+**Note:** Tous les livrables sont implémentés à l'exception de D2.4
+(visualisation de l'historique), qui était identifié comme *stretch* et n'a
+pas été retenu. Suivi via les issues #73 à #87.
 
 ---
 
@@ -92,7 +96,7 @@ Enhance the user experience with:
   - Acceptance: Redo re-applies undone action
   - Verification: Undo, redo, verify state restored
 
-- **D2.4:** History visualization (stretch)
+- **D2.4:** History visualization (stretch — non implémenté)
   - Side panel showing action history
   - Click to jump to any point
   - Acceptance: Users can see and navigate history
