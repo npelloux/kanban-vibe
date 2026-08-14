@@ -8,20 +8,15 @@ import {
 } from '../worker/worker-output';
 import type { Policy } from './policy';
 import { fillCardsInOrder, withoutAssignments } from './worker-sharing';
+import {
+  ACTIVE_STAGES_IN_PIPELINE_ORDER,
+  isWorkableCard,
+  type ActiveStage,
+} from './active-card';
 
 const DESCRIPTION =
   'All workers pile onto the constraint: the active stage holding the most cards, ' +
   'oldest on average when stages are tied. Surplus workers spill downstream.';
-
-const ACTIVE_STAGES_IN_PIPELINE_ORDER: readonly Card['stage'][] = [
-  'red-active',
-  'blue-active',
-  'green',
-];
-
-function isWorkable(card: Card, stage: Card['stage']): boolean {
-  return card.stage === stage && !card.isBlocked;
-}
 
 function averageAgeOf(cards: readonly Card[]): number {
   if (cards.length === 0) {
@@ -35,7 +30,7 @@ function byAgeDescending(first: Card, second: Card): number {
 }
 
 interface StageQueue {
-  readonly stage: Card['stage'];
+  readonly stage: ActiveStage;
   readonly cards: readonly Card[];
 }
 
@@ -49,7 +44,7 @@ function isMoreConstrainedThan(candidate: StageQueue, incumbent: StageQueue): bo
 function stageQueuesConstraintFirst(cards: readonly Card[]): StageQueue[] {
   const queues = ACTIVE_STAGES_IN_PIPELINE_ORDER.map((stage) => ({
     stage,
-    cards: cards.filter((card) => isWorkable(card, stage)).sort(byAgeDescending),
+    cards: cards.filter(isWorkableCard).filter((card) => card.stage === stage).sort(byAgeDescending),
   })).filter((queue) => queue.cards.length > 0);
 
   if (queues.length === 0) {
@@ -80,5 +75,9 @@ export const BottleneckFirstPolicy: Policy = {
 
   outputRangeFor(workerType: WorkerType, columnColor: ColumnColor): OutputRange {
     return WorkerOutputCalculator.getOutputRange(workerType, columnColor);
+  },
+
+  allowsPullFromOptions(): boolean {
+    return true;
   },
 };

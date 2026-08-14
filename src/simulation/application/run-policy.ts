@@ -258,11 +258,9 @@ export function runPolicyDay(input: RunPolicyInput): RunPolicyResult {
   const policy = resolvePolicy(input);
   const newDay = currentDay + 1;
 
-  const cardsAfterOptionsMove = moveOptionsToRedActive(
-    [...cards],
-    currentDay,
-    wipLimits
-  );
+  const cardsAfterOptionsMove = policy.allowsPullFromOptions(cards)
+    ? moveOptionsToRedActive([...cards], currentDay, wipLimits)
+    : [...cards];
 
   const cardsAfterFinishedMove = moveFinishedToNextActivity(
     cardsAfterOptionsMove,
