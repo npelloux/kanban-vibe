@@ -12,7 +12,7 @@ Kanban Vibe makes Lean software development principles tangible and actionable b
 
 ## Live Demo
 
-The application is deployed at: [kanban-vibe.vercel.app](https://kanban-vibe.vercel.app)
+The application is deployed at: [kanban.aelworks.fr](https://kanban.aelworks.fr) (mirror: [kanban-vibe.vercel.app](https://kanban-vibe.vercel.app))
 
 ## Features
 
