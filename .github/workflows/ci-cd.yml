@@ -62,20 +62,3 @@ jobs:
           tags: |
             ghcr.io/npelloux/kanban-vibe:latest
             ghcr.io/npelloux/kanban-vibe:${{ github.sha }}
-
-  deploy-vercel:
-    needs: build-and-test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Vercel pull
-        run: npx vercel@39 pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Vercel build
-        run: npx vercel@39 build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Vercel deploy
-        run: npx vercel@39 deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

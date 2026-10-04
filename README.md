@@ -12,7 +12,7 @@ Kanban Vibe makes Lean software development principles tangible and actionable b
 
 ## Live Demo
 
-The application is deployed at: [kanban.aelworks.fr](https://kanban.aelworks.fr) (mirror: [kanban-vibe.vercel.app](https://kanban-vibe.vercel.app))
+The application is deployed at: [kanban.aelworks.fr](https://kanban.aelworks.fr), served by the aelworks server from the Docker image `ghcr.io/npelloux/kanban-vibe` built by the CI/CD pipeline.
 
 ## Features
 
@@ -205,7 +205,7 @@ src/simulation/
 - **Vitest** 3.1 with **React Testing Library** (testing)
 - **Allure** (living documentation from tests)
 - **ESLint** 9.25 (code quality)
-- **Vercel** (deployment)
+- **Docker image** (nginx) built by GitHub Actions and served on the aelworks server
 
 ## Getting Started
 

@@ -12,8 +12,7 @@
     "test:report": "vitest run && npx allure-commandline generate allure-results -o allure-report --clean",
     "test:serve": "npx allure-commandline serve allure-results",
     "report:open": "npx allure-commandline open allure-report",
-    "preview": "vite preview",
-    "deploy": "npm install --global vercel@latest && vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} && vercel deploy --prebuilt"
+    "preview": "vite preview"
   },
   "dependencies": {
     "chart.js": "^4.4.9",

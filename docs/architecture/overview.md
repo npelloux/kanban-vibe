@@ -85,4 +85,4 @@ For detailed definitions and examples, see the [contextive glossary](domain-term
 - **Testing:** Vitest with Testing Library
 - **Styling:** CSS with component-scoped classes
 - **State:** React Context + custom hooks
-- **CI/CD:** GitHub Actions, Vercel deployment, SonarCloud analysis
+- **CI/CD:** GitHub Actions, Docker image served on the aelworks server, SonarCloud analysis
