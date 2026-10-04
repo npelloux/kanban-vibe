@@ -3,6 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -35,6 +37,31 @@ jobs:
         with:
           name: build-files
           path: ./dist
+
+  # Image servie sur le serveur aelworks (kanban.aelworks.fr). Construite sur
+  # chaque PR pour la vérifier, publiée seulement depuis main.
+  image:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/npelloux/kanban-vibe:latest
+            ghcr.io/npelloux/kanban-vibe:${{ github.sha }}
 
   deploy-vercel:
     needs: build-and-test
